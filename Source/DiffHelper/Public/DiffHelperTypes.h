@@ -34,3 +34,15 @@ struct FDiffHelperCommit
 	UPROPERTY(BlueprintReadOnly)
 	FDateTime Date;
 };
+
+USTRUCT(BlueprintType)
+struct FDiffHelperDiffItem
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	TWeakObjectPtr<UObject> Asset;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FDiffHelperCommit> Commits;
+};
