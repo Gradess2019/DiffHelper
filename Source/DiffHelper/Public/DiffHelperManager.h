@@ -1,0 +1,32 @@
+﻿// Copyright 2023 Gradess Games. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+#include "DiffHelperManager.generated.h"
+
+struct FDiffHelperBranch;
+UINTERFACE()
+class UDiffHelperManager : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class DIFFHELPER_API IDiffHelperManager
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
+	virtual FDiffHelperBranch GetCurrentBranch() const = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
+	virtual TArray<FDiffHelperBranch> GetBranches() const = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
+	virtual TArray<FDiffHelperDiffItem> GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const = 0;
+	
+	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
+	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FDiffHelperBranch& InSourceBranch, const FDiffHelperBranch& InTargetBranch) const = 0;
+};
