@@ -16,3 +16,21 @@ struct FDiffHelperBranch
 	UPROPERTY(BlueprintReadOnly)
 	FString Revision;
 };
+
+USTRUCT(BlueprintType)
+struct FDiffHelperCommit
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Revision;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Message;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Author;
+
+	UPROPERTY(BlueprintReadOnly)
+	FDateTime Date;
+};
