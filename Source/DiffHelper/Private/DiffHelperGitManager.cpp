@@ -3,6 +3,7 @@
 
 #include "DiffHelperGitManager.h"
 
+#include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
 #include "ISourceControlModule.h"
 #include "ISourceControlProvider.h"
@@ -18,7 +19,7 @@ bool UDiffHelperGitManager::Init()
 {
 	AddToRoot();
 	LoadGitBinaryPath();
-	
+
 	return !GitBinaryPath.IsEmpty();
 }
 
@@ -33,7 +34,7 @@ FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 	const auto Status = Provider.GetStatus();
 	if (Status.Contains(ISourceControlProvider::EStatus::Branch))
 	{
-		return FDiffHelperBranch{ Status[ISourceControlProvider::EStatus::Branch] };
+		return FDiffHelperBranch{Status[ISourceControlProvider::EStatus::Branch]};
 	}
 
 	ensureMsgf(false, TEXT("Failed to get current branch"));
@@ -50,11 +51,15 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 	{
 		UE_LOG(LogSourceControl, Error, TEXT("Failed to get repository root!"));
 	}
-	
+
+	TArray<FString> Params;
+	Params.Add(TEXT("-v"));
+	Params.Add(TEXT("--sort=committerdate"));
+
 	FString Results;
 	FString Errors;
-	
-	const auto Result = ExecuteCommand(TEXT("branch"), {}, {}, Results, Errors);
+
+	const auto Result = ExecuteCommand(TEXT("branch"), Params, {}, Results, Errors);
 	if (!Result)
 	{
 		UE_LOG(LogSourceControl, Error, TEXT("Failed to get branches: %s"), *Errors);
@@ -78,7 +83,7 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FDiffH
 void UDiffHelperGitManager::LoadGitBinaryPath()
 {
 	FScopeLock ScopeLock(&CriticalSection);
-	
+
 	static const FString SettingsSection = TEXT("GitSourceControl.GitSourceControlSettings");
 	const auto& IniFile = SourceControlHelpers::GetSettingsIni();
 	GConfig->GetString(*SettingsSection, TEXT("BinaryPath"), GitBinaryPath, IniFile);
@@ -94,32 +99,36 @@ TOptional<FString> UDiffHelperGitManager::GetRepositoryDirectory() const
 bool UDiffHelperGitManager::ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const
 {
 	const auto RepositoryRoot = GetRepositoryDirectory().GetValue();
-	
+
 	int32 ReturnCode = -1;
 	FString FullCommand = InCommand;
 
-	for(const auto& Parameter : InParameters)
+	for (const auto& Parameter : InParameters)
 	{
 		FullCommand += TEXT(" ");
 		FullCommand += Parameter;
 	}
 
-	FPlatformProcess::ExecProcess(*GitBinaryPath, *InCommand, &ReturnCode, &OutResults, &OutErrors, *RepositoryRoot);
-	
+	FPlatformProcess::ExecProcess(*GitBinaryPath, *FullCommand, &ReturnCode, &OutResults, &OutErrors, *RepositoryRoot);
+
 	return ReturnCode == 0;
 }
 
 TArray<FDiffHelperBranch> UDiffHelperGitManager::ParseBranches(const FString& InBranches) const
 {
+	const auto* DiffHelperSettings = GetDefault<UDiffHelperSettings>();
+	const auto Pattern = FRegexPattern(DiffHelperSettings->BranchParserPattern);
+	auto Matcher = FRegexMatcher(Pattern, InBranches);
+
 	TArray<FDiffHelperBranch> Branches;
-	TArray<FString> Lines;
-	InBranches.ParseIntoArrayLines(Lines);
-	
-	for (const auto& Line : Lines)
+	while (Matcher.FindNext())
 	{
-		Branches.Emplace(Line.RightChop(2));
+		const auto BranchName = Matcher.GetCaptureGroup(DiffHelperSettings->BranchNameGroup);
+		const auto BranchRevision = Matcher.GetCaptureGroup(DiffHelperSettings->BranchRevisionGroup);
+
+		Branches.Emplace(BranchName, BranchRevision);
 	}
-	
+
 	return Branches;
 }
 
