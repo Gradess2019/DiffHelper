@@ -3,7 +3,8 @@
 #include "DiffHelper.h"
 #include "DiffHelperStyle.h"
 #include "DiffHelperCommands.h"
-#include "Misc/MessageDialog.h"
+#include "DiffHelperGitManager.h"
+#include "DiffHelperTypes.h"
 #include "ToolMenus.h"
 
 static const FName DiffHelperTabName("DiffHelper");
@@ -13,12 +14,15 @@ static const FName DiffHelperTabName("DiffHelper");
 void FDiffHelperModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	
+
 	FDiffHelperStyle::Initialize();
 	FDiffHelperStyle::ReloadTextures();
 
+	DiffHelperManager = NewObject<UDiffHelperGitManager>();
+	DiffHelperManager->Init();
+
 	FDiffHelperCommands::Register();
-	
+
 	PluginCommands = MakeShareable(new FUICommandList);
 
 	PluginCommands->MapAction(
@@ -31,8 +35,10 @@ void FDiffHelperModule::StartupModule()
 
 void FDiffHelperModule::ShutdownModule()
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
+	if (DiffHelperManager)
+	{
+		DiffHelperManager->Deinit();
+	}
 
 	UToolMenus::UnRegisterStartupCallback(this);
 
@@ -45,13 +51,7 @@ void FDiffHelperModule::ShutdownModule()
 
 void FDiffHelperModule::PluginButtonClicked()
 {
-	// Put your "OnButtonClicked" stuff here
-	FText DialogText = FText::Format(
-							LOCTEXT("PluginButtonDialogText", "Add code to {0} in {1} to override this button's actions"),
-							FText::FromString(TEXT("FDiffHelperModule::PluginButtonClicked()")),
-							FText::FromString(TEXT("DiffHelper.cpp"))
-					   );
-	FMessageDialog::Open(EAppMsgType::Ok, DialogText);
+	const auto Branches = DiffHelperManager->GetCurrentBranch();
 }
 
 void FDiffHelperModule::RegisterMenus()
@@ -80,5 +80,5 @@ void FDiffHelperModule::RegisterMenus()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FDiffHelperModule, DiffHelper)

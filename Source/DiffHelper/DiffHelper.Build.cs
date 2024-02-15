@@ -26,6 +26,7 @@ public class DiffHelper : ModuleRules
 			new string[]
 			{
 				"Core",
+				"SourceControl"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -42,7 +43,8 @@ public class DiffHelper : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore",
+				"SlateCore", 
+				"EditorScriptingUtilities",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -5,16 +5,40 @@
 #include "CoreMinimal.h"
 #include "DiffHelperTypes.generated.h"
 
+UENUM()
+enum class EDiffHelperFileStatus : uint8
+{
+	None,
+	Added,
+	Modified,
+	Deleted,
+	Renamed,
+	Copied,
+	Unmerged
+};
+
 USTRUCT(BlueprintType)
 struct FDiffHelperBranch
 {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	FString BranchName;
+	FString Name;
 
 	UPROPERTY(BlueprintReadOnly)
 	FString Revision;
+};
+
+USTRUCT(BlueprintType)
+struct FDiffHelperFileData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Path;
+
+	UPROPERTY(BlueprintReadOnly)
+	EDiffHelperFileStatus Status = EDiffHelperFileStatus::None;
 };
 
 USTRUCT(BlueprintType)
@@ -35,7 +59,7 @@ struct FDiffHelperCommit
 	FDateTime Date;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FString> Files;
+	TArray<FDiffHelperFileData> Files;
 };
 
 USTRUCT(BlueprintType)
@@ -44,7 +68,10 @@ struct FDiffHelperDiffItem
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	TSoftObjectPtr<UObject> Asset;
+	FString Path;
+
+	UPROPERTY(BlueprintReadOnly)
+	FAssetData AssetData;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperCommit> Commits;
