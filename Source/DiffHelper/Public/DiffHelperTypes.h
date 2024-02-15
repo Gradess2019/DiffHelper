@@ -68,7 +68,10 @@ struct FDiffHelperDiffItem
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	TSoftObjectPtr<UObject> Asset;
+	FString Path;
+
+	UPROPERTY(BlueprintReadOnly)
+	FAssetData AssetData;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperCommit> Commits;

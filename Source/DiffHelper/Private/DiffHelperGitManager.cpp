@@ -2,17 +2,14 @@
 
 
 #include "DiffHelperGitManager.h"
-
 #include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
+#include "EditorAssetLibrary.h"
 #include "ISourceControlModule.h"
 #include "ISourceControlProvider.h"
 #include "SourceControlHelpers.h"
 #include "SourceControlOperations.h"
 
-#include "Misc/ScopedSlowTask.h"
-
-// define localization namespace
 #define LOCTEXT_NAMESPACE "DiffHelperGitManager"
 
 bool UDiffHelperGitManager::Init()
@@ -59,9 +56,6 @@ FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 
 TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 {
-	FScopedSlowTask SlowTask(1.f, LOCTEXT("GetBranches", "Obtaining branches..."));
-	SlowTask.MakeDialogDelayed(1.f);
-
 	const auto& RepositoryRoot = GetRepositoryDirectory();
 	if (!RepositoryRoot.IsSet())
 	{
@@ -88,7 +82,47 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 
 TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const
 {
-	return {};
+	const auto Commits = GetDiffCommitsList(InSourceRevision, InTargetRevision);
+
+	TMap<FString, TArray<FDiffHelperCommit>> ChangedFiles;
+	for (const auto& Commit : Commits)
+	{
+		for (const auto& File : Commit.Files)
+		{
+			if (!ChangedFiles.Contains(File.Path))
+			{
+				ChangedFiles.Add(File.Path, TArray<FDiffHelperCommit>());
+			}
+
+			ChangedFiles[File.Path].Add(Commit);
+		}
+	}
+
+	TArray<FDiffHelperDiffItem> DiffItems;
+	for (const auto& Pair : ChangedFiles)
+	{
+		FDiffHelperDiffItem DiffItem;
+		DiffItem.Path = Pair.Key;
+
+		const auto RelativePath = FPaths::Combine(FPaths::ProjectDir(), DiffItem.Path);
+		if (FPaths::IsUnderDirectory(RelativePath, FPaths::ProjectContentDir()))
+		{
+			FString PackageName;
+			if (FPackageName::TryConvertFilenameToLongPackageName(RelativePath, PackageName))
+			{
+				const auto AssetData = UEditorAssetLibrary::FindAssetData(PackageName);
+				if (AssetData.IsValid())
+				{
+					DiffItem.AssetData = AssetData;
+				}
+			}
+		}
+
+		DiffItem.Commits = Pair.Value;
+		DiffItems.Add(DiffItem);
+	}
+
+	return DiffItems;
 }
 
 TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const
