@@ -7,7 +7,7 @@
 #include "DiffHelperManager.generated.h"
 
 struct FDiffHelperBranch;
-UINTERFACE()
+UINTERFACE(NotBlueprintable)
 class UDiffHelperManager : public UInterface
 {
 	GENERATED_BODY()
@@ -18,6 +18,9 @@ class DIFFHELPER_API IDiffHelperManager
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
+	virtual bool Init() = 0;
+	
 	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
 	virtual FDiffHelperBranch GetCurrentBranch() const = 0;
 

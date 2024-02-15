@@ -26,6 +26,7 @@ public class DiffHelper : ModuleRules
 			new string[]
 			{
 				"Core",
+				"SourceControl"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
