@@ -23,6 +23,9 @@ public:
 #pragma region IDiffHelperManager
 	UFUNCTION()
 	virtual bool Init() override;
+
+	UFUNCTION()
+	virtual void Deinit() override;
 	
 	UFUNCTION()
 	virtual FDiffHelperBranch GetCurrentBranch() const override;
@@ -41,6 +44,9 @@ protected:
 	UFUNCTION()
 	void LoadGitBinaryPath();
 
-	UFUNCTION()
-	bool ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors);
+	TOptional<FString> GetRepositoryDirectory() const;
+
+	bool ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const;
+
+	TArray<FDiffHelperBranch> ParseBranches(const FString& InBranches) const;
 };

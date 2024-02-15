@@ -20,6 +20,9 @@ class DIFFHELPER_API IDiffHelperManager
 public:
 	UFUNCTION()
 	virtual bool Init() = 0;
+
+	UFUNCTION()
+	virtual void Deinit() = 0;
 	
 	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
 	virtual FDiffHelperBranch GetCurrentBranch() const = 0;

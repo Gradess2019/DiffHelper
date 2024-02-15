@@ -5,11 +5,15 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class IDiffHelperManager;
 class FToolBarBuilder;
 class FMenuBuilder;
 
 class FDiffHelperModule : public IModuleInterface
 {
+protected:
+	IDiffHelperManager* DiffHelperManager = nullptr;
+	
 public:
 
 	/** IModuleInterface implementation */

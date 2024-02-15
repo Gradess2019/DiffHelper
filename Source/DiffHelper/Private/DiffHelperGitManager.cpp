@@ -11,11 +11,20 @@
 
 #include "Misc/ScopedSlowTask.h"
 
+// define localization namespace
+#define LOCTEXT_NAMESPACE "DiffHelperGitManager"
+
 bool UDiffHelperGitManager::Init()
 {
+	AddToRoot();
 	LoadGitBinaryPath();
 	
 	return !GitBinaryPath.IsEmpty();
+}
+
+void UDiffHelperGitManager::Deinit()
+{
+	RemoveFromRoot();
 }
 
 FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
@@ -33,20 +42,27 @@ FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 
 TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 {
-	FScopedSlowTask SlowTask(1.f, NSLOCTEXT("DiffHelper", "GetBranches", "Obtaining branches..."));
+	FScopedSlowTask SlowTask(1.f, LOCTEXT("GetBranches", "Obtaining branches..."));
+	SlowTask.MakeDialogDelayed(1.f);
 
-	const auto& Provider = ISourceControlModule::Get().GetProvider();
-	const auto Status = Provider.GetStatus();
-
-	if (!ensureMsgf(Status.Contains(ISourceControlProvider::EStatus::Repository), TEXT("Failed to get repository location")))
+	const auto& RepositoryRoot = GetRepositoryDirectory();
+	if (!RepositoryRoot.IsSet())
 	{
-		return {};
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get repository root!"));
 	}
 	
-	const auto& RepositoryRoot = Status[ISourceControlProvider::EStatus::Repository];
+	FString Results;
+	FString Errors;
 	
-	
-	return {};
+	const auto Result = ExecuteCommand(TEXT("branch"), {}, {}, Results, Errors);
+	if (!Result)
+	{
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get branches: %s"), *Errors);
+		return {};
+	}
+
+	const auto Branches = ParseBranches(Results);
+	return Branches;
 }
 
 TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const
@@ -68,8 +84,43 @@ void UDiffHelperGitManager::LoadGitBinaryPath()
 	GConfig->GetString(*SettingsSection, TEXT("BinaryPath"), GitBinaryPath, IniFile);
 }
 
-bool UDiffHelperGitManager::ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors)
+TOptional<FString> UDiffHelperGitManager::GetRepositoryDirectory() const
 {
-	
-	return false;
+	const auto& Provider = ISourceControlModule::Get().GetProvider();
+	const auto Status = Provider.GetStatus();
+	return Status.Contains(ISourceControlProvider::EStatus::Repository) ? TOptional<FString>(Status[ISourceControlProvider::EStatus::Repository]) : TOptional<FString>();
 }
+
+bool UDiffHelperGitManager::ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const
+{
+	const auto RepositoryRoot = GetRepositoryDirectory().GetValue();
+	
+	int32 ReturnCode = -1;
+	FString FullCommand = InCommand;
+
+	for(const auto& Parameter : InParameters)
+	{
+		FullCommand += TEXT(" ");
+		FullCommand += Parameter;
+	}
+
+	FPlatformProcess::ExecProcess(*GitBinaryPath, *InCommand, &ReturnCode, &OutResults, &OutErrors, *RepositoryRoot);
+	
+	return ReturnCode == 0;
+}
+
+TArray<FDiffHelperBranch> UDiffHelperGitManager::ParseBranches(const FString& InBranches) const
+{
+	TArray<FDiffHelperBranch> Branches;
+	TArray<FString> Lines;
+	InBranches.ParseIntoArrayLines(Lines);
+	
+	for (const auto& Line : Lines)
+	{
+		Branches.Emplace(Line.RightChop(2));
+	}
+	
+	return Branches;
+}
+
+#undef LOCTEXT_NAMESPACE
