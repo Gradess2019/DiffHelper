@@ -30,15 +30,31 @@ void UDiffHelperGitManager::Deinit()
 
 FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 {
-	const auto& Provider = ISourceControlModule::Get().GetProvider();
-	const auto Status = Provider.GetStatus();
-	if (Status.Contains(ISourceControlProvider::EStatus::Branch))
+	FDiffHelperBranch CurrentBranch;
+
+	FString Command = TEXT("rev-parse --abbrev-ref HEAD");
+	FString Results;
+	FString Errors;
+	
+	if (!ExecuteCommand(Command, {}, {}, Results, Errors))
 	{
-		return FDiffHelperBranch{Status[ISourceControlProvider::EStatus::Branch]};
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get current branch: %s"), *Errors);
+		return {};
+	}
+	
+	CurrentBranch.Name = Results.TrimStartAndEnd();
+	Results.Empty();
+
+	Command = TEXT("rev-parse --short HEAD");
+	if (!ExecuteCommand(Command, {}, {}, Results, Errors))
+	{
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get current branch revision: %s"), *Errors);
+		return {};
 	}
 
-	ensureMsgf(false, TEXT("Failed to get current branch"));
-	return {};
+	CurrentBranch.Revision = Results.TrimStartAndEnd();
+
+	return CurrentBranch;
 }
 
 TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const

@@ -11,7 +11,7 @@ struct FDiffHelperBranch
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	FString BranchName;
+	FString Name;
 
 	UPROPERTY(BlueprintReadOnly)
 	FString Revision;

@@ -4,8 +4,7 @@
 #include "DiffHelperStyle.h"
 #include "DiffHelperCommands.h"
 #include "DiffHelperGitManager.h"
-
-#include "Misc/MessageDialog.h"
+#include "DiffHelperTypes.h"
 #include "ToolMenus.h"
 
 static const FName DiffHelperTabName("DiffHelper");
@@ -52,7 +51,7 @@ void FDiffHelperModule::ShutdownModule()
 
 void FDiffHelperModule::PluginButtonClicked()
 {
-	const auto Branches = DiffHelperManager->GetBranches();
+	const auto Branches = DiffHelperManager->GetCurrentBranch();
 }
 
 void FDiffHelperModule::RegisterMenus()
