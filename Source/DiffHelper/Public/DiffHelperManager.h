@@ -34,5 +34,5 @@ public:
 	virtual TArray<FDiffHelperDiffItem> GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const = 0;
 	
 	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
-	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FDiffHelperBranch& InSourceBranch, const FDiffHelperBranch& InTargetBranch) const = 0;
+	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const = 0;
 };

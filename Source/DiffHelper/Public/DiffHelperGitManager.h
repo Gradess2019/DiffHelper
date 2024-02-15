@@ -5,6 +5,7 @@
 #include <CoreMinimal.h>
 #include <UObject/Object.h>
 #include "DiffHelperManager.h"
+#include "DiffHelperTypes.h"
 #include "ISourceControlProvider.h"
 #include "DiffHelperGitManager.generated.h"
 
@@ -37,7 +38,7 @@ public:
 	virtual TArray<FDiffHelperDiffItem> GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const override;
 	
 	UFUNCTION()
-	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FDiffHelperBranch& InSourceBranch, const FDiffHelperBranch& InTargetBranch) const override;
+	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const override;
 #pragma endregion IDiffHelperManager
 
 protected:
@@ -48,5 +49,14 @@ protected:
 
 	bool ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const;
 
+	
+	TOptional<FString> GetForkPoint(const FDiffHelperBranch& InSourceBranch, const FDiffHelperBranch& InTargetBranch) const;
+
 	TArray<FDiffHelperBranch> ParseBranches(const FString& InBranches) const;
+	TArray<FDiffHelperCommit> ParseCommits(const FString& InCommits) const;
+	FDateTime ParseDate(const FString& InDate) const;
+	TArray<FDiffHelperFileData> ParseChangedFiles(const FString& InFiles) const;
+
+	EDiffHelperFileStatus ConvertFileStatus(const FString& InStatus) const;
+	
 };
