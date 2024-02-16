@@ -7,6 +7,8 @@
 #include "DiffHelperTypes.h"
 #include "ToolMenus.h"
 
+#include "UI/DiffHelperWindow.h"
+
 static const FName DiffHelperTabName("DiffHelper");
 
 #define LOCTEXT_NAMESPACE "FDiffHelperModule"
@@ -35,6 +37,7 @@ void FDiffHelperModule::StartupModule()
 
 void FDiffHelperModule::ShutdownModule()
 {
+	// TODO: crash on shutdown
 	if (DiffHelperManager)
 	{
 		DiffHelperManager->Deinit();
@@ -51,7 +54,8 @@ void FDiffHelperModule::ShutdownModule()
 
 void FDiffHelperModule::PluginButtonClicked()
 {
-	const auto Branches = DiffHelperManager->GetCurrentBranch();
+	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
+	FSlateApplication::Get().AddWindow(DiffHelperWindow.ToSharedRef());
 }
 
 void FDiffHelperModule::RegisterMenus()
