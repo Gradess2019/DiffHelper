@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class SDiffHelperWindow;
 class IDiffHelperManager;
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -13,6 +14,7 @@ class FDiffHelperModule : public IModuleInterface
 {
 protected:
 	IDiffHelperManager* DiffHelperManager = nullptr;
+	TSharedPtr<SDiffHelperWindow> DiffHelperWindow;
 	
 public:
 
