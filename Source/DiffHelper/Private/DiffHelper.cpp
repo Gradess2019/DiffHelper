@@ -7,7 +7,7 @@
 #include "DiffHelperTypes.h"
 #include "ToolMenus.h"
 
-#include "UI/DiffHelperWindow.h"
+#include "UI/SDiffHelperWindow.h"
 
 static const FName DiffHelperTabName("DiffHelper");
 

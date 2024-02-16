@@ -1,9 +1,12 @@
 ﻿// Copyright 2024 Gradess Games. All Rights Reserved.
 
 
-#include "UI/DiffHelperWindow.h"
+#include "UI/SDiffHelperWindow.h"
 
 #include "SlateOptMacros.h"
+#include "SSearchableComboBox.h"
+
+#include "UI/SDiffHelperBranchPicker.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -23,13 +26,11 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
 				[
-					SNew(SButton)
-					.Text(LOCTEXT("DiffHelperButton", "Diff1"))
+					SNew(SDiffHelperBranchPicker)
 				]
 				+ SVerticalBox::Slot()
 				[
-					SNew(SButton)
-					.Text(LOCTEXT("DiffHelperButton", "Diff2"))
+					SNew(SDiffHelperBranchPicker)
 				]
 			]
 		]);
