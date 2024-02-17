@@ -6,6 +6,8 @@
 #include "DiffHelperTypes.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
+DECLARE_DELEGATE(FDiffHelperEvent)
+
 DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
 
 UENUM()
@@ -34,6 +36,8 @@ struct FDiffHelperBranch
 	operator FString() const { return Name; }
 
 	FORCEINLINE bool IsValid() const { return !Name.IsEmpty(); }
+	FORCEINLINE bool operator==(const FDiffHelperBranch& Other) const { return Name == Other.Name && Revision == Other.Revision; }
+	FORCEINLINE bool operator!=(const FDiffHelperBranch& Other) const { return !(*this == Other); }
 };
 
 USTRUCT(BlueprintType)

@@ -33,6 +33,12 @@ void UDiffHelperTabController::SetTargetBranch(const FDiffHelperBranch& InBranch
 	Model->TargetBranch = InBranch;
 }
 
+void UDiffHelperTabController::CollectDiff() const
+{
+	const auto* Manager = FDiffHelperModule::Get().GetManager();
+	Model->Diff = Manager->GetDiff(Model->SourceBranch, Model->TargetBranch);
+}
+
 void UDiffHelperTabController::CallModelUpdated() const
 {
 	Model->OnModelUpdated.Broadcast();
