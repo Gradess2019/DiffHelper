@@ -2,9 +2,9 @@
 
 
 #include "UI/SDiffHelperWindow.h"
-#include "SDiffHelperPickerPanel.h"
-#include "SlateOptMacros.h"
+#include "UI/SDiffHelperPickerPanel.h"
 #include "UI/DiffHelperTabController.h"
+#include "SlateOptMacros.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 
