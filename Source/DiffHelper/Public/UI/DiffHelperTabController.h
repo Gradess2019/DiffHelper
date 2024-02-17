@@ -26,4 +26,13 @@ public:
 	
 	UFUNCTION(BlueprintGetter)
 	const UDiffHelperTabModel* GetModel() const { return Model.Get(); }
+
+	UFUNCTION(BlueprintCallable)
+	void SetSourceBranch(const FDiffHelperBranch& InBranch);
+
+	UFUNCTION(BlueprintCallable)
+	void SetTargetBranch(const FDiffHelperBranch& InBranch);
+
+	UFUNCTION(BlueprintCallable)
+	void CallModelUpdated() const;
 };

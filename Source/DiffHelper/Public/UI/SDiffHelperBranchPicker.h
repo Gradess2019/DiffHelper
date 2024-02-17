@@ -13,18 +13,22 @@ public:
 	SLATE_BEGIN_ARGS(SDiffHelperBranchPicker)
 			:
 			_Controller(nullptr),
-			_Options(nullptr)
+			_Options(nullptr),
+			_bSourceBranch(false)
 		{
 		}
 
 		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>*, Options)
+		SLATE_ARGUMENT(bool, bSourceBranch)
 
 	SLATE_END_ARGS()
 
 protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller = nullptr;
 	TSharedPtr<const TArray<TSharedPtr<FString>>> Options = nullptr;
+
+	bool bSourceBranch = false;
 
 public:
 	/** Constructs this widget with InArgs */
@@ -33,4 +37,6 @@ public:
 protected:
 	TSharedRef<SWidget> HandleGenerateWidget(TSharedPtr<FString> String);
 	void HandleSelectionChanged(TSharedPtr<FString, ESPMode::ThreadSafe> String, ESelectInfo::Type Arg);
+
+	FText GetSelectedItemText() const;
 };

@@ -22,3 +22,18 @@ void UDiffHelperTabController::Deinit()
 	RemoveFromRoot();
 	Model = nullptr;
 }
+
+void UDiffHelperTabController::SetSourceBranch(const FDiffHelperBranch& InBranch)
+{
+	Model->SourceBranch = InBranch;
+}
+
+void UDiffHelperTabController::SetTargetBranch(const FDiffHelperBranch& InBranch)
+{
+	Model->TargetBranch = InBranch;
+}
+
+void UDiffHelperTabController::CallModelUpdated() const
+{
+	Model->OnModelUpdated.Broadcast();
+}
