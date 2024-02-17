@@ -11,6 +11,12 @@
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
+SDiffHelperWindow::~SDiffHelperWindow()
+{
+	Controller->Deinit();
+	Controller = nullptr;
+}
+
 void SDiffHelperWindow::Construct(const FArguments& InArgs)
 {
 	Controller = NewObject<UDiffHelperTabController>();
@@ -23,21 +29,25 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 		[
 			SNew(SOverlay)
 			+ SOverlay::Slot()
-			  .HAlign(HAlign_Center)
-			  .VAlign(VAlign_Center)
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
 			[
-				SNew(SVerticalBox)
-				+ SVerticalBox::Slot()
+				SNew(SBox)
+				.WidthOverride(250.f)
 				[
-					SNew(SDiffHelperBranchPicker)
-					.Controller(Controller)
-					.Hint(LOCTEXT("DiffHelperSourceBranchHint", "Select source branch..."))
-				]
-				+ SVerticalBox::Slot()
-				[
-					SNew(SDiffHelperBranchPicker)
-					.Controller(Controller)
-					.Hint(LOCTEXT("DiffHelperTargetBranchHint", "Select target branch..."))
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					[
+						SNew(SDiffHelperBranchPicker)
+						.Controller(Controller)
+						.Hint(LOCTEXT("DiffHelperSourceBranchHint", "Select source branch..."))
+					]
+					+ SVerticalBox::Slot()
+					[
+						SNew(SDiffHelperBranchPicker)
+						.Controller(Controller)
+						.Hint(LOCTEXT("DiffHelperTargetBranchHint", "Select target branch..."))
+					]
 				]
 			]
 		]);
