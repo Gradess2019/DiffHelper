@@ -5,9 +5,6 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 
-/**
- * 
- */
 class DIFFHELPER_API SDiffHelperDiffPanel : public SCompoundWidget
 {
 public:
@@ -19,4 +16,7 @@ public:
 
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
+
+protected:
+	void OnSearchTextChanged(const FText& Text);
 };

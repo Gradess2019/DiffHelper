@@ -6,6 +6,8 @@
 #include "UI/DiffHelperTabController.h"
 #include "SlateOptMacros.h"
 
+#include "UI/SDiffHelperDiffViewer.h"
+
 #define LOCTEXT_NAMESPACE "DiffHelper"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -21,14 +23,21 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 	Controller = NewObject<UDiffHelperTabController>();
 	Controller->Init();
 
+	// SWindow::Construct(
+	// 	SWindow::FArguments()
+	// 	.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
+	// 	.ClientSize(FVector2f(800, 600))
+	// 	[
+	// 		SNew(SDiffHelperPickerPanel)
+	// 		.Controller(Controller)
+	// 		.OnShowDiff(this, &SDiffHelperWindow::OnShowDiff)
+	// 	]);
 	SWindow::Construct(
 		SWindow::FArguments()
 		.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
 		.ClientSize(FVector2f(800, 600))
 		[
-			SNew(SDiffHelperPickerPanel)
-			.Controller(Controller)
-			.OnShowDiff(this, &SDiffHelperWindow::OnShowDiff)
+			SNew(SDiffHelperDiffViewer)
 		]);
 }
 
