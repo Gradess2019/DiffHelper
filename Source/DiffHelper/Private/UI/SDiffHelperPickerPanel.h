@@ -4,6 +4,7 @@
 
 #include <CoreMinimal.h>
 #include <Widgets/SCompoundWidget.h>
+#include "DiffHelperTypes.h"
 
 class SDiffHelperBranchPicker;
 class UDiffHelperTabController;
@@ -20,17 +21,22 @@ public:
 		}
 
 		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
+		SLATE_EVENT(FDiffHelperEvent, OnShowDiff)
 
 	SLATE_END_ARGS()
 
 protected:
-	TSharedPtr<SDiffHelperBranchPicker> SourceBranchPicker;
-	TSharedPtr<SDiffHelperBranchPicker> TargetBranchPicker;
+	TWeakObjectPtr<UDiffHelperTabController> Controller = nullptr;
+	TSharedPtr<SDiffHelperBranchPicker> SourceBranchPicker = nullptr;
+	TSharedPtr<SDiffHelperBranchPicker> TargetBranchPicker = nullptr;
+	
+	FDiffHelperEvent OnShowDiff;
 
 public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
 protected:
+	FReply OnShowDiffClicked() const;
 	bool CanShowDiff() const;
 };

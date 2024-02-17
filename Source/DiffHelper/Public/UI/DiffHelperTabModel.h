@@ -21,6 +21,9 @@ public:
 	TArray<FDiffHelperBranch> Branches;
 
 	UPROPERTY(BlueprintReadOnly)
+	TArray<FDiffHelperDiffItem> Diff;
+
+	UPROPERTY(BlueprintReadOnly)
 	FDiffHelperBranch SourceBranch;
 
 	UPROPERTY(BlueprintReadOnly)

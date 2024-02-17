@@ -3,6 +3,8 @@
 
 #include "SDiffHelperPickerPanel.h"
 #include "SlateOptMacros.h"
+
+#include "UI/DiffHelperTabController.h"
 #include "UI/SDiffHelperBranchPicker.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
@@ -11,6 +13,11 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 {
+	Controller = InArgs._Controller;
+	ensure(Controller.IsValid());
+
+	OnShowDiff = InArgs._OnShowDiff;
+	
 	ChildSlot
 	[
 		SNew(SOverlay)
@@ -25,19 +32,20 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				[
 					SAssignNew(SourceBranchPicker, SDiffHelperBranchPicker)
-					.Controller(InArgs._Controller)
+					.Controller(Controller)
 					.Hint(LOCTEXT("DiffHelperSourceBranchHint", "Select source branch..."))
 				]
 				+ SVerticalBox::Slot()
 				[
 					SAssignNew(TargetBranchPicker, SDiffHelperBranchPicker)
-					.Controller(InArgs._Controller)
+					.Controller(Controller)
 					.Hint(LOCTEXT("DiffHelperTargetBranchHint", "Select target branch..."))
 				]
 				// add "Show diff" button here
 				+ SVerticalBox::Slot()
 				[
 					SNew(SButton)
+					.OnClicked(this, &SDiffHelperPickerPanel::OnShowDiffClicked)
 					.IsEnabled(this, &SDiffHelperPickerPanel::CanShowDiff)
 					[
 						SNew(STextBlock)
@@ -48,6 +56,21 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+}
+
+FReply SDiffHelperPickerPanel::OnShowDiffClicked() const
+{
+	const auto& SourceBranch = SourceBranchPicker->GetSelectedBranch();
+	const auto& TargetBranch = TargetBranchPicker->GetSelectedBranch();
+
+	Controller->SetSourceBranch(SourceBranch);
+	Controller->SetTargetBranch(TargetBranch);
+	Controller->CollectDiff();
+	Controller->CallModelUpdated();
+
+	OnShowDiff.ExecuteIfBound();
+	
+	return FReply::Handled();
 }
 
 bool SDiffHelperPickerPanel::CanShowDiff() const

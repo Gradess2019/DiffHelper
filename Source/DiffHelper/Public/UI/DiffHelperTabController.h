@@ -23,7 +23,8 @@ public:
 
 	UFUNCTION()
 	void Deinit();
-	
+
+	// TODO: do we really need to expose it to blueprint?
 	UFUNCTION(BlueprintGetter)
 	const UDiffHelperTabModel* GetModel() const { return Model.Get(); }
 
@@ -32,6 +33,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetTargetBranch(const FDiffHelperBranch& InBranch);
+
+	UFUNCTION(BlueprintCallable)
+	void CollectDiff() const;
 
 	UFUNCTION(BlueprintCallable)
 	void CallModelUpdated() const;

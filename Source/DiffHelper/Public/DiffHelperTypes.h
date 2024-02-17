@@ -6,6 +6,8 @@
 #include "DiffHelperTypes.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
+DECLARE_DELEGATE(FDiffHelperEvent)
+
 DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
 
 UENUM()

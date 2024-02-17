@@ -28,7 +28,13 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 		[
 			SNew(SDiffHelperPickerPanel)
 			.Controller(Controller)
+			.OnShowDiff(this, &SDiffHelperWindow::OnShowDiff)
 		]);
+}
+
+void SDiffHelperWindow::OnShowDiff()
+{
+	SetContent(SNullWidget::NullWidget);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
