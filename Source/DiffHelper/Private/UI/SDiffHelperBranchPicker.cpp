@@ -3,28 +3,33 @@
 
 #include "UI/SDiffHelperBranchPicker.h"
 
+#include "DiffHelperUtils.h"
 #include "SlateOptMacros.h"
+
+#include "UI/DiffHelperTabController.h"
+#include "UI/DiffHelperTabModel.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperBranchPicker::Construct(const FArguments& InArgs)
 {
-	Options.Add(MakeShareable(new FString(TEXT("Option1"))));
-	Options.Add(MakeShareable(new FString(TEXT("CustomOption1"))));
-	Options.Add(MakeShareable(new FString(TEXT("Option2"))));
-	Options.Add(MakeShareable(new FString(TEXT("abc"))));
-	Options.Add(MakeShareable(new FString(TEXT("Option3"))));
-	Options.Add(MakeShareable(new FString(TEXT("def"))));
-	Options.Add(MakeShareable(new FString(TEXT("CustomOption2"))));
-	Options.Add(MakeShareable(new FString(TEXT("VERY LONG OPTION NAME FOR TESTING PURPOSES"))));
-	Options.Add(MakeShareable(new FString(TEXT("def"))));
+	Controller = InArgs._Controller;
+	ensure(Controller.IsValid());
 
+	if (!InArgs._Options)
+	{
+		const auto* Model = Controller->GetModel();
+		if (ensure(IsValid(Model)))
+		{
+			Options = MakeShared<const TArray<TSharedPtr<FString>>>(UDiffHelperUtils::ConvertToShared(Model->BranchNames));
+		}
+	}
+	
 	SSearchableComboBox::Construct(
 		SSearchableComboBox::FArguments()
-		.OptionsSource(&Options)
+		.OptionsSource(Options.Get())
 		.OnGenerateWidget(this, &SDiffHelperBranchPicker::HandleGenerateWidget)
 		.OnSelectionChanged(this, &SDiffHelperBranchPicker::HandleSelectionChanged)
-		.MaxListHeight(150.f)
 		.Content()
 		[
 			SNew(STextBlock).Text_Lambda([this]()

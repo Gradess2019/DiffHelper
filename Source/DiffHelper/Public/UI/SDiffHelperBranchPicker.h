@@ -5,22 +5,26 @@
 #include "CoreMinimal.h"
 #include "SSearchableComboBox.h"
 
-#include "Widgets/SCompoundWidget.h"
+class UDiffHelperTabController;
 
-/**
- * 
- */
 class DIFFHELPER_API SDiffHelperBranchPicker : public SSearchableComboBox
 {
 public:
 	SLATE_BEGIN_ARGS(SDiffHelperBranchPicker)
+			:
+			_Controller(nullptr),
+			_Options(nullptr)
 		{
 		}
+
+		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
+		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>*, Options)
 
 	SLATE_END_ARGS()
 
 protected:
-	TArray<TSharedPtr<FString>> Options;
+	TWeakObjectPtr<UDiffHelperTabController> Controller = nullptr;
+	TSharedPtr<const TArray<TSharedPtr<FString>>> Options = nullptr;
 
 public:
 	/** Constructs this widget with InArgs */
