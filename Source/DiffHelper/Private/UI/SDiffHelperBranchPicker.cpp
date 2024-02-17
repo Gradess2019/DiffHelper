@@ -14,7 +14,6 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SDiffHelperBranchPicker::Construct(const FArguments& InArgs)
 {
 	Controller = InArgs._Controller;
-	bSourceBranch = InArgs._bSourceBranch;
 
 	ensure(Controller.IsValid());
 
@@ -39,10 +38,6 @@ void SDiffHelperBranchPicker::Construct(const FArguments& InArgs)
 		.OnSelectionChanged(this, &SDiffHelperBranchPicker::HandleSelectionChanged)
 		.Content()
 		[
-			// SNew(STextBlock).Text_Lambda([this]()
-			// {
-				// return FText::FromString(GetSelectedItem().IsValid() ? *GetSelectedItem() : TEXT("Select branch..."));
-			// })
 			SNew(STextBlock).Text(this, &SDiffHelperBranchPicker::GetSelectedItemText)
 		]
 	);
@@ -68,30 +63,17 @@ void SDiffHelperBranchPicker::HandleSelectionChanged(TSharedPtr<FString, ESPMode
 		UE_LOG(LogDiffHelper, Error, TEXT("Branch %s not found in the model"), **String);
 	}
 
-	if (bSourceBranch)
-	{
-		Controller->SetSourceBranch(*FoundBranch);
-	}
-	else
-	{
-		Controller->SetTargetBranch(*FoundBranch);
-	}
-
-	Controller->CallModelUpdated();
+	SelectedBranch = *FoundBranch;
 }
 
 FText SDiffHelperBranchPicker::GetSelectedItemText() const
 {
-	if (!ensure(Controller.IsValid())) { return FText::GetEmpty(); }
-
-	const auto* Model = Controller->GetModel();
-	
-	if (bSourceBranch)
+	if (SelectedBranch.IsValid())
 	{
-		return FText::FromString(Model->SourceBranch.Name);
+		return FText::FromString(SelectedBranch.Name);
 	}
 
-	return FText::FromString(Model->TargetBranch.Name);
+	return FText::FromString(TEXT("Select branch"));
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

@@ -8,13 +8,14 @@
 #include "UI/SDiffHelperBranchPicker.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
+
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperWindow::Construct(const FArguments& InArgs)
 {
 	Controller = NewObject<UDiffHelperTabController>();
 	Controller->Init();
-	
+
 	SWindow::Construct(
 		SWindow::FArguments()
 		.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
@@ -22,8 +23,8 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 		[
 			SNew(SOverlay)
 			+ SOverlay::Slot()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
+			  .HAlign(HAlign_Center)
+			  .VAlign(VAlign_Center)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()

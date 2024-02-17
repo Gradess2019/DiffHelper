@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DiffHelperTypes.h"
 #include "SSearchableComboBox.h"
 
 class UDiffHelperTabController;
@@ -13,22 +14,20 @@ public:
 	SLATE_BEGIN_ARGS(SDiffHelperBranchPicker)
 			:
 			_Controller(nullptr),
-			_Options(nullptr),
-			_bSourceBranch(false)
+			_Options(nullptr)
 		{
 		}
 
 		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>*, Options)
-		SLATE_ARGUMENT(bool, bSourceBranch)
 
 	SLATE_END_ARGS()
 
 protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller = nullptr;
 	TSharedPtr<const TArray<TSharedPtr<FString>>> Options = nullptr;
-
-	bool bSourceBranch = false;
+	
+	FDiffHelperBranch SelectedBranch;
 
 public:
 	/** Constructs this widget with InArgs */
