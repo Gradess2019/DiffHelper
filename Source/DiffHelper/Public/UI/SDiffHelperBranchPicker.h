@@ -36,6 +36,8 @@ public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
+	const FDiffHelperBranch& GetSelectedBranch() const { return SelectedBranch; }
+
 protected:
 	TSharedRef<SWidget> HandleGenerateWidget(TSharedPtr<FString> String);
 	void HandleSelectionChanged(TSharedPtr<FString, ESPMode::ThreadSafe> String, ESelectInfo::Type Arg);

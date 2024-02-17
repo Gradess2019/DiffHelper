@@ -5,6 +5,7 @@
 #include <CoreMinimal.h>
 #include <Widgets/SCompoundWidget.h>
 
+class SDiffHelperBranchPicker;
 class UDiffHelperTabController;
 /**
  * 
@@ -22,6 +23,14 @@ public:
 
 	SLATE_END_ARGS()
 
+protected:
+	TSharedPtr<SDiffHelperBranchPicker> SourceBranchPicker;
+	TSharedPtr<SDiffHelperBranchPicker> TargetBranchPicker;
+
+public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
+
+protected:
+	bool CanShowDiff() const;
 };

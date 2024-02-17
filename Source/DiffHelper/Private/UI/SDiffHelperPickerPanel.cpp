@@ -19,18 +19,18 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 		  .VAlign(VAlign_Center)
 		[
 			SNew(SBox)
-			.WidthOverride(250.f)
+			.WidthOverride(350.f)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
 				[
-					SNew(SDiffHelperBranchPicker)
+					SAssignNew(SourceBranchPicker, SDiffHelperBranchPicker)
 					.Controller(InArgs._Controller)
 					.Hint(LOCTEXT("DiffHelperSourceBranchHint", "Select source branch..."))
 				]
 				+ SVerticalBox::Slot()
 				[
-					SNew(SDiffHelperBranchPicker)
+					SAssignNew(TargetBranchPicker, SDiffHelperBranchPicker)
 					.Controller(InArgs._Controller)
 					.Hint(LOCTEXT("DiffHelperTargetBranchHint", "Select target branch..."))
 				]
@@ -38,6 +38,7 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				[
 					SNew(SButton)
+					.IsEnabled(this, &SDiffHelperPickerPanel::CanShowDiff)
 					[
 						SNew(STextBlock)
 						.Text(LOCTEXT("DiffHelperShowDiffButton", "Show diff"))
@@ -47,6 +48,14 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+}
+
+bool SDiffHelperPickerPanel::CanShowDiff() const
+{
+	const auto& SourceBranch = SourceBranchPicker->GetSelectedBranch();
+	const auto& TargetBranch = TargetBranchPicker->GetSelectedBranch();
+
+	return SourceBranch.IsValid() && TargetBranch.IsValid() && SourceBranch != TargetBranch;
 }
 
 #undef LOCTEXT_NAMESPACE
