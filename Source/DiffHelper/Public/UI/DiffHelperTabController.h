@@ -7,9 +7,7 @@
 #include "DiffHelperTabController.generated.h"
 
 class UDiffHelperTabModel;
-/**
- * 
- */
+
 UCLASS(BlueprintType)
 class DIFFHELPER_API UDiffHelperTabController : public UObject
 {

@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "DiffHelperTypes.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
+
 UENUM()
 enum class EDiffHelperFileStatus : uint8
 {
