@@ -58,6 +58,11 @@ void FDiffHelperModule::PluginButtonClicked()
 	FSlateApplication::Get().AddWindow(DiffHelperWindow.ToSharedRef());
 }
 
+FDiffHelperModule& FDiffHelperModule::Get()
+{
+	return FModuleManager::LoadModuleChecked<FDiffHelperModule>("DiffHelper");
+}
+
 void FDiffHelperModule::RegisterMenus()
 {
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner

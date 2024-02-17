@@ -24,6 +24,10 @@ public:
 	
 	/** This function will be bound to Command. */
 	void PluginButtonClicked();
+
+	static FDiffHelperModule& Get();
+
+	const IDiffHelperManager* GetManager() const { return DiffHelperManager; }
 	
 private:
 
