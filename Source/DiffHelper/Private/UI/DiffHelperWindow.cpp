@@ -2,10 +2,9 @@
 
 
 #include "UI/SDiffHelperWindow.h"
-
 #include "SlateOptMacros.h"
-#include "SSearchableComboBox.h"
 
+#include "UI/DiffHelperTabController.h"
 #include "UI/SDiffHelperBranchPicker.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
@@ -13,6 +12,9 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperWindow::Construct(const FArguments& InArgs)
 {
+	Controller = NewObject<UDiffHelperTabController>();
+	Controller->Init();
+	
 	SWindow::Construct(
 		SWindow::FArguments()
 		.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
@@ -27,10 +29,12 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				[
 					SNew(SDiffHelperBranchPicker)
+					.Controller(Controller)
 				]
 				+ SVerticalBox::Slot()
 				[
 					SNew(SDiffHelperBranchPicker)
+					.Controller(Controller)
 				]
 			]
 		]);

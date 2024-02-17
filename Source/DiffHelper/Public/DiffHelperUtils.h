@@ -24,4 +24,7 @@ public:
 		
 		return OutArray;
 	}
+
+	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
+	static TArray<FString> ConvertBranchesToStringArray(const TArray<FDiffHelperBranch>& InBranches);
 };

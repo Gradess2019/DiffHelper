@@ -14,6 +14,8 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SDiffHelperBranchPicker::Construct(const FArguments& InArgs)
 {
 	Controller = InArgs._Controller;
+	bSourceBranch = InArgs._bSourceBranch;
+	
 	ensure(Controller.IsValid());
 
 	if (!InArgs._Options)
@@ -21,8 +23,13 @@ void SDiffHelperBranchPicker::Construct(const FArguments& InArgs)
 		const auto* Model = Controller->GetModel();
 		if (ensure(IsValid(Model)))
 		{
-			Options = MakeShared<const TArray<TSharedPtr<FString>>>(UDiffHelperUtils::ConvertToShared(Model->BranchNames));
+			const auto Branches = UDiffHelperUtils::ConvertBranchesToStringArray(Model->Branches);
+			Options = MakeShared<const TArray<TSharedPtr<FString>>>(UDiffHelperUtils::ConvertToShared(Branches));
 		}
+	}
+	else
+	{
+		Options = MakeShared<TArray<TSharedPtr<FString>>>(*InArgs._Options);
 	}
 	
 	SSearchableComboBox::Construct(

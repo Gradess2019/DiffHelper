@@ -18,7 +18,7 @@ public:
 	FDiffHelperSimpleDelegate OnModelUpdated;
 	
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FString> BranchNames;
+	TArray<FDiffHelperBranch> Branches;
 
 	UPROPERTY(BlueprintReadOnly)
 	FDiffHelperBranch SourceBranch;

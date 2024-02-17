@@ -29,6 +29,10 @@ struct FDiffHelperBranch
 
 	UPROPERTY(BlueprintReadOnly)
 	FString Revision;
+
+	operator FString() const { return Name; }
+
+	FORCEINLINE bool IsValid() const { return !Name.IsEmpty(); }
 };
 
 USTRUCT(BlueprintType)
