@@ -31,11 +31,13 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 				[
 					SNew(SDiffHelperBranchPicker)
 					.Controller(Controller)
+					.Hint(LOCTEXT("DiffHelperSourceBranchHint", "Select source branch..."))
 				]
 				+ SVerticalBox::Slot()
 				[
 					SNew(SDiffHelperBranchPicker)
 					.Controller(Controller)
+					.Hint(LOCTEXT("DiffHelperTargetBranchHint", "Select target branch..."))
 				]
 			]
 		]);

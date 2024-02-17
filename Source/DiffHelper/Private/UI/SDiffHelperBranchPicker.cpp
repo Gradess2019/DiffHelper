@@ -14,6 +14,7 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SDiffHelperBranchPicker::Construct(const FArguments& InArgs)
 {
 	Controller = InArgs._Controller;
+	Hint = InArgs._Hint;
 
 	ensure(Controller.IsValid());
 
@@ -73,7 +74,7 @@ FText SDiffHelperBranchPicker::GetSelectedItemText() const
 		return FText::FromString(SelectedBranch.Name);
 	}
 
-	return FText::FromString(TEXT("Select branch"));
+	return Hint;
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
