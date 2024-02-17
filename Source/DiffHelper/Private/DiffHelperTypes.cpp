@@ -2,3 +2,5 @@
 
 
 #include "DiffHelperTypes.h"
+
+DEFINE_LOG_CATEGORY(LogDiffHelper);

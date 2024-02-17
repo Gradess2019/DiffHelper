@@ -7,7 +7,7 @@
 #include "DiffHelperTypes.h"
 #include "ToolMenus.h"
 
-#include "UI/DiffHelperWindow.h"
+#include "UI/SDiffHelperWindow.h"
 
 static const FName DiffHelperTabName("DiffHelper");
 
@@ -56,6 +56,11 @@ void FDiffHelperModule::PluginButtonClicked()
 {
 	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
 	FSlateApplication::Get().AddWindow(DiffHelperWindow.ToSharedRef());
+}
+
+FDiffHelperModule& FDiffHelperModule::Get()
+{
+	return FModuleManager::LoadModuleChecked<FDiffHelperModule>("DiffHelper");
 }
 
 void FDiffHelperModule::RegisterMenus()

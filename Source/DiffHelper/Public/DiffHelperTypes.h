@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "DiffHelperTypes.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
+DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
+
 UENUM()
 enum class EDiffHelperFileStatus : uint8
 {
@@ -27,6 +30,10 @@ struct FDiffHelperBranch
 
 	UPROPERTY(BlueprintReadOnly)
 	FString Revision;
+
+	operator FString() const { return Name; }
+
+	FORCEINLINE bool IsValid() const { return !Name.IsEmpty(); }
 };
 
 USTRUCT(BlueprintType)
