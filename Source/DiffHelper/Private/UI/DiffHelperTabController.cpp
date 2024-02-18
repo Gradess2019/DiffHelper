@@ -6,6 +6,8 @@
 #include "DiffHelper.h"
 #include "DiffHelperManager.h"
 
+#include "Misc/ComparisonUtility.h"
+
 #include "UI/DiffHelperTabModel.h"
 
 void UDiffHelperTabController::Init()
@@ -36,7 +38,13 @@ void UDiffHelperTabController::SetTargetBranch(const FDiffHelperBranch& InBranch
 void UDiffHelperTabController::CollectDiff() const
 {
 	const auto* Manager = FDiffHelperModule::Get().GetManager();
-	Model->Diff = Manager->GetDiff(Model->SourceBranch, Model->TargetBranch);
+	auto Diff = Manager->GetDiff(Model->SourceBranch, Model->TargetBranch);
+	Diff.Sort([](const FDiffHelperDiffItem& A, const FDiffHelperDiffItem& B)
+	{
+		return UE::ComparisonUtility::CompareNaturalOrder(A.Path, B.Path) < 0;
+	});
+
+	Model->Diff = Diff;
 }
 
 void UDiffHelperTabController::CallModelUpdated() const
