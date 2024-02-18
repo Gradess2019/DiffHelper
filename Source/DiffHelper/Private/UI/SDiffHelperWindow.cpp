@@ -6,6 +6,7 @@
 #include "UI/DiffHelperTabController.h"
 #include "SlateOptMacros.h"
 
+#include "UI/DiffHelperTabModel.h"
 #include "UI/SDiffHelperDiffViewer.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
@@ -23,6 +24,16 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 	Controller = NewObject<UDiffHelperTabController>();
 	Controller->Init();
 
+	// TODO: Test data
+	const auto* Model = Controller->GetModel();
+	const auto Branches = Model->Branches;
+
+	Controller->SetSourceBranch(Branches[1]);
+	Controller->SetTargetBranch(Branches[0]);
+	Controller->CollectDiff();
+	
+	const auto Diff = Model->Diff;
+
 	// SWindow::Construct(
 	// 	SWindow::FArguments()
 	// 	.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
@@ -38,6 +49,7 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 		.ClientSize(FVector2f(800, 600))
 		[
 			SNew(SDiffHelperDiffViewer)
+			.Controller(Controller)
 		]);
 }
 

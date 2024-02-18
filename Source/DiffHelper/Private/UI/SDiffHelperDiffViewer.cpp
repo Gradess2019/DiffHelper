@@ -11,6 +11,8 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperDiffViewer::Construct(const FArguments& InArgs)
 {
+	if (!ensure(InArgs._Controller.IsValid())) { return; }
+	
 	ChildSlot
 	[
 		SNew(SOverlay)
@@ -21,6 +23,7 @@ void SDiffHelperDiffViewer::Construct(const FArguments& InArgs)
 			.Value(0.2f)
 			[
 				SNew(SDiffHelperDiffPanel)
+				.Controller(InArgs._Controller)
 			]
 			+ SSplitter::Slot()
 			.Value(0.8f)
