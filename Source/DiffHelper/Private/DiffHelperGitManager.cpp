@@ -9,6 +9,7 @@
 #include "ISourceControlProvider.h"
 #include "SourceControlHelpers.h"
 #include "SourceControlOperations.h"
+#include "RevisionControlStyle/RevisionControlStyle.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelperGitManager"
 
@@ -145,6 +146,20 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FStrin
 
 	TArray<FDiffHelperCommit> Commits = ParseCommits(Result);
 	return Commits;
+}
+
+FSlateIcon UDiffHelperGitManager::GetStatusIcon(const EDiffHelperFileStatus InStatus) const
+{
+	switch (InStatus)
+	{
+	case EDiffHelperFileStatus::Added: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.OpenForAdd");
+	case EDiffHelperFileStatus::Modified: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.CheckedOut");
+	case EDiffHelperFileStatus::Deleted: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.MarkedForDelete");
+	case EDiffHelperFileStatus::Renamed:
+	case EDiffHelperFileStatus::Copied: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Branched");
+	case EDiffHelperFileStatus::Unmerged: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Conflicted");
+	default: return FSlateIcon();
+	}
 }
 
 void UDiffHelperGitManager::LoadGitBinaryPath()

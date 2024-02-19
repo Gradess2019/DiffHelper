@@ -5,6 +5,7 @@
 #include "Widgets/Input/SSearchBox.h"
 #include "DiffHelperTypes.h"
 #include "DiffHelperUtils.h"
+#include "SDiffHelperDiffFileItem.h"
 #include "SlateOptMacros.h"
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
@@ -58,9 +59,18 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		.FillHeight(1.f)
 		[
 			SNew(SListView<TSharedPtr<FDiffHelperDiffItem>>)
-			.ItemHeight(24.f)
 			.ListItemsSource(&Diff)
 			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
+			.HeaderRow
+			                                                (
+				                                                SNew(SHeaderRow)
+				                                                + SHeaderRow::Column(SDiffHelperDiffPanelConstants::StatusColumnId)
+				                                                  .DefaultLabel(LOCTEXT("StateColumn", "State"))
+				                                                  .FixedWidth(36.f)
+				                                                + SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
+				                                                  .DefaultLabel(LOCTEXT("PathColumn", "Path"))
+				                                                  .FillWidth(1.f)
+			                                                )
 		]
 	];
 }
@@ -73,10 +83,8 @@ void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& Text)
 TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	return
-		SNew(STableRow<TSharedRef<FDiffHelperDiffItem>>, OwnerTable)
-		[
-			SNew(STextBlock).Text(FText::FromString(Item->Path))
-		];
+		SNew(SDiffHelperDiffFileItem, OwnerTable)
+		.Item(Item);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
