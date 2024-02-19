@@ -55,6 +55,11 @@ void FDiffHelperModule::ShutdownModule()
 void FDiffHelperModule::PluginButtonClicked()
 {
 	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
+	DiffHelperWindow->GetOnWindowClosedEvent().AddLambda([this](const TSharedRef<SWindow>& Window)
+	{
+		DiffHelperWindow.Reset();
+	});
+	
 	FSlateApplication::Get().AddWindow(DiffHelperWindow.ToSharedRef());
 }
 

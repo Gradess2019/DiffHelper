@@ -104,6 +104,7 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 	{
 		FDiffHelperDiffItem DiffItem;
 		DiffItem.Path = Pair.Key;
+		DiffItem.Status = Pair.Value[0].Files.FindByPredicate([Pair](const FDiffHelperFileData& InFile) { return InFile.Path == Pair.Key; })->Status;
 
 		const auto RelativePath = FPaths::Combine(FPaths::ProjectDir(), DiffItem.Path);
 		if (FPaths::IsUnderDirectory(RelativePath, FPaths::ProjectContentDir()))

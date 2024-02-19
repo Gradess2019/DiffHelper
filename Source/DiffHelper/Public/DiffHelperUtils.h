@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
 	static TArray<FString> ConvertBranchesToStringArray(const TArray<FDiffHelperBranch>& InBranches);
+
+	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
+	static bool CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB);
 };

@@ -23,7 +23,10 @@ public:
 
 protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
+	TSharedPtr<SListView<TSharedPtr<FDiffHelperDiffItem>>> DiffList;
 	TArray<TSharedPtr<FDiffHelperDiffItem>> Diff;
+	TMap<FName, EColumnSortMode::Type> SortModes;
+	TMap<FName, EColumnSortPriority::Type> SortPriorities;
 
 public:
 	/** Constructs this widget with InArgs */
@@ -32,4 +35,7 @@ public:
 protected:
 	void OnSearchTextChanged(const FText& Text);
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> Item, const TSharedRef<STableViewBase>& OwnerTable);
+	EColumnSortMode::Type GetSortModeForColumn(FName Name) const;
+	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
+
 };
