@@ -33,4 +33,5 @@ protected:
 	TSharedRef<SWidget> CreateMessageColumn() const;
 	TSharedRef<SWidget> CreateAuthorColumn() const;
 	TSharedRef<SWidget> CreateDateColumn() const;
+	TSharedRef<SWidget> CreateDiffButtonColumn() const;
 };

@@ -104,4 +104,5 @@ namespace SDiffHelperCommitPanelConstants
 	const FName MessageColumnId(TEXT("CommitMessage"));
 	const FName AuthorColumnId(TEXT("CommitAuthor"));
 	const FName DateColumnId(TEXT("CommitDate"));
+	const FName DiffButtonColumnId(TEXT("DiffButton"));
 }

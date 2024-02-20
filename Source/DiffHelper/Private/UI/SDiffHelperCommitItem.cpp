@@ -4,6 +4,7 @@
 #include "UI/SDiffHelperCommitItem.h"
 #include "SlateOptMacros.h"
 
+#define LOCTEXT_NAMESPACE "DiffHelper"
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTable)
@@ -34,6 +35,10 @@ TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& 
 	{
 		return CreateDateColumn();
 	}
+	else if (InColumnName == SDiffHelperCommitPanelConstants::DiffButtonColumnId)
+	{
+		return CreateDiffButtonColumn();
+	}
 
 	ensureMsgf(false, TEXT("Unknown column name %s"), *InColumnName.ToString());
 	return SNullWidget::NullWidget;
@@ -42,25 +47,41 @@ TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateCommitHashColumn() const
 {
 	return SNew(STextBlock)
-		.Text(FText::FromString(Item->Revision));
+		.Text(FText::FromString(Item->Revision))
+		.ToolTipText(FText::FromString(Item->Revision));
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateMessageColumn() const
 {
 	return SNew(STextBlock)
-		.Text(FText::FromString(Item->Message));
+		.Text(FText::FromString(Item->Message))
+		.ToolTipText(FText::FromString(Item->Message));
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateAuthorColumn() const
 {
 	return SNew(STextBlock)
-		.Text(FText::FromString(Item->Author));
+		.Text(FText::FromString(Item->Author))
+		.ToolTipText(FText::FromString(Item->Author));
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateDateColumn() const
 {
 	return SNew(STextBlock)
-		.Text(FText::FromString(Item->Date.ToString()));
+		.Text(FText::FromString(Item->Date.ToString()))
+		.ToolTipText(FText::FromString(Item->Date.ToString()));
+}
+
+TSharedRef<SWidget> SDiffHelperCommitItem::CreateDiffButtonColumn() const
+{
+	return
+		SNew(SButton)
+		[
+			SNew(STextBlock)
+			.Text(LOCTEXT("DiffButtonText", "Diff"))
+			.Justification(ETextJustify::Center)
+		];
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
+#undef LOCTEXT_NAMESPACE
