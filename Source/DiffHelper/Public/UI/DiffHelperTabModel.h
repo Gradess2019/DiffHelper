@@ -28,4 +28,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	FDiffHelperBranch TargetBranch;
+
+	UPROPERTY(BlueprintReadOnly)
+	FDiffHelperDiffItem SelectedDiffItem;
 };

@@ -96,3 +96,11 @@ namespace SDiffHelperDiffPanelConstants
 	const FName StatusColumnId(TEXT("State"));
 	const FName PathColumnId(TEXT("Path"));
 }
+
+namespace SDiffHelperCommitPanelConstants
+{
+	const FName HashColumnId(TEXT("CommitHash"));
+	const FName MessageColumnId(TEXT("CommitMessage"));
+	const FName AuthorColumnId(TEXT("CommitAuthor"));
+	const FName DateColumnId(TEXT("CommitDate"));
+}
