@@ -14,6 +14,7 @@ void UDiffHelperTabController::Init()
 {
 	AddToRoot();
 	Model = NewObject<UDiffHelperTabModel>(this);
+	Model->OnModelUpdated_Raw.AddWeakLambda(this, [this]() { Model->OnModelUpdated.Broadcast(); });
 
 	const auto* Manager = FDiffHelperModule::Get().GetManager();
 	Model->Branches = Manager->GetBranches();
@@ -35,6 +36,11 @@ void UDiffHelperTabController::SetTargetBranch(const FDiffHelperBranch& InBranch
 	Model->TargetBranch = InBranch;
 }
 
+void UDiffHelperTabController::SelectDiffItem(const FDiffHelperDiffItem& InDiffItem)
+{
+	Model->SelectedDiffItem = InDiffItem;
+}
+
 void UDiffHelperTabController::CollectDiff() const
 {
 	const auto* Manager = FDiffHelperModule::Get().GetManager();
@@ -49,5 +55,10 @@ void UDiffHelperTabController::CollectDiff() const
 
 void UDiffHelperTabController::CallModelUpdated() const
 {
-	Model->OnModelUpdated.Broadcast();
+	Model->OnModelUpdated_Raw.Broadcast();
+}
+
+FDiffHelperSimpleDelegate& UDiffHelperTabController::OnModelUpdated() const
+{
+	return Model->OnModelUpdated_Raw;
 }

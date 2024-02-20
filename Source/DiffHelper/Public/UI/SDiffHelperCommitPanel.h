@@ -26,12 +26,15 @@ public:
 
 protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
+	TSharedPtr<SListView<TSharedPtr<FDiffHelperCommit>>> CommitList;
 	TArray<TSharedPtr<FDiffHelperCommit>> Commits;
 	
 public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
+	virtual ~SDiffHelperCommitPanel() override;
 
 protected:
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	void OnModelUpdated();
 };

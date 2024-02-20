@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DiffHelperTypes.h"
+
 #include "UObject/Object.h"
 #include "DiffHelperTabController.generated.h"
 
@@ -35,8 +37,13 @@ public:
 	void SetTargetBranch(const FDiffHelperBranch& InBranch);
 
 	UFUNCTION(BlueprintCallable)
+	void SelectDiffItem(const FDiffHelperDiffItem& InDiffItem);
+
+	UFUNCTION(BlueprintCallable)
 	void CollectDiff() const;
 
 	UFUNCTION(BlueprintCallable)
 	void CallModelUpdated() const;
+
+	FDiffHelperSimpleDelegate& OnModelUpdated() const;
 };

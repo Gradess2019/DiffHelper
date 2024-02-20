@@ -19,6 +19,8 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 
 	Controller = InArgs._Controller;
 
+	Controller->OnModelUpdated().AddRaw(this, &SDiffHelperCommitPanel::OnModelUpdated);
+
 	if (InArgs._Commits.Num() > 0)
 	{
 		Commits = UDiffHelperUtils::ConvertToShared(InArgs._Commits);
@@ -30,7 +32,7 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 
 	ChildSlot
 	[
-		SNew(SListView<TSharedPtr<FDiffHelperCommit>>)
+		SAssignNew(CommitList, SListView<TSharedPtr<FDiffHelperCommit>>)
 		.ListItemsSource(&Commits)
 		.OnGenerateRow(this, &SDiffHelperCommitPanel::OnGenerateRow)
 		.HeaderRow
@@ -52,11 +54,25 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 	];
 }
 
+SDiffHelperCommitPanel::~SDiffHelperCommitPanel()
+{
+	if (Controller.IsValid() && IsValid(Controller->GetModel()))
+	{
+		Controller->OnModelUpdated().RemoveAll(this);
+	}
+}
+
 TSharedRef<ITableRow> SDiffHelperCommitPanel::OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
 	return
 		SNew(SDiffHelperCommitItem, InOwnerTable)
 		.Item(InItem);
+}
+
+void SDiffHelperCommitPanel::OnModelUpdated()
+{
+	Commits = UDiffHelperUtils::ConvertToShared(Controller->GetModel()->SelectedDiffItem.Commits);
+	CommitList->RequestListRefresh();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

@@ -15,7 +15,8 @@ class DIFFHELPER_API UDiffHelperTabModel : public UObject
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FDiffHelperSimpleDelegate OnModelUpdated;
+	FDiffHelperSimpleDynamicDelegate OnModelUpdated;
+	FDiffHelperSimpleDelegate OnModelUpdated_Raw;
 	
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperBranch> Branches;
