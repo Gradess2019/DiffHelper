@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DiffHelperTypes.h"
+#include "Misc/TextFilter.h"
 #include "Widgets/SCompoundWidget.h"
 
 struct FDiffHelperDiffItem;
@@ -25,12 +26,17 @@ public:
 protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
 	TSharedPtr<SListView<TSharedPtr<FDiffHelperDiffItem>>> DiffList;
-	TArray<TSharedPtr<FDiffHelperDiffItem>> Diff;
+	TSharedPtr<TTextFilter<const FDiffHelperDiffItem&>> SearchFilter;
+	TSharedPtr<SSearchBox> SearchBox;
+	
+	TArray<TSharedPtr<FDiffHelperDiffItem>> OriginalDiff;
+	TArray<TSharedPtr<FDiffHelperDiffItem>> FilteredDiff;
 
 	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
 
 public:
+	
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
@@ -38,7 +44,11 @@ protected:
 	EColumnSortMode::Type GetSortModeForColumn(FName InColumnId) const;
 	EColumnSortPriority::Type GetSortPriorityForColumn(FName InColumnId) const;
 	
+	void PopulateSearchString(const FDiffHelperDiffItem& InItem, TArray<FString>& OutStrings);
+	void SortDiffArray(TArray<TSharedPtr<FDiffHelperDiffItem>>& OutArray) const;
+	
 	void OnSearchTextChanged(const FText& InText);
+	void OnFilterChanged();
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
 };
