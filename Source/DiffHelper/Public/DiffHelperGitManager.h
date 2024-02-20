@@ -39,6 +39,8 @@ public:
 	
 	UFUNCTION()
 	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const override;
+
+	virtual FSlateIcon GetStatusIcon(const EDiffHelperFileStatus InStatus) const override;
 #pragma endregion IDiffHelperManager
 
 protected:

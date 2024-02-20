@@ -82,8 +82,17 @@ struct FDiffHelperDiffItem
 	FString Path;
 
 	UPROPERTY(BlueprintReadOnly)
+	EDiffHelperFileStatus Status = EDiffHelperFileStatus::None;
+	
+	UPROPERTY(BlueprintReadOnly)
 	FAssetData AssetData;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperCommit> Commits;
 };
+
+namespace SDiffHelperDiffPanelConstants
+{
+	const FName StatusColumnId(TEXT("State"));
+	const FName PathColumnId(TEXT("Path"));
+}

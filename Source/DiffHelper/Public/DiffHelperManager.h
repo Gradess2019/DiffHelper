@@ -7,6 +7,8 @@
 #include "DiffHelperManager.generated.h"
 
 struct FDiffHelperBranch;
+enum class EDiffHelperFileStatus : uint8;
+
 UINTERFACE(NotBlueprintable)
 class UDiffHelperManager : public UInterface
 {
@@ -35,4 +37,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "DiffHelperManager")
 	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const = 0;
+
+	virtual FSlateIcon GetStatusIcon(const EDiffHelperFileStatus InStatus) const = 0;
 };

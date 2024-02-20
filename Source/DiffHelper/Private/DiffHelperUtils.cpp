@@ -16,3 +16,8 @@ TArray<FString> UDiffHelperUtils::ConvertBranchesToStringArray(const TArray<FDif
 
 	return OutArray;
 }
+
+bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB)
+{
+	return static_cast<uint8>(InStatusA) < static_cast<uint8>(InStatusB);
+}
