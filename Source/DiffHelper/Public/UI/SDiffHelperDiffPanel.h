@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DiffHelperTypes.h"
 #include "Widgets/SCompoundWidget.h"
 
 struct FDiffHelperDiffItem;
@@ -25,17 +26,19 @@ protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
 	TSharedPtr<SListView<TSharedPtr<FDiffHelperDiffItem>>> DiffList;
 	TArray<TSharedPtr<FDiffHelperDiffItem>> Diff;
-	TMap<FName, EColumnSortMode::Type> SortModes;
-	TMap<FName, EColumnSortPriority::Type> SortPriorities;
+
+	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
+	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
 
 public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
 protected:
-	void OnSearchTextChanged(const FText& Text);
-	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> Item, const TSharedRef<STableViewBase>& OwnerTable);
-	EColumnSortMode::Type GetSortModeForColumn(FName Name) const;
+	EColumnSortMode::Type GetSortModeForColumn(FName InColumnId) const;
+	EColumnSortPriority::Type GetSortPriorityForColumn(FName InColumnId) const;
+	
+	void OnSearchTextChanged(const FText& InText);
+	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
-
 };
