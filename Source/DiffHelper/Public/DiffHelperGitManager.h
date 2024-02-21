@@ -40,6 +40,9 @@ public:
 	UFUNCTION()
 	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const override;
 
+	UFUNCTION()
+	virtual FDiffHelperCommit GetLastCommitForFile(const FString& InFilePath, const FString& InBranch) const override;
+
 	virtual FSlateIcon GetStatusIcon(const EDiffHelperFileStatus InStatus) const override;
 #pragma endregion IDiffHelperManager
 
@@ -56,6 +59,7 @@ protected:
 
 	TArray<FDiffHelperBranch> ParseBranches(const FString& InBranches) const;
 	TArray<FDiffHelperCommit> ParseCommits(const FString& InCommits) const;
+	FDiffHelperCommit ParseCommit(const FString& String) const;
 	FDateTime ParseDate(const FString& InDate) const;
 	TArray<FDiffHelperFileData> ParseChangedFiles(const FString& InFiles) const;
 

@@ -28,6 +28,9 @@ public:
 	FString CommitDataPattern = TEXT("<Hash:(.+?)> <Message:(.+?)> <Author:(.+?)> <Date:(.+?)>\n([\\s\\S]*?)(?=(?:<Hash:\\w+>|$))\n$");
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
+	FString SingleCommitPattern = TEXT("<Hash:(.+?)> <Message:(.+?)> <Author:(.+?)> <Date:(.+?)>");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	int32 HashGroup = 1;
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")

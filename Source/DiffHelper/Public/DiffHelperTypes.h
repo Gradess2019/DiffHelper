@@ -72,6 +72,8 @@ struct FDiffHelperCommit
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperFileData> Files;
+
+	FORCEINLINE bool IsValid() const { return !Revision.IsEmpty(); }
 };
 
 USTRUCT(BlueprintType)
@@ -87,6 +89,9 @@ struct FDiffHelperDiffItem
 	
 	UPROPERTY(BlueprintReadOnly)
 	FAssetData AssetData;
+
+	UPROPERTY(BlueprintReadOnly)
+	FDiffHelperCommit LastTargetCommit;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperCommit> Commits;

@@ -120,6 +120,7 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 			}
 		}
 
+		DiffItem.LastTargetCommit = GetLastCommitForFile(DiffItem.Path, InTargetRevision);
 		DiffItem.Commits = Pair.Value;
 		DiffItems.Add(DiffItem);
 	}
@@ -147,6 +148,29 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FStrin
 
 	TArray<FDiffHelperCommit> Commits = ParseCommits(Result);
 	return Commits;
+}
+
+FDiffHelperCommit UDiffHelperGitManager::GetLastCommitForFile(const FString& InFilePath, const FString& InBranch) const
+{
+	const FString Command = TEXT("log");
+	FString Result;
+	FString Errors;
+
+	TArray<FString> Params;
+	Params.Add(InBranch);
+	Params.Add(TEXT("-n 1"));
+	Params.Add(TEXT("--pretty=format:\"<Hash:%h> <Message:%s> <Author:%an> <Date:%ad>\""));
+	Params.Add(TEXT("--date=format-local:\"%d/%m/%Y %H:%M\""));
+	Params.Add(TEXT("-- ") + InFilePath);
+
+	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
+	{
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get last commit for file: %s. Error: %s"), *InFilePath, *Errors);
+		return {};
+	}
+
+	FDiffHelperCommit Commit = ParseCommit(Result);
+	return Commit;
 }
 
 FSlateIcon UDiffHelperGitManager::GetStatusIcon(const EDiffHelperFileStatus InStatus) const
@@ -260,6 +284,24 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::ParseCommits(const FString& InC
 	}
 
 	return Commits;
+}
+
+FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) const
+{
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	const auto Pattern = FRegexPattern(Settings->SingleCommitPattern);
+	auto Matcher = FRegexMatcher(Pattern, String);
+
+	FDiffHelperCommit Commit;
+	if (Matcher.FindNext())
+	{
+		Commit.Revision = Matcher.GetCaptureGroup(Settings->HashGroup);
+		Commit.Message = Matcher.GetCaptureGroup(Settings->MessageGroup);
+		Commit.Author = Matcher.GetCaptureGroup(Settings->AuthorGroup);
+		Commit.Date = ParseDate(Matcher.GetCaptureGroup(Settings->DateGroup));
+	}
+
+	return Commit;
 }
 
 FDateTime UDiffHelperGitManager::ParseDate(const FString& InDate) const
