@@ -2,6 +2,7 @@
 
 
 #include "UI/SDiffHelperCommitItem.h"
+#include "SDiffHelperCommitTextBlock.h"
 #include "SlateOptMacros.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
@@ -14,7 +15,11 @@ void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef
 	Item = InArgs._Item;
 
 
-	FSuperRowType::Construct(FSuperRowType::FArguments(), InOwnerTable);
+	FSuperRowType::Construct(
+		FSuperRowType::FArguments()
+		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("PropertyTable.TableRow")),
+		InOwnerTable
+	);
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& InColumnName)
@@ -46,30 +51,34 @@ TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& 
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateCommitHashColumn() const
 {
-	return SNew(STextBlock)
+	return
+		SNew(SDiffHelperCommitTextBlock)
 		.Text(FText::FromString(Item->Revision))
-		.ToolTipText(FText::FromString(Item->Revision));
+		.ToolTip(FText::FromString(Item->Revision));
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateMessageColumn() const
 {
-	return SNew(STextBlock)
+	return
+		SNew(SDiffHelperCommitTextBlock)
 		.Text(FText::FromString(Item->Message))
-		.ToolTipText(FText::FromString(Item->Message));
+		.ToolTip(FText::FromString(Item->Message));
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateAuthorColumn() const
 {
-	return SNew(STextBlock)
+	return
+		SNew(SDiffHelperCommitTextBlock)
 		.Text(FText::FromString(Item->Author))
-		.ToolTipText(FText::FromString(Item->Author));
+		.ToolTip(FText::FromString(Item->Author));
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateDateColumn() const
 {
-	return SNew(STextBlock)
+	return
+		SNew(SDiffHelperCommitTextBlock)
 		.Text(FText::FromString(Item->Date.ToString()))
-		.ToolTipText(FText::FromString(Item->Date.ToString()));
+		.ToolTip(FText::FromString(Item->Date.ToString()));
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::CreateDiffButtonColumn() const
