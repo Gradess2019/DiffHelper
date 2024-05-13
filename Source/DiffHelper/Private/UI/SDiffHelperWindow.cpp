@@ -42,6 +42,9 @@ void SDiffHelperWindow::OnShowDiff()
 		SNew(SDiffHelperDiffViewer)
 		.Controller(Controller)
 	);
+
+	const auto NewTitle = Controller->GetModel()->SourceBranch.Name + " -> " + Controller->GetModel()->TargetBranch.Name;
+	SetTitle(FText::FromString(NewTitle));
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
