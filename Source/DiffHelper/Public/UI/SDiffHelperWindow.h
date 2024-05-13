@@ -25,6 +25,12 @@ public:
 	void Construct(const FArguments& InArgs);
 
 protected:
+	TSharedRef<SWidget> CreateStartupView();
+	TSharedRef<SWidget> CreateDiffView();
+	TSharedRef<SWidget> CreateMenu();
+	TSharedRef<SWidget> CreateDiffPicker();
+	TSharedRef<SWidget> CreateDiffViewer();
+	void Reset();
 	void OnShowDiff();
 
 };
