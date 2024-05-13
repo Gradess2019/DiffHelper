@@ -34,7 +34,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		SNew(SVerticalBox)
 		+ SVerticalBox::Slot()
 		  .AutoHeight()
-		  .Padding(0.f, 5.f, 0.f, 0.f)
+		  .Padding(0.f, 0.f, 0.f, 0.f)
 		[
 			SNew(SBorder)
 			.HAlign(HAlign_Fill)
@@ -43,7 +43,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
-				.Padding(0.f, 4.f, 0.f, 0.f)
+				.Padding(0.f, 0.f, 0.f, 0.f)
 				[
 					SNew(STextBlock)
 					.Justification(ETextJustify::Center)
