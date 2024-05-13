@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "DiffHelperTypes.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDynamicDelegate);
+DECLARE_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
 DECLARE_DELEGATE(FDiffHelperEvent)
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
@@ -71,6 +72,8 @@ struct FDiffHelperCommit
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperFileData> Files;
+
+	FORCEINLINE bool IsValid() const { return !Revision.IsEmpty(); }
 };
 
 USTRUCT(BlueprintType)
@@ -88,11 +91,25 @@ struct FDiffHelperDiffItem
 	FAssetData AssetData;
 
 	UPROPERTY(BlueprintReadOnly)
+	FDiffHelperCommit LastTargetCommit;
+
+	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperCommit> Commits;
+
+	FORCEINLINE bool IsValid() const { return !Path.IsEmpty(); }
 };
 
 namespace SDiffHelperDiffPanelConstants
 {
 	const FName StatusColumnId(TEXT("State"));
 	const FName PathColumnId(TEXT("Path"));
+}
+
+namespace SDiffHelperCommitPanelConstants
+{
+	const FName HashColumnId(TEXT("CommitHash"));
+	const FName MessageColumnId(TEXT("CommitMessage"));
+	const FName AuthorColumnId(TEXT("CommitAuthor"));
+	const FName DateColumnId(TEXT("CommitDate"));
+	const FName DiffButtonColumnId(TEXT("DiffButton"));
 }

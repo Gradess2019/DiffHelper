@@ -14,7 +14,11 @@ void SDiffHelperDiffFileItem::Construct(const FArguments& InArgs, const TSharedR
 	Item = InArgs._Item;
 	if (!ensure(Item.IsValid())) { return; }
 
-	FSuperRowType::Construct(FSuperRowType::FArguments(), InOwner);
+	FSuperRowType::Construct(
+		FSuperRowType::FArguments()
+		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("PropertyTable.TableRow")),
+		InOwner
+	);
 }
 
 TSharedRef<SWidget> SDiffHelperDiffFileItem::GenerateWidgetForColumn(const FName& InColumnName)

@@ -64,6 +64,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(DiffList, SListView<TSharedPtr<FDiffHelperDiffItem>>)
 			.ListItemsSource(&FilteredDiff)
+			.SelectionMode(ESelectionMode::SingleToggle)
+			.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
 			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 			.HeaderRow
 			(
@@ -165,13 +167,6 @@ void SDiffHelperDiffPanel::OnFilterChanged()
 	DiffList->RequestListRefresh();
 }
 
-TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
-{
-	return
-		SNew(SDiffHelperDiffFileItem, InOwnerTable)
-		.Item(InItem);
-}
-
 void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode)
 {
 	SortColumn = InColumnId;
@@ -180,6 +175,27 @@ void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, co
 	SortDiffArray(FilteredDiff);
 
 	DiffList->RequestListRefresh();
+}
+
+void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperDiffItem, ESPMode::ThreadSafe> InSelectedItem, ESelectInfo::Type InSelectType)
+{
+	if (InSelectedItem.IsValid())
+	{
+		Controller->SelectDiffItem(*InSelectedItem);
+	}
+	else
+	{
+		Controller->SelectDiffItem(FDiffHelperDiffItem());
+	}
+	
+	Controller->CallModelUpdated();
+}
+
+TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
+{
+	return
+		SNew(SDiffHelperDiffFileItem, InOwnerTable)
+		.Item(InItem);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
