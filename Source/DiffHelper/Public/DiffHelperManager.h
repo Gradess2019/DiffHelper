@@ -42,4 +42,5 @@ public:
 	virtual FDiffHelperCommit GetLastCommitForFile(const FString& InFilePath, const FString& InBranch) const = 0;
 
 	virtual FSlateIcon GetStatusIcon(const EDiffHelperFileStatus InStatus) const = 0;
+	virtual TOptional<FString> GetFile(const FString& InFilePath, const FString& InRevision) const = 0;
 };

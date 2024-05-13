@@ -43,6 +43,9 @@ public:
 	void CollectDiff() const;
 
 	UFUNCTION(BlueprintCallable)
+	void DiffAsset(const FString& InPath, const FDiffHelperCommit& InFirstRevision, const FDiffHelperCommit& InSecondRevision) const;
+
+	UFUNCTION(BlueprintCallable)
 	void CallModelUpdated() const;
 
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;

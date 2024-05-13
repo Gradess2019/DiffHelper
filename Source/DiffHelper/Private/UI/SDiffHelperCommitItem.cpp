@@ -5,15 +5,18 @@
 #include "SDiffHelperCommitTextBlock.h"
 #include "SlateOptMacros.h"
 
+#include "UI/DiffHelperTabController.h"
+#include "UI/DiffHelperTabModel.h"
+
 #define LOCTEXT_NAMESPACE "DiffHelper"
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTable)
 {
-	if (!ensure(InArgs._Item.IsValid())) { return; }
+	if (!ensure(InArgs._Controller.IsValid()) || !ensure(InArgs._Item.IsValid())) { return; }
 
+	Controller = InArgs._Controller;
 	Item = InArgs._Item;
-
 
 	FSuperRowType::Construct(
 		FSuperRowType::FArguments()
@@ -24,6 +27,8 @@ void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef
 
 TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& InColumnName)
 {
+	if (!ensure(Controller.IsValid()) || !ensure(Item.IsValid())) { return SNullWidget::NullWidget; }
+	
 	if (InColumnName == SDiffHelperCommitPanelConstants::HashColumnId)
 	{
 		return CreateCommitHashColumn();
@@ -85,11 +90,25 @@ TSharedRef<SWidget> SDiffHelperCommitItem::CreateDiffButtonColumn() const
 {
 	return
 		SNew(SButton)
+		.OnClicked(this, &SDiffHelperCommitItem::OnDiffButtonClicked)
 		[
 			SNew(STextBlock)
 			.Text(LOCTEXT("DiffButtonText", "Diff"))
 			.Justification(ETextJustify::Center)
 		];
+}
+
+FReply SDiffHelperCommitItem::OnDiffButtonClicked() const
+{
+	const auto& SelectedDiffItem = Controller->GetModel()->SelectedDiffItem;
+
+	if (!ensure(SelectedDiffItem.IsValid())) { return FReply::Handled(); }
+
+	const auto& Path = SelectedDiffItem.Path;
+	const auto& TargetRevision = SelectedDiffItem.LastTargetCommit;
+	Controller->DiffAsset(Path, TargetRevision, *Item);
+
+	return FReply::Handled();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

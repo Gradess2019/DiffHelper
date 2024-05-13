@@ -95,6 +95,8 @@ struct FDiffHelperDiffItem
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperCommit> Commits;
+
+	FORCEINLINE bool IsValid() const { return !Path.IsEmpty(); }
 };
 
 namespace SDiffHelperDiffPanelConstants

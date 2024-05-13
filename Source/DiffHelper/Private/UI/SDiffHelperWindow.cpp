@@ -24,38 +24,24 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 	Controller = NewObject<UDiffHelperTabController>();
 	Controller->Init();
 
-	// TODO: Test data
-	const auto* Model = Controller->GetModel();
-	const auto Branches = Model->Branches;
-
-	Controller->SetSourceBranch(Branches[1]);
-	Controller->SetTargetBranch(Branches[0]);
-	Controller->CollectDiff();
-	
-	const auto Diff = Model->Diff;
-
-	// SWindow::Construct(
-	// 	SWindow::FArguments()
-	// 	.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
-	// 	.ClientSize(FVector2f(800, 600))
-	// 	[
-	// 		SNew(SDiffHelperPickerPanel)
-	// 		.Controller(Controller)
-	// 		.OnShowDiff(this, &SDiffHelperWindow::OnShowDiff)
-	// 	]);
 	SWindow::Construct(
 		SWindow::FArguments()
 		.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
 		.ClientSize(FVector2f(800, 600))
 		[
-			SNew(SDiffHelperDiffViewer)
+			SNew(SDiffHelperPickerPanel)
 			.Controller(Controller)
-		]);
+			.OnShowDiff(this, &SDiffHelperWindow::OnShowDiff)
+		]
+	);
 }
 
 void SDiffHelperWindow::OnShowDiff()
 {
-	SetContent(SNullWidget::NullWidget);
+	SetContent(
+		SNew(SDiffHelperDiffViewer)
+		.Controller(Controller)
+	);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

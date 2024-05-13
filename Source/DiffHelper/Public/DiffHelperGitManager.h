@@ -27,7 +27,7 @@ public:
 
 	UFUNCTION()
 	virtual void Deinit() override;
-	
+
 	UFUNCTION()
 	virtual FDiffHelperBranch GetCurrentBranch() const override;
 
@@ -36,7 +36,7 @@ public:
 
 	UFUNCTION()
 	virtual TArray<FDiffHelperDiffItem> GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const override;
-	
+
 	UFUNCTION()
 	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const override;
 
@@ -44,6 +44,7 @@ public:
 	virtual FDiffHelperCommit GetLastCommitForFile(const FString& InFilePath, const FString& InBranch) const override;
 
 	virtual FSlateIcon GetStatusIcon(const EDiffHelperFileStatus InStatus) const override;
+	virtual TOptional<FString> GetFile(const FString& InFilename, const FString& InRevision) const override;
 #pragma endregion IDiffHelperManager
 
 protected:
@@ -53,8 +54,6 @@ protected:
 	TOptional<FString> GetRepositoryDirectory() const;
 
 	bool ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const;
-
-	
 	TOptional<FString> GetForkPoint(const FDiffHelperBranch& InSourceBranch, const FDiffHelperBranch& InTargetBranch) const;
 
 	TArray<FDiffHelperBranch> ParseBranches(const FString& InBranches) const;
@@ -64,5 +63,7 @@ protected:
 	TArray<FDiffHelperFileData> ParseChangedFiles(const FString& InFiles) const;
 
 	EDiffHelperFileStatus ConvertFileStatus(const FString& InStatus) const;
-	
+
+	// Modified copy of GitSourceControlUtils::RunDumpToFile
+	bool ExtractFile(const FString& InParameter, const FString& InDumpFileName) const;
 };

@@ -6,20 +6,25 @@
 #include "DiffHelperTypes.h"
 
 
+class UDiffHelperTabController;
+
 class DIFFHELPER_API SDiffHelperCommitItem : public SMultiColumnTableRow<TSharedPtr<FDiffHelperCommit>>
 {
 public:
 	SLATE_BEGIN_ARGS(SDiffHelperCommitItem)
 			:
+			_Controller(nullptr),
 			_Item(nullptr)
 		{
 		}
 
+		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
 		SLATE_ARGUMENT(TSharedPtr<FDiffHelperCommit>, Item)
 
 	SLATE_END_ARGS()
 
 protected:
+	TWeakObjectPtr<UDiffHelperTabController> Controller;
 	TSharedPtr<FDiffHelperCommit> Item;
 
 public:
@@ -27,11 +32,13 @@ public:
 	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTable);
 
 	virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& InColumnName) override;
-	
+
 protected:
 	TSharedRef<SWidget> CreateCommitHashColumn() const;
 	TSharedRef<SWidget> CreateMessageColumn() const;
 	TSharedRef<SWidget> CreateAuthorColumn() const;
 	TSharedRef<SWidget> CreateDateColumn() const;
 	TSharedRef<SWidget> CreateDiffButtonColumn() const;
+
+	FReply OnDiffButtonClicked() const;
 };

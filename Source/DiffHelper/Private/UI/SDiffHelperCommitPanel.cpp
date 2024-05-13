@@ -69,6 +69,7 @@ TSharedRef<ITableRow> SDiffHelperCommitPanel::OnGenerateRow(TSharedPtr<FDiffHelp
 {
 	return
 		SNew(SDiffHelperCommitItem, InOwnerTable)
+		.Controller(Controller)
 		.Item(InItem);
 }
 
