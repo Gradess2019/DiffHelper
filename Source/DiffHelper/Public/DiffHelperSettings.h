@@ -12,6 +12,10 @@ class DIFFHELPER_API UDiffHelperSettings : public UObject
 	GENERATED_BODY()
 
 public:
+	/** if true the plugin will cache source and target branches and will put them into selectors on a first Diff Helper view */
+	UPROPERTY(Config, EditAnywhere, Category = "Caching")
+	bool bEnableCaching = true;
+	
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	FString BranchParserPattern = TEXT("(?:\n*\\s\\s|(?:\\*\\s))(.+?)\\s+(\\w+)");
 
@@ -72,4 +76,6 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	int32 ChangedFilePathGroup = 2;
 
+public:
+	static bool IsCachingEnabled() { return GetDefault<UDiffHelperSettings>()->bEnableCaching; }
 };

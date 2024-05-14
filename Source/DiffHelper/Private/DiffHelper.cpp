@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "DiffHelper.h"
+#include "DiffHelperCacheManager.h"
 #include "DiffHelperStyle.h"
 #include "DiffHelperCommands.h"
 #include "DiffHelperGitManager.h"
@@ -23,6 +24,8 @@ void FDiffHelperModule::StartupModule()
 	DiffHelperManager = NewObject<UDiffHelperGitManager>();
 	DiffHelperManager->Init();
 
+	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
+	
 	FDiffHelperCommands::Register();
 
 	PluginCommands = MakeShareable(new FUICommandList);
