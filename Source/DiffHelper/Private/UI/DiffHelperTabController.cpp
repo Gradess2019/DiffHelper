@@ -5,7 +5,9 @@
 
 #include "AssetToolsModule.h"
 #include "DiffHelper.h"
+#include "DiffHelperCacheManager.h"
 #include "DiffHelperManager.h"
+#include "DiffHelperSettings.h"
 #include "DiffUtils.h"
 #include "ISourceControlModule.h"
 #include "ISourceControlProvider.h"
@@ -24,6 +26,33 @@ void UDiffHelperTabController::Init()
 
 	const auto* Manager = FDiffHelperModule::Get().GetManager();
 	Model->Branches = Manager->GetBranches();
+
+	if (UDiffHelperSettings::IsCachingEnabled())
+	{
+		LoadCachedBranches();
+	}
+}
+
+void UDiffHelperTabController::LoadCachedBranches()
+{
+	auto* CacheManager = FDiffHelperModule::Get().GetCacheManager();
+	check(CacheManager);
+		
+	const auto CachedSourceBranchName = CacheManager->GetSourceBranch();
+	const auto CachedTargetBranchName = CacheManager->GetTargetBranch();
+
+	for (const auto& Branch : Model->Branches)
+	{
+		if (Branch.Name == CachedSourceBranchName)
+		{
+			Model->SourceBranch = Branch;
+		}
+
+		if (Branch.Name == CachedTargetBranchName)
+		{
+			Model->TargetBranch = Branch;
+		}
+	}
 }
 
 void UDiffHelperTabController::Deinit()
@@ -35,11 +64,23 @@ void UDiffHelperTabController::Deinit()
 void UDiffHelperTabController::SetSourceBranch(const FDiffHelperBranch& InBranch)
 {
 	Model->SourceBranch = InBranch;
+
+	if (UDiffHelperSettings::IsCachingEnabled())
+	{
+		auto* Manager = FDiffHelperModule::Get().GetCacheManager();
+		Manager->SetSourceBranch(InBranch);
+	}
 }
 
 void UDiffHelperTabController::SetTargetBranch(const FDiffHelperBranch& InBranch)
 {
 	Model->TargetBranch = InBranch;
+
+	if (UDiffHelperSettings::IsCachingEnabled())
+	{
+		auto* Manager = FDiffHelperModule::Get().GetCacheManager();
+		Manager->SetTargetBranch(InBranch);
+	}
 }
 
 void UDiffHelperTabController::SelectDiffItem(const FDiffHelperDiffItem& InDiffItem)

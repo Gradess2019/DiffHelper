@@ -24,6 +24,9 @@ public:
 	void Init();
 
 	UFUNCTION()
+	void LoadCachedBranches();
+
+	UFUNCTION()
 	void Deinit();
 
 	// TODO: do we really need to expose it to blueprint?
