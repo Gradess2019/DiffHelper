@@ -32,9 +32,13 @@ void SDiffHelperBranchPicker::Construct(const FArguments& InArgs)
 		Options = MakeShared<TArray<TSharedPtr<FString>>>(*InArgs._Options);
 	}
 
+	SelectedBranch = InArgs._InitiallySelectedBranch.IsValid() ? *InArgs._InitiallySelectedBranch : FDiffHelperBranch();
+	TSharedPtr<FString> InitiallySelectedItem = SelectedBranch.IsValid() ? MakeShareable(new FString(SelectedBranch.Name)) : nullptr;
+
 	SSearchableComboBox::Construct(
 		SSearchableComboBox::FArguments()
 		.OptionsSource(Options.Get())
+		.InitiallySelectedItem(InitiallySelectedItem)
 		.OnGenerateWidget(this, &SDiffHelperBranchPicker::HandleGenerateWidget)
 		.OnSelectionChanged(this, &SDiffHelperBranchPicker::HandleSelectionChanged)
 		.Content()

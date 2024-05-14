@@ -26,6 +26,33 @@ void UDiffHelperTabController::Init()
 
 	const auto* Manager = FDiffHelperModule::Get().GetManager();
 	Model->Branches = Manager->GetBranches();
+
+	if (UDiffHelperSettings::IsCachingEnabled())
+	{
+		LoadCachedBranches();
+	}
+}
+
+void UDiffHelperTabController::LoadCachedBranches()
+{
+	auto* CacheManager = FDiffHelperModule::Get().GetCacheManager();
+	check(CacheManager);
+		
+	const auto CachedSourceBranchName = CacheManager->GetSourceBranch();
+	const auto CachedTargetBranchName = CacheManager->GetTargetBranch();
+
+	for (const auto& Branch : Model->Branches)
+	{
+		if (Branch.Name == CachedSourceBranchName)
+		{
+			Model->SourceBranch = Branch;
+		}
+
+		if (Branch.Name == CachedTargetBranchName)
+		{
+			Model->TargetBranch = Branch;
+		}
+	}
 }
 
 void UDiffHelperTabController::Deinit()

@@ -21,6 +21,7 @@ public:
 
 		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>*, Options)
+		SLATE_ARGUMENT(TSharedPtr<FDiffHelperBranch>, InitiallySelectedBranch)
 		SLATE_ARGUMENT(FText, Hint)
 
 	SLATE_END_ARGS()

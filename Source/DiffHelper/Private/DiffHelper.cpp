@@ -25,6 +25,7 @@ void FDiffHelperModule::StartupModule()
 	DiffHelperManager->Init();
 
 	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
+	CacheManager->Init();
 	
 	FDiffHelperCommands::Register();
 

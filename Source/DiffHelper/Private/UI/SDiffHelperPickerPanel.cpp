@@ -6,6 +6,8 @@
 #include "UI/DiffHelperTabController.h"
 #include "SlateOptMacros.h"
 
+#include "UI/DiffHelperTabModel.h"
+
 #define LOCTEXT_NAMESPACE "DiffHelper"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -16,6 +18,9 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 	ensure(Controller.IsValid());
 
 	OnShowDiff = InArgs._OnShowDiff;
+
+	TSharedPtr<FDiffHelperBranch> CachedSourceBranch = MakeShareable<FDiffHelperBranch>(new FDiffHelperBranch(Controller->GetModel()->SourceBranch));
+	TSharedPtr<FDiffHelperBranch> CachedTargetBranch = MakeShareable<FDiffHelperBranch>(new FDiffHelperBranch(Controller->GetModel()->TargetBranch));
 	
 	ChildSlot
 	[
@@ -32,12 +37,14 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(SourceBranchPicker, SDiffHelperBranchPicker)
 					.Controller(Controller)
+					.InitiallySelectedBranch(CachedSourceBranch)
 					.Hint(LOCTEXT("DiffHelperSourceBranchHint", "Select source branch..."))
 				]
 				+ SVerticalBox::Slot()
 				[
 					SAssignNew(TargetBranchPicker, SDiffHelperBranchPicker)
 					.Controller(Controller)
+					.InitiallySelectedBranch(CachedTargetBranch)
 					.Hint(LOCTEXT("DiffHelperTargetBranchHint", "Select target branch..."))
 				]
 				// add "Show diff" button here

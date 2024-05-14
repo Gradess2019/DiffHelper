@@ -16,27 +16,36 @@ class DIFFHELPER_API UDiffHelperCacheManager : public UObject
 {
 	GENERATED_BODY()
 
+public:
+	static const FString ConfigSection;
+	static const FString ConfigSourceBranchKey;
+	static const FString ConfigTargetBranchKey;
+
 private:
 	// Cached branches
 	UPROPERTY()
-	FDiffHelperBranch SourceBranch;
+	FString SourceBranchName;
 
 	UPROPERTY()
-	FDiffHelperBranch TargetBranch;
+	FString TargetBranchName;
 
 public:
 	UFUNCTION(BlueprintPure, Category = "Diff Helper")
-	const FDiffHelperBranch& GetSourceBranch() const { return SourceBranch; }
+	const FString& GetSourceBranch() const { return SourceBranchName; }
 	
 	UFUNCTION(BlueprintPure, Category = "Diff Helper")
-	const FDiffHelperBranch& GetTargetBranch() const { return TargetBranch; }
+	const FString& GetTargetBranch() const { return TargetBranchName; }
 
 	UFUNCTION(BlueprintCallable, Category = "Diff Helper")
-	void SetSourceBranch(const FDiffHelperBranch& Branch);
+	void SetSourceBranch(const FString& Branch);
 
 	UFUNCTION(BlueprintCallable, Category = "Diff Helper")
-	void SetTargetBranch(const FDiffHelperBranch& Branch);
+	void SetTargetBranch(const FString& Branch);
+
+	UFUNCTION()
+	void Init();
 
 private:
 	void Cache();
+	FString GetConfigPath() const;
 };

@@ -3,23 +3,38 @@
 
 #include "DiffHelperCacheManager.h"
 
-void UDiffHelperCacheManager::SetSourceBranch(const FDiffHelperBranch& Branch)
+const FString UDiffHelperCacheManager::ConfigSection = TEXT("DiffHelperCache");
+const FString UDiffHelperCacheManager::ConfigSourceBranchKey = TEXT("SourceBranch");
+const FString UDiffHelperCacheManager::ConfigTargetBranchKey = TEXT("TargetBranch");
+
+void UDiffHelperCacheManager::SetSourceBranch(const FString& Branch)
 {
-	SourceBranch = Branch;
-	Cache();	
+	SourceBranchName = Branch;
+	Cache();
 }
 
-void UDiffHelperCacheManager::SetTargetBranch(const FDiffHelperBranch& Branch)
+void UDiffHelperCacheManager::SetTargetBranch(const FString& Branch)
 {
-	TargetBranch = Branch;
+	TargetBranchName = Branch;
 	Cache();
+}
+
+void UDiffHelperCacheManager::Init()
+{
+	const auto ConfigPath = GetConfigPath();
+	GConfig->GetString(*ConfigSection, *ConfigSourceBranchKey, SourceBranchName, ConfigPath);
+	GConfig->GetString(*ConfigSection, *ConfigTargetBranchKey, TargetBranchName, ConfigPath);
 }
 
 void UDiffHelperCacheManager::Cache()
 {
-	
-	const auto ConfigPath = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("DiffHelperCache.ini"));
-	GConfig->SetString(TEXT("DiffHelper"), TEXT("SourceBranch"), *SourceBranch.Name, ConfigPath);
-	GConfig->SetString(TEXT("DiffHelper"), TEXT("TargetBranch"), *TargetBranch.Name, ConfigPath);
+	const auto ConfigPath = GetConfigPath();
+	GConfig->SetString(*ConfigSection, *ConfigSourceBranchKey, *SourceBranchName, ConfigPath);
+	GConfig->SetString(*ConfigSection, *ConfigTargetBranchKey, *TargetBranchName, ConfigPath);
 	GConfig->Flush(false);
+}
+
+FString UDiffHelperCacheManager::GetConfigPath() const
+{
+	return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("DiffHelperCache.ini"));
 }
