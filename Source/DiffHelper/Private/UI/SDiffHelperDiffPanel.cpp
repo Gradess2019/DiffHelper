@@ -6,6 +6,7 @@
 #include "DiffHelperTypes.h"
 #include "DiffHelperUtils.h"
 #include "SDiffHelperDiffFileItem.h"
+#include "SDiffHelperTreeItem.h"
 #include "SlateOptMacros.h"
 #include "Misc/ComparisonUtility.h"
 #include "UI/DiffHelperTabController.h"
@@ -25,6 +26,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 
 	const auto* Model = Controller->GetModel();
 	OriginalDiff = FilteredDiff = UDiffHelperUtils::ConvertToShared(Model->Diff);
+	OriginalTreeDiff = FilteredTreeDiff = UDiffHelperUtils::GenerateTree(OriginalDiff);
 
 	SearchFilter = MakeShared<TTextFilter<const FDiffHelperDiffItem&>>(TTextFilter<const FDiffHelperDiffItem&>::FItemToStringArray::CreateSP(this, &SDiffHelperDiffPanel::PopulateSearchString));
 	SearchFilter->OnChanged().AddSP(this, &SDiffHelperDiffPanel::OnFilterChanged);
@@ -33,8 +35,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 	[
 		SNew(SVerticalBox)
 		+ SVerticalBox::Slot()
-		  .AutoHeight()
-		  .Padding(0.f, 0.f, 0.f, 0.f)
+		.AutoHeight()
+		.Padding(0.f, 0.f, 0.f, 0.f)
 		[
 			SNew(SBorder)
 			.HAlign(HAlign_Fill)
@@ -50,8 +52,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("DiffPanelTitle", "Diff List"))
 				]
 				+ SVerticalBox::Slot()
-				  .HAlign(HAlign_Fill)
-				  .Padding(4.f, 4.f, 4.f, 4.f)
+				.HAlign(HAlign_Fill)
+				.Padding(4.f, 4.f, 4.f, 4.f)
 				[
 					SAssignNew(SearchBox, SSearchBox)
 					.HintText(LOCTEXT("SearchBoxHint", "Search the files"))
@@ -71,17 +73,43 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			(
 				SNew(SHeaderRow)
 				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::StatusColumnId)
-				  .DefaultLabel(FText::GetEmpty())
-				  .FixedWidth(28.f)
-				  .SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				  .SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				  .OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
+				.DefaultLabel(FText::GetEmpty())
+				.FixedWidth(28.f)
+				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
+				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
+				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
 				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
-				  .DefaultLabel(LOCTEXT("PathColumn", "Path"))
-				  .FillWidth(1.f)
-				  .SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::PathColumnId)
-				  .SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				  .OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
+				.DefaultLabel(LOCTEXT("PathColumn", "Path"))
+				.FillWidth(1.f)
+				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::PathColumnId)
+				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
+				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
+			)
+		]
+		+ SVerticalBox::Slot()
+		.FillHeight(1.f)
+		[
+			SNew(STreeView<TSharedPtr<FDiffHelperTreeItem>>)
+			.TreeItemsSource(&FilteredTreeDiff)
+			.SelectionMode(ESelectionMode::SingleToggle)
+			// .OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
+			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
+			.OnGetChildren(this, &SDiffHelperDiffPanel::OnGetChildren)
+			.HeaderRow
+			(
+				SNew(SHeaderRow)
+				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::StatusColumnId)
+				.DefaultLabel(FText::GetEmpty())
+				.FixedWidth(28.f)
+				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
+				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
+				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
+				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
+				.DefaultLabel(LOCTEXT("PathColumn", "Path"))
+				.FillWidth(1.f)
+				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::PathColumnId)
+				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
+				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
 			)
 		]
 	];
@@ -149,7 +177,6 @@ void SDiffHelperDiffPanel::SortDiffArray(TArray<TSharedPtr<FDiffHelperDiffItem>>
 
 void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)
 {
-	UE_LOG(LogDiffHelper, Log, TEXT("Search text changed: %s"), *InText.ToString());
 	SearchFilter->SetRawFilterText(InText);
 	SearchBox->SetError(SearchFilter->GetFilterErrorText());
 }
@@ -187,15 +214,25 @@ void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperDiffItem, ES
 	{
 		Controller->SelectDiffItem(FDiffHelperDiffItem());
 	}
-	
+
 	Controller->CallModelUpdated();
 }
 
 TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
-	return
-		SNew(SDiffHelperDiffFileItem, InOwnerTable)
+	return SNew(SDiffHelperDiffFileItem, InOwnerTable)
 		.Item(InItem);
+}
+
+TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperTreeItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
+{
+	return SNew(SDiffHelperTreeItem, InOwnerTable)
+		.Item(InItem);
+}
+
+void SDiffHelperDiffPanel::OnGetChildren(TSharedPtr<FDiffHelperTreeItem> DiffHelperTreeItem, TArray<TSharedPtr<FDiffHelperTreeItem>>& Shareds)
+{
+	Shareds = DiffHelperTreeItem->Children;
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

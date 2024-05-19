@@ -40,6 +40,7 @@ TSharedRef<SWidget> SDiffHelperDiffFileItem::CreateStatusColumn() const
 {
 	if (Item->Commits.Num() > 0)
 	{
+		// TODO: DIFF-23
 		const auto* FileDataPtr = Item->Commits[0].Files.FindByPredicate([this](const FDiffHelperFileData& FileData) { return FileData.Path == Item->Path; });
 		if (FileDataPtr)
 		{

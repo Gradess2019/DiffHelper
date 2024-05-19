@@ -6,6 +6,10 @@
 #include "UObject/Object.h"
 #include "DiffHelperUtils.generated.h"
 
+enum class EDiffHelperFileStatus : uint8;
+struct FDiffHelperDiffItem;
+struct FDiffHelperTreeItem;
+
 UCLASS()
 class DIFFHELPER_API UDiffHelperUtils : public UObject
 {
@@ -30,4 +34,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
 	static bool CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB);
+
+	static TArray<TSharedPtr<FDiffHelperTreeItem>> GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems);
 };

@@ -31,12 +31,14 @@ protected:
 	
 	TArray<TSharedPtr<FDiffHelperDiffItem>> OriginalDiff;
 	TArray<TSharedPtr<FDiffHelperDiffItem>> FilteredDiff;
+	
+	TArray<TSharedPtr<FDiffHelperTreeItem>> OriginalTreeDiff;
+	TArray<TSharedPtr<FDiffHelperTreeItem>> FilteredTreeDiff;
 
 	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
 
 public:
-	
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
@@ -52,4 +54,7 @@ protected:
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
 	void OnSelectionChanged(TSharedPtr<FDiffHelperDiffItem, ESPMode::ThreadSafe> InSelectedItem, ESelectInfo::Type InSelectType);
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperTreeItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	void OnGetChildren(TSharedPtr<FDiffHelperTreeItem> DiffHelperTreeItem, TArray<TSharedPtr<FDiffHelperTreeItem>>& Shareds);
+
 };

@@ -99,6 +99,18 @@ struct FDiffHelperDiffItem
 	FORCEINLINE bool IsValid() const { return !Path.IsEmpty(); }
 };
 
+USTRUCT()
+struct FDiffHelperTreeItem
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString Path;
+
+	TSharedPtr<FDiffHelperDiffItem> DiffItem;
+	TArray<TSharedPtr<FDiffHelperTreeItem>> Children;
+};
+
 namespace SDiffHelperDiffPanelConstants
 {
 	const FName StatusColumnId(TEXT("State"));
