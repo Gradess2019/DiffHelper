@@ -10,19 +10,19 @@
 /**
  * 
  */
-class DIFFHELPER_API SDiffHelperTreeItem : public STableRow<TSharedPtr<FDiffHelperTreeItem>>
+class DIFFHELPER_API SDiffHelperTreeItem : public STableRow<TSharedPtr<FDiffHelperItemNode>>
 {
 public:
 	SLATE_BEGIN_ARGS(SDiffHelperTreeItem)
 		{
 		}
 
-		SLATE_ARGUMENT(TSharedPtr<FDiffHelperTreeItem>, Item)
+		SLATE_ARGUMENT(TSharedPtr<FDiffHelperItemNode>, Item)
 
 	SLATE_END_ARGS()
 
 protected:
-	TSharedPtr<FDiffHelperTreeItem> Item;
+	TSharedPtr<FDiffHelperItemNode> Item;
 	
 public:
 	/** Constructs this widget with InArgs */

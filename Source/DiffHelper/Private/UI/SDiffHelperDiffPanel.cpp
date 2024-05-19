@@ -89,7 +89,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		[
-			SNew(STreeView<TSharedPtr<FDiffHelperTreeItem>>)
+			SNew(STreeView<TSharedPtr<FDiffHelperItemNode>>)
 			.TreeItemsSource(&FilteredTreeDiff)
 			.SelectionMode(ESelectionMode::SingleToggle)
 			// .OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
@@ -224,13 +224,13 @@ TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelper
 		.Item(InItem);
 }
 
-TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperTreeItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
+TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
 	return SNew(SDiffHelperTreeItem, InOwnerTable)
 		.Item(InItem);
 }
 
-void SDiffHelperDiffPanel::OnGetChildren(TSharedPtr<FDiffHelperTreeItem> DiffHelperTreeItem, TArray<TSharedPtr<FDiffHelperTreeItem>>& Shareds)
+void SDiffHelperDiffPanel::OnGetChildren(TSharedPtr<FDiffHelperItemNode> DiffHelperTreeItem, TArray<TSharedPtr<FDiffHelperItemNode>>& Shareds)
 {
 	Shareds = DiffHelperTreeItem->Children;
 }

@@ -32,8 +32,8 @@ protected:
 	TArray<TSharedPtr<FDiffHelperDiffItem>> OriginalDiff;
 	TArray<TSharedPtr<FDiffHelperDiffItem>> FilteredDiff;
 	
-	TArray<TSharedPtr<FDiffHelperTreeItem>> OriginalTreeDiff;
-	TArray<TSharedPtr<FDiffHelperTreeItem>> FilteredTreeDiff;
+	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalTreeDiff;
+	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredTreeDiff;
 
 	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
@@ -54,7 +54,7 @@ protected:
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
 	void OnSelectionChanged(TSharedPtr<FDiffHelperDiffItem, ESPMode::ThreadSafe> InSelectedItem, ESelectInfo::Type InSelectType);
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
-	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperTreeItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
-	void OnGetChildren(TSharedPtr<FDiffHelperTreeItem> DiffHelperTreeItem, TArray<TSharedPtr<FDiffHelperTreeItem>>& Shareds);
+	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	void OnGetChildren(TSharedPtr<FDiffHelperItemNode> DiffHelperTreeItem, TArray<TSharedPtr<FDiffHelperItemNode>>& Shareds);
 
 };

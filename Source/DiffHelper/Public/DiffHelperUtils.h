@@ -8,7 +8,7 @@
 
 enum class EDiffHelperFileStatus : uint8;
 struct FDiffHelperDiffItem;
-struct FDiffHelperTreeItem;
+struct FDiffHelperItemNode;
 
 UCLASS()
 class DIFFHELPER_API UDiffHelperUtils : public UObject
@@ -35,5 +35,5 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
 	static bool CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB);
 
-	static TArray<TSharedPtr<FDiffHelperTreeItem>> GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems);
+	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems);
 };

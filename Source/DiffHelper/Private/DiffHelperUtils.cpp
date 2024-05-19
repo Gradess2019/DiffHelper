@@ -21,9 +21,9 @@ bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, cons
 	return static_cast<uint8>(InStatusA) < static_cast<uint8>(InStatusB);
 }
 
-TArray<TSharedPtr<FDiffHelperTreeItem>> UDiffHelperUtils::GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems)
+TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems)
 {
-	TArray<TSharedPtr<FDiffHelperTreeItem>> OutArray;
+	TArray<TSharedPtr<FDiffHelperItemNode>> OutArray;
 
 	TSet<FString> Paths;
 	for (const auto DiffItem : InItems)
@@ -32,20 +32,20 @@ TArray<TSharedPtr<FDiffHelperTreeItem>> UDiffHelperUtils::GenerateTree(const TAr
 		Paths.Add(Path);
 	}
 
-	TSharedPtr<FDiffHelperTreeItem> Root = MakeShared<FDiffHelperTreeItem>();
+	TSharedPtr<FDiffHelperItemNode> Root = MakeShared<FDiffHelperItemNode>();
 	for (const auto& Path : Paths)
 	{
 		TArray<FString> PathComponents;
 		Path.ParseIntoArray(PathComponents, TEXT("/"), true);
 
-		TSharedPtr<FDiffHelperTreeItem> Current = Root;
+		TSharedPtr<FDiffHelperItemNode> Current = Root;
 		FString CurrentPath = "";
 
 		for (const auto& PathComponent : PathComponents)
 		{
 			CurrentPath = CurrentPath + "/" + PathComponent;
 
-			TSharedPtr<FDiffHelperTreeItem> Child;
+			TSharedPtr<FDiffHelperItemNode> Child;
 			for (const auto& CurrentChil : Current->Children)
 			{
 				if (CurrentChil->Path == CurrentPath)
@@ -57,7 +57,7 @@ TArray<TSharedPtr<FDiffHelperTreeItem>> UDiffHelperUtils::GenerateTree(const TAr
 
 			if (!Child.IsValid())
 			{
-				Child = MakeShared<FDiffHelperTreeItem>(CurrentPath);
+				Child = MakeShared<FDiffHelperItemNode>(CurrentPath);
 				Current->Children.Add(Child);
 			}
 

@@ -100,7 +100,7 @@ struct FDiffHelperDiffItem
 };
 
 USTRUCT()
-struct FDiffHelperTreeItem
+struct FDiffHelperItemNode
 {
 	GENERATED_BODY()
 
@@ -108,7 +108,7 @@ struct FDiffHelperTreeItem
 	FString Path;
 
 	TSharedPtr<FDiffHelperDiffItem> DiffItem;
-	TArray<TSharedPtr<FDiffHelperTreeItem>> Children;
+	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
 };
 
 namespace SDiffHelperDiffPanelConstants
