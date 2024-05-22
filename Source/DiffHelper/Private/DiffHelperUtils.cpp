@@ -24,8 +24,6 @@ bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, cons
 
 TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TArray<FDiffHelperDiffItem>& InItems)
 {
-	TArray<TSharedPtr<FDiffHelperItemNode>> OutArray;
-
 	TSet<FString> Paths;
 	for (const auto DiffItem : InItems)
 	{
@@ -33,8 +31,27 @@ TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TAr
 		Paths.Add(Path);
 	}
 
-	TSharedPtr<FDiffHelperItemNode> Root = MakeShared<FDiffHelperItemNode>();
-	for (const auto& Path : Paths)
+	TSharedPtr<FDiffHelperItemNode> Root = PopulateTree(Paths);
+	return Root->Children;
+}
+
+TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems)
+{
+	TSet<FString> Paths;
+	for (const auto DiffItem : InItems)
+	{
+		const auto& Path = DiffItem->Path;
+		Paths.Add(Path);
+	}
+
+	TSharedPtr<FDiffHelperItemNode> Root = PopulateTree(Paths);
+	return Root->Children;
+}
+
+TSharedPtr<FDiffHelperItemNode> UDiffHelperUtils::PopulateTree(const TSet<FString>& InPaths)
+{
+	auto Root = MakeShared<FDiffHelperItemNode>();
+	for (const auto& Path : InPaths)
 	{
 		TArray<FString> PathComponents;
 		Path.ParseIntoArray(PathComponents, TEXT("/"), true);
@@ -66,7 +83,7 @@ TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TAr
 		}
 	}
 
-	return Root->Children;
+	return Root;
 }
 
 void UDiffHelperUtils::SortDiffArray(const FName& InSortColumnId, const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperDiffItem>>& OutArray)

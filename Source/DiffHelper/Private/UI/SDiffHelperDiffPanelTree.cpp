@@ -34,6 +34,8 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 			.FillWidth(1.f)
 		)
 	);
+
+	Controller->GetModel()->DiffPanelData.SearchFilter->OnChanged().AddSP(this, &SDiffHelperDiffPanelTree::RequestListRefresh);
 }
 
 void SDiffHelperDiffPanelTree::OnGetChildren(TSharedPtr<FDiffHelperItemNode> InItem, TArray<TSharedPtr<FDiffHelperItemNode>>& OutChildren)

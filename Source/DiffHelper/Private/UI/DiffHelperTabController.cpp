@@ -191,6 +191,7 @@ void UDiffHelperTabController::OnFilterChanged()
 	});
 
 	UDiffHelperUtils::SortDiffArray(Data.SortColumn, Data.SortMode, Data.FilteredDiff);
+	Data.FilteredTreeDiff = UDiffHelperUtils::GenerateTree(Data.FilteredDiff);
 
 	// TODO: We need to add more specific events for model update. Calling global update is not good approach.
 	CallModelUpdated();
