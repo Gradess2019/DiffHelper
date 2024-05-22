@@ -148,17 +148,6 @@ TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelper
 		.Item(InItem);
 }
 
-TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
-{
-	return SNew(SDiffHelperTreeItem, InOwnerTable)
-		.Item(InItem);
-}
-
-void SDiffHelperDiffPanel::OnGetChildren(TSharedPtr<FDiffHelperItemNode> DiffHelperTreeItem, TArray<TSharedPtr<FDiffHelperItemNode>>& Shareds)
-{
-	Shareds = DiffHelperTreeItem->Children;
-}
-
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 #undef LOCTEXT_NAMESPACE
