@@ -8,9 +8,9 @@
 #include "SDiffHelperDiffFileItem.h"
 #include "SDiffHelperTreeItem.h"
 #include "SlateOptMacros.h"
-#include "Misc/ComparisonUtility.h"
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
+#include "UI/SDiffHelperDiffPanelTree.h"
 #include "Widgets/Views/STableViewBase.h"
 #include "Widgets/Views/SListView.h"
 #include "Widgets/Views/ITableRow.h"
@@ -24,12 +24,9 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 	Controller = InArgs._Controller;
 	if (!ensure(Controller.IsValid())) { return; }
 
-	const auto* Model = Controller->GetModel();
-	OriginalDiff = FilteredDiff = UDiffHelperUtils::ConvertToShared(Model->Diff);
-	OriginalTreeDiff = FilteredTreeDiff = UDiffHelperUtils::GenerateTree(OriginalDiff);
+	Model = Controller->GetModel();
+	if (!ensure(Model.IsValid())) { return; }
 
-	SearchFilter = MakeShared<TTextFilter<const FDiffHelperDiffItem&>>(TTextFilter<const FDiffHelperDiffItem&>::FItemToStringArray::CreateSP(this, &SDiffHelperDiffPanel::PopulateSearchString));
-	SearchFilter->OnChanged().AddSP(this, &SDiffHelperDiffPanel::OnFilterChanged);
 
 	ChildSlot
 	[
@@ -65,7 +62,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		.FillHeight(1.f)
 		[
 			SAssignNew(DiffList, SListView<TSharedPtr<FDiffHelperDiffItem>>)
-			.ListItemsSource(&FilteredDiff)
+			.ListItemsSource(&Model->DiffPanelData.FilteredDiff)
 			.SelectionMode(ESelectionMode::SingleToggle)
 			.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
 			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
@@ -89,37 +86,19 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		[
-			SNew(STreeView<TSharedPtr<FDiffHelperItemNode>>)
-			.TreeItemsSource(&FilteredTreeDiff)
-			.SelectionMode(ESelectionMode::SingleToggle)
-			// .OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
-			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
-			.OnGetChildren(this, &SDiffHelperDiffPanel::OnGetChildren)
-			.HeaderRow
-			(
-				SNew(SHeaderRow)
-				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::StatusColumnId)
-				.DefaultLabel(FText::GetEmpty())
-				.FixedWidth(28.f)
-				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
-				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
-				.DefaultLabel(LOCTEXT("PathColumn", "Path"))
-				.FillWidth(1.f)
-				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::PathColumnId)
-				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
-			)
+			SNew(SDiffHelperDiffPanelTree)
+			.Controller(Controller)
 		]
 	];
+	
+	Model->DiffPanelData.SearchFilter->OnChanged().AddSP(DiffList.Get(), &SListView<TSharedPtr<FDiffHelperDiffItem>>::RequestListRefresh);
 }
 
 EColumnSortMode::Type SDiffHelperDiffPanel::GetSortModeForColumn(FName InColumnId) const
 {
-	if (InColumnId == SortColumn)
+	if (InColumnId == Model->DiffPanelData.SortColumn)
 	{
-		return SortMode;
+		return Model->DiffPanelData.SortMode;
 	}
 
 	return EColumnSortMode::None;
@@ -127,7 +106,7 @@ EColumnSortMode::Type SDiffHelperDiffPanel::GetSortModeForColumn(FName InColumnI
 
 EColumnSortPriority::Type SDiffHelperDiffPanel::GetSortPriorityForColumn(FName InColumnId) const
 {
-	if (InColumnId == SortColumn)
+	if (InColumnId == Model->DiffPanelData.SortColumn)
 	{
 		return EColumnSortPriority::Primary;
 	}
@@ -135,72 +114,17 @@ EColumnSortPriority::Type SDiffHelperDiffPanel::GetSortPriorityForColumn(FName I
 	return EColumnSortPriority::None;
 }
 
-void SDiffHelperDiffPanel::PopulateSearchString(const FDiffHelperDiffItem& InItem, TArray<FString>& OutStrings)
-{
-	OutStrings.Add(InItem.Path);
-}
-
-void SDiffHelperDiffPanel::SortDiffArray(TArray<TSharedPtr<FDiffHelperDiffItem>>& OutArray) const
-{
-	auto CompareIcons = [](const TSharedPtr<FDiffHelperDiffItem>& A, const TSharedPtr<FDiffHelperDiffItem>& B)
-	{
-		return UDiffHelperUtils::CompareStatus(A->Status, B->Status);
-	};
-
-	auto CompareFiles = [](const TSharedPtr<FDiffHelperDiffItem>& A, const TSharedPtr<FDiffHelperDiffItem>& B)
-	{
-		return UE::ComparisonUtility::CompareNaturalOrder(A->Path, B->Path) < 0;
-	};
-
-	auto GetCompareFunc = [this, CompareIcons, CompareFiles](const FName& ColumnId)
-	{
-		if (ColumnId == SDiffHelperDiffPanelConstants::StatusColumnId)
-		{
-			return TFunction<bool(const TSharedPtr<FDiffHelperDiffItem>&, const TSharedPtr<FDiffHelperDiffItem>)>(CompareIcons);
-		}
-		else if (ColumnId == SDiffHelperDiffPanelConstants::PathColumnId)
-		{
-			return TFunction<bool(const TSharedPtr<FDiffHelperDiffItem>&, const TSharedPtr<FDiffHelperDiffItem>)>(CompareFiles);
-		}
-
-		ensure(false);
-		return TFunction<bool(const TSharedPtr<FDiffHelperDiffItem>&, const TSharedPtr<FDiffHelperDiffItem>)>();
-	};
-
-	const auto CompareFunc = GetCompareFunc(SortColumn);
-	OutArray.Sort([this, &CompareFunc](const TSharedPtr<FDiffHelperDiffItem>& A, const TSharedPtr<FDiffHelperDiffItem>& B)
-	{
-		const auto Result = CompareFunc(A, B);
-		return SortMode == EColumnSortMode::Ascending ? Result : !Result;
-	});
-}
-
 void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)
 {
-	SearchFilter->SetRawFilterText(InText);
-	SearchBox->SetError(SearchFilter->GetFilterErrorText());
-}
+	Controller->SetSearchFilter(InText);
 
-void SDiffHelperDiffPanel::OnFilterChanged()
-{
-	FilteredDiff = OriginalDiff;
-	FilteredDiff.RemoveAll([this](const TSharedPtr<FDiffHelperDiffItem>& InItem)
-	{
-		return !SearchFilter->PassesFilter(*InItem);
-	});
-
-	SortDiffArray(FilteredDiff);
-
-	DiffList->RequestListRefresh();
+	const auto Error = Model->DiffPanelData.SearchFilter->GetFilterErrorText();
+	SearchBox->SetError(Error);
 }
 
 void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode)
 {
-	SortColumn = InColumnId;
-	SortMode = InSortMode;
-
-	SortDiffArray(FilteredDiff);
-
+	Controller->SetSortingMode(InColumnId, InSortMode);
 	DiffList->RequestListRefresh();
 }
 

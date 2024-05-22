@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/TextFilter.h"
 #include "DiffHelperTypes.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDynamicDelegate);
@@ -10,6 +11,22 @@ DECLARE_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
 DECLARE_DELEGATE(FDiffHelperEvent)
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
+
+namespace SDiffHelperDiffPanelConstants
+{
+	const FName StatusColumnId(TEXT("State"));
+	const FName PathColumnId(TEXT("Path"));
+}
+
+namespace SDiffHelperCommitPanelConstants
+{
+	const FName HashColumnId(TEXT("CommitHash"));
+	const FName MessageColumnId(TEXT("CommitMessage"));
+	const FName AuthorColumnId(TEXT("CommitAuthor"));
+	const FName DateColumnId(TEXT("CommitDate"));
+	const FName DiffButtonColumnId(TEXT("DiffButton"));
+}
+
 
 UENUM()
 enum class EDiffHelperFileStatus : uint8
@@ -111,17 +128,19 @@ struct FDiffHelperItemNode
 	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
 };
 
-namespace SDiffHelperDiffPanelConstants
+USTRUCT()
+struct FDiffHelperDiffPanelData
 {
-	const FName StatusColumnId(TEXT("State"));
-	const FName PathColumnId(TEXT("Path"));
-}
+	GENERATED_BODY()
 
-namespace SDiffHelperCommitPanelConstants
-{
-	const FName HashColumnId(TEXT("CommitHash"));
-	const FName MessageColumnId(TEXT("CommitMessage"));
-	const FName AuthorColumnId(TEXT("CommitAuthor"));
-	const FName DateColumnId(TEXT("CommitDate"));
-	const FName DiffButtonColumnId(TEXT("DiffButton"));
-}
+	TSharedPtr<TTextFilter<const FDiffHelperDiffItem&>> SearchFilter = nullptr;
+	
+	TArray<TSharedPtr<FDiffHelperDiffItem>> OriginalDiff;
+	TArray<TSharedPtr<FDiffHelperDiffItem>> FilteredDiff;
+	
+	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalTreeDiff;
+	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredTreeDiff;
+
+	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
+	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
+};

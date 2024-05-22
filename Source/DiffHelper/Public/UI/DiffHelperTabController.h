@@ -43,7 +43,7 @@ public:
 	void SelectDiffItem(const FDiffHelperDiffItem& InDiffItem);
 
 	UFUNCTION(BlueprintCallable)
-	void CollectDiff() const;
+	void CollectDiff();
 
 	UFUNCTION(BlueprintCallable)
 	void DiffAsset(const FString& InPath, const FDiffHelperCommit& InFirstRevision, const FDiffHelperCommit& InSecondRevision) const;
@@ -51,5 +51,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CallModelUpdated() const;
 
+	void SetSearchFilter(const FText& InText) const;
+	void SetSortingMode(const FName& InColumnId, EColumnSortMode::Type InSortMode) const;
+
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
+
+private:
+	void OnFilterChanged();
+	void PopulateFilterSearchString(const FDiffHelperDiffItem& InItem, TArray<FString>& OutStrings) const;
 };

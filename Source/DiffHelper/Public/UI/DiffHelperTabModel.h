@@ -32,4 +32,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	FDiffHelperDiffItem SelectedDiffItem;
+
+	UPROPERTY()
+	FDiffHelperDiffPanelData DiffPanelData;
 };
