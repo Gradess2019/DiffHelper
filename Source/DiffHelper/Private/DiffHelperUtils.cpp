@@ -24,63 +24,52 @@ bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, cons
 
 TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TArray<FDiffHelperDiffItem>& InItems)
 {
-	TSet<FString> Paths;
-	for (const auto DiffItem : InItems)
-	{
-		const auto& Path = DiffItem.Path;
-		Paths.Add(Path);
-	}
-
-	TSharedPtr<FDiffHelperItemNode> Root = PopulateTree(Paths);
+	TSharedPtr<FDiffHelperItemNode> Root = PopulateTree(ConvertToShared(InItems));
 	return Root->Children;
 }
 
 TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems)
 {
-	TSet<FString> Paths;
-	for (const auto DiffItem : InItems)
-	{
-		const auto& Path = DiffItem->Path;
-		Paths.Add(Path);
-	}
-
-	TSharedPtr<FDiffHelperItemNode> Root = PopulateTree(Paths);
+	TSharedPtr<FDiffHelperItemNode> Root = PopulateTree(InItems);
 	return Root->Children;
 }
 
-TSharedPtr<FDiffHelperItemNode> UDiffHelperUtils::PopulateTree(const TSet<FString>& InPaths)
+TSharedPtr<FDiffHelperItemNode> UDiffHelperUtils::PopulateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems)
 {
 	auto Root = MakeShared<FDiffHelperItemNode>();
-	for (const auto& Path : InPaths)
+	for (const auto& Item : InItems)
 	{
 		TArray<FString> PathComponents;
-		Path.ParseIntoArray(PathComponents, TEXT("/"), true);
+		Item->Path.ParseIntoArray(PathComponents, TEXT("/"), true);
 
-		TSharedPtr<FDiffHelperItemNode> Current = Root;
+		TSharedPtr<FDiffHelperItemNode> CurrentNode = Root;
 		FString CurrentPath = "";
 
 		for (const auto& PathComponent : PathComponents)
 		{
 			CurrentPath = CurrentPath + "/" + PathComponent;
 
-			TSharedPtr<FDiffHelperItemNode> Child;
-			for (const auto& CurrentChil : Current->Children)
+			TSharedPtr<FDiffHelperItemNode> NodeChild;
+			for (const auto& ExistingNodeChild : CurrentNode->Children)
 			{
-				if (CurrentChil->Path == CurrentPath)
+				if (ExistingNodeChild->Path == CurrentPath)
 				{
-					Child = CurrentChil;
+					NodeChild = ExistingNodeChild;
 					break;
 				}
 			}
 
-			if (!Child.IsValid())
+			if (!NodeChild.IsValid())
 			{
-				Child = MakeShared<FDiffHelperItemNode>(CurrentPath);
-				Current->Children.Add(Child);
+				NodeChild = MakeShared<FDiffHelperItemNode>(CurrentPath);
+				NodeChild->Name = PathComponent;
+				CurrentNode->Children.Add(NodeChild);
 			}
 
-			Current = Child;
+			CurrentNode = NodeChild;
 		}
+
+		CurrentNode->DiffItem = Item;
 	}
 
 	return Root;

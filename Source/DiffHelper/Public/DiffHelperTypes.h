@@ -124,6 +124,9 @@ struct FDiffHelperItemNode
 	UPROPERTY()
 	FString Path;
 
+	UPROPERTY()
+	FString Name;
+
 	TSharedPtr<FDiffHelperDiffItem> DiffItem;
 	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
 };

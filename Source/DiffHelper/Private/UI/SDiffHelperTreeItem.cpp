@@ -18,7 +18,7 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 		.Content()
 		[
 			SNew(STextBlock)
-			.Text(FText::FromString(Item->Path))
+			.Text(FText::FromString(Item->Name))
 		],
 		InOwner
 	);
