@@ -27,7 +27,7 @@ protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
 	TWeakObjectPtr<const UDiffHelperTabModel> Model;
 
-	TSharedPtr<SListView<TSharedPtr<FDiffHelperDiffItem>>> DiffList;
+	TSharedPtr<SListView<TSharedPtr<FDiffHelperItemNode>>> DiffList;
 	TSharedPtr<SSearchBox> SearchBox;
 
 public:

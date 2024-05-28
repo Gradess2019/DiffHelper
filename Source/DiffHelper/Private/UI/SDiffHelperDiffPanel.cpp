@@ -6,6 +6,7 @@
 #include "DiffHelperTypes.h"
 #include "DiffHelperUtils.h"
 #include "SDiffHelperDiffFileItem.h"
+#include "SDiffHelperDiffPanelList.h"
 #include "SDiffHelperTreeItem.h"
 #include "SlateOptMacros.h"
 #include "UI/DiffHelperTabController.h"
@@ -61,27 +62,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		[
-			SAssignNew(DiffList, SListView<TSharedPtr<FDiffHelperDiffItem>>)
-			.ListItemsSource(&Model->DiffPanelData.FilteredDiff)
-			.SelectionMode(ESelectionMode::SingleToggle)
-			.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
-			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
-			.HeaderRow
-			(
-				SNew(SHeaderRow)
-				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::StatusColumnId)
-				.DefaultLabel(FText::GetEmpty())
-				.FixedWidth(28.f)
-				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
-				+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
-				.DefaultLabel(LOCTEXT("PathColumn", "Path"))
-				.FillWidth(1.f)
-				.SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::PathColumnId)
-				.SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-				.OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
-			)
+			SAssignNew(DiffList, SDiffHelperDiffPanelList)
+			.Controller(Controller)
 		]
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
@@ -90,8 +72,6 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			.Controller(Controller)
 		]
 	];
-	
-	Model->DiffPanelData.SearchFilter->OnChanged().AddSP(DiffList.Get(), &SListView<TSharedPtr<FDiffHelperDiffItem>>::RequestListRefresh);
 }
 
 EColumnSortMode::Type SDiffHelperDiffPanel::GetSortModeForColumn(FName InColumnId) const

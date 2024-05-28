@@ -1,8 +1,8 @@
 ﻿// Copyright 2024 Gradess Games. All Rights Reserved.
 
 
-#include "DiffHelperTypes.h"
 #include "UI/SDiffHelperDiffPanelTree.h"
+#include "DiffHelperTypes.h"
 
 #include "SDiffHelperTreeItem.h"
 #include "SlateOptMacros.h"
