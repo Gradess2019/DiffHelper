@@ -20,6 +20,8 @@ public:
 		}
 
 		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
+		SLATE_EVENT(FOnSelectionChanged, OnSelectionChanged)
+		SLATE_EVENT(FOnGenerateRow, OnGenerateRow)
 
 	SLATE_END_ARGS()
 

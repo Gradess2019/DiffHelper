@@ -18,12 +18,20 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 	Model = Controller->GetModel();
 	if (!ensure(Model.IsValid())) { return; }
 
+	// ==================================
+	// TODO: This is uncompileable comment.
+	// Next task:
+	// - make OnSelectionChanged and GenerateRow as params.
+	// - Think about sort, probably we don't need it
+	// - Do same for tree view
+	// ==================================
+	
 	SListView::Construct(
 		SListView::FArguments()
 		// .ListItemsSource(&Model->DiffPanelData.FilteredDiff)
 		.SelectionMode(ESelectionMode::SingleToggle)
-		// .OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
-		// .OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
+		.OnSelectionChanged(InArgs._OnSelectionChanged)
+		.OnGenerateRow(InArgs._OnGenerateRow)
 		.HeaderRow
 		(
 			SNew(SHeaderRow)
