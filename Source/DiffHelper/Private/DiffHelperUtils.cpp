@@ -83,6 +83,9 @@ TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::ConvertTreeToList(cons
 		if (Node->DiffItem.IsValid())
 		{
 			OutArray.Add(Node);
+		}
+		else
+		{
 			OutArray.Append(ConvertTreeToList(Node->Children));
 		}
 	}
