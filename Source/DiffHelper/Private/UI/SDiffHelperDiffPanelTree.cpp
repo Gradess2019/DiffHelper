@@ -24,7 +24,7 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 		.TreeItemsSource(&Controller->GetModel()->DiffPanelData.FilteredTreeDiff)
 		.SelectionMode(ESelectionMode::SingleToggle)
 		.OnSelectionChanged(InArgs._OnSelectionChanged)
-		.OnGenerateRow(this, &SDiffHelperDiffPanelTree::OnGenerateRow)
+		.OnGenerateRow(InArgs._OnGenerateRow)
 		.OnGetChildren(this, &SDiffHelperDiffPanelTree::OnGetChildren)
 		.HeaderRow
 		(
@@ -41,12 +41,6 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 void SDiffHelperDiffPanelTree::OnGetChildren(TSharedPtr<FDiffHelperItemNode> InItem, TArray<TSharedPtr<FDiffHelperItemNode>>& OutChildren)
 {
 	OutChildren = InItem->Children;
-}
-
-TSharedRef<ITableRow> SDiffHelperDiffPanelTree::OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
-{
-	return SNew(SDiffHelperTreeItem, InOwnerTable)
-		.Item(InItem);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

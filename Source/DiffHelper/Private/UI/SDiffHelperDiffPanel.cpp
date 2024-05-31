@@ -4,8 +4,6 @@
 #include "UI/SDiffHelperDiffPanel.h"
 #include "Widgets/Input/SSearchBox.h"
 #include "DiffHelperTypes.h"
-#include "DiffHelperUtils.h"
-#include "SDiffHelperDiffFileItem.h"
 #include "SDiffHelperDiffPanelList.h"
 #include "SDiffHelperTreeItem.h"
 #include "SlateOptMacros.h"
@@ -64,12 +62,16 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(DiffList, SDiffHelperDiffPanelList)
 			.Controller(Controller)
+			.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
+			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 		]
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		[
 			SNew(SDiffHelperDiffPanelTree)
 			.Controller(Controller)
+			.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
+			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 		]
 	];
 }
@@ -108,11 +110,11 @@ void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, co
 	DiffList->RequestListRefresh();
 }
 
-void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperDiffItem, ESPMode::ThreadSafe> InSelectedItem, ESelectInfo::Type InSelectType)
+void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> InSelectedItem, ESelectInfo::Type InSelectType)
 {
-	if (InSelectedItem.IsValid())
+	if (InSelectedItem.IsValid() && InSelectedItem->DiffItem.IsValid())
 	{
-		Controller->SelectDiffItem(*InSelectedItem);
+		Controller->SelectDiffItem(*InSelectedItem->DiffItem);
 	}
 	else
 	{
@@ -122,9 +124,9 @@ void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperDiffItem, ES
 	Controller->CallModelUpdated();
 }
 
-TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
+TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
-	return SNew(SDiffHelperDiffFileItem, InOwnerTable)
+	return SNew(SDiffHelperTreeItem, InOwnerTable)
 		.Item(InItem);
 }
 
