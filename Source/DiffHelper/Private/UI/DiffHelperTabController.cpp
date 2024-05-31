@@ -94,8 +94,8 @@ void UDiffHelperTabController::CollectDiff()
 
 	Model->Diff = Diff;
 
-	Model->DiffPanelData.OriginalDiff = Model->DiffPanelData.FilteredDiff = UDiffHelperUtils::ConvertToShared(Model->Diff);
 	Model->DiffPanelData.OriginalTreeDiff = Model->DiffPanelData.FilteredTreeDiff = UDiffHelperUtils::GenerateTree(Model->Diff);
+	Model->DiffPanelData.OriginalDiff = Model->DiffPanelData.FilteredDiff = UDiffHelperUtils::ConvertTreeToList(Model->DiffPanelData.OriginalTreeDiff);
 
 	Model->DiffPanelData.SearchFilter = MakeShared<TTextFilter<const FDiffHelperDiffItem&>>(TTextFilter<const FDiffHelperDiffItem&>::FItemToStringArray::CreateUObject(this, &UDiffHelperTabController::PopulateFilterSearchString));
 	Model->DiffPanelData.SearchFilter->OnChanged().AddUObject(this, &UDiffHelperTabController::OnFilterChanged);
@@ -185,13 +185,18 @@ void UDiffHelperTabController::OnFilterChanged()
 {
 	auto& Data = Model->DiffPanelData;
 	Data.FilteredDiff = Data.OriginalDiff;
-	Data.FilteredDiff.RemoveAll([Data](const TSharedPtr<FDiffHelperDiffItem>& InItem)
+	Data.FilteredDiff.RemoveAll([Data](const TSharedPtr<FDiffHelperItemNode>& InItem)
 	{
-		return !Data.SearchFilter->PassesFilter(*InItem);
+		if (ensure(InItem->DiffItem.IsValid()))
+		{
+			return !Data.SearchFilter->PassesFilter(*InItem->DiffItem);
+		}
+		
+		return true;
 	});
 
 	UDiffHelperUtils::SortDiffArray(Data.SortColumn, Data.SortMode, Data.FilteredDiff);
-	Data.FilteredTreeDiff = UDiffHelperUtils::GenerateTree(Data.FilteredDiff);
+	Data.FilteredTreeDiff = UDiffHelperUtils::ConvertListToTree(Data.FilteredDiff);
 
 	// TODO: We need to add more specific events for model update. Calling global update is not good approach.
 	CallModelUpdated();

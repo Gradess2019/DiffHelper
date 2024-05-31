@@ -138,8 +138,8 @@ struct FDiffHelperDiffPanelData
 
 	TSharedPtr<TTextFilter<const FDiffHelperDiffItem&>> SearchFilter = nullptr;
 	
-	TArray<TSharedPtr<FDiffHelperDiffItem>> OriginalDiff;
-	TArray<TSharedPtr<FDiffHelperDiffItem>> FilteredDiff;
+	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalDiff;
+	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredDiff;
 	
 	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalTreeDiff;
 	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredTreeDiff;

@@ -28,7 +28,7 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 	
 	SListView::Construct(
 		SListView::FArguments()
-		// .ListItemsSource(&Model->DiffPanelData.FilteredDiff)
+		.ListItemsSource(&Model->DiffPanelData.FilteredDiff)
 		.SelectionMode(ESelectionMode::SingleToggle)
 		.OnSelectionChanged(InArgs._OnSelectionChanged)
 		.OnGenerateRow(InArgs._OnGenerateRow)

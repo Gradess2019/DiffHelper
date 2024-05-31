@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Misc/IFilter.h"
 #include "DiffHelperUtils.generated.h"
 
+struct FDiffHelperBranch;
 enum class EDiffHelperFileStatus : uint8;
 struct FDiffHelperDiffItem;
 struct FDiffHelperItemNode;
@@ -38,6 +40,11 @@ public:
 	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateTree(const TArray<FDiffHelperDiffItem>& InItems);
 	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems);
 	static TSharedPtr<FDiffHelperItemNode> PopulateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems);
+
+	static TArray<TSharedPtr<FDiffHelperItemNode>> ConvertTreeToList(const TArray<TSharedPtr<FDiffHelperItemNode>>& InRoot);
+	static TArray<TSharedPtr<FDiffHelperItemNode>> ConvertListToTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InList);
+
+	// static TArray<TSharedPtr<FDiffHelperItemNode>> FilterDiffTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InTree, const TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter);
 	
-	static void SortDiffArray(const FName& InSortColumnId, const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperDiffItem>>& OutArray);
+	static void SortDiffArray(const FName& InSortColumnId, const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 };
