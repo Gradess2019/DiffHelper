@@ -126,8 +126,15 @@ void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> In
 
 TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
-	return SNew(SDiffHelperTreeItem, InOwnerTable)
+	auto NewRow = SNew(SDiffHelperTreeItem, InOwnerTable)
 		.Item(InItem);
+
+	if (InOwnerTable == DiffList)
+	{
+		NewRow->SetToolTipText(FText::FromString(InItem->DiffItem->Path));
+	}
+	
+	return NewRow;
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

@@ -21,9 +21,7 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 	// ==================================
 	// TODO: This is uncompileable comment.
 	// Next task:
-	// - make OnSelectionChanged and GenerateRow as params.
 	// - Think about sort, probably we don't need it
-	// - Do same for tree view
 	// ==================================
 	
 	SListView::Construct(
