@@ -2,11 +2,10 @@
 
 
 #include "UI/SDiffHelperCommitItem.h"
-#include "SDiffHelperCommitTextBlock.h"
-#include "SlateOptMacros.h"
-
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
+#include "UI/SDiffHelperCommitTextBlock.h"
+#include "SlateOptMacros.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION

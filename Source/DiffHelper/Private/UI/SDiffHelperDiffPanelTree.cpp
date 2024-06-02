@@ -2,13 +2,10 @@
 
 
 #include "UI/SDiffHelperDiffPanelTree.h"
-#include "DiffHelperTypes.h"
-
-#include "SDiffHelperTreeItem.h"
-#include "SlateOptMacros.h"
-
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
+#include "DiffHelperTypes.h"
+#include "SlateOptMacros.h"
 
 #define LOCTEXT_NAMESPACE "DiffPanelTree"
 

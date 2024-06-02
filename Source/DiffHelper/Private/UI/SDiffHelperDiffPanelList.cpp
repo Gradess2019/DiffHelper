@@ -1,10 +1,10 @@
 ﻿// Copyright 2024 Gradess Games. All Rights Reserved.
 
 
-#include "SDiffHelperDiffPanelList.h"
-#include "SlateOptMacros.h"
+#include "UI/SDiffHelperDiffPanelList.h"
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
+#include "SlateOptMacros.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelperDiffPanelList"
 
