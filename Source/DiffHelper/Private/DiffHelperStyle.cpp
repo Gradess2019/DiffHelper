@@ -44,6 +44,7 @@ TSharedRef< FSlateStyleSet > FDiffHelperStyle::Create()
 	Style->SetContentRoot(IPluginManager::Get().FindPlugin("DiffHelper")->GetBaseDir() / TEXT("Resources"));
 
 	Style->Set("DiffHelper.PluginAction", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
+	Style->Set("DiffHelper.Directory", new IMAGE_BRUSH_SVG(TEXT("DirectoryIcon"), Icon20x20));
 	return Style;
 }
 

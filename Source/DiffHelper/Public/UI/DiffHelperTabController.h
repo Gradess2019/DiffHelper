@@ -53,6 +53,7 @@ public:
 
 	void SetSearchFilter(const FText& InText) const;
 	void SetSortingMode(const FName& InColumnId, EColumnSortMode::Type InSortMode) const;
+	void SetActiveWidgetIndex(const int32& InIndex) const;
 
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
 

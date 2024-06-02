@@ -182,6 +182,13 @@ void UDiffHelperTabController::SetSortingMode(const FName& InColumnId, EColumnSo
 	CallModelUpdated();
 }
 
+void UDiffHelperTabController::SetActiveWidgetIndex(const int32& InIndex) const
+{
+	Model->DiffPanelData.CurrentWidgetIndex = InIndex;
+
+	CallModelUpdated();
+}
+
 FDiffHelperSimpleDelegate& UDiffHelperTabController::OnModelUpdated() const
 {
 	return Model->OnModelUpdated_Raw;

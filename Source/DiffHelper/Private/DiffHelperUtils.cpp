@@ -181,17 +181,22 @@ void UDiffHelperUtils::FilterTreeItems(const TSharedPtr<IFilter<const FDiffHelpe
 	{
 		FilterTreeItems(InFilter, Node->Children);
 	}
+
+	OutArray.RemoveAll([](const TSharedPtr<FDiffHelperItemNode>& InItem)
+	{
+		return InItem->Children.Num() == 0 && !InItem->DiffItem.IsValid();
+	});
 }
 
 void UDiffHelperUtils::Filter(TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
 {
 	OutArray.RemoveAll([InFilter](const TSharedPtr<FDiffHelperItemNode>& InItem)
 	{
-		if (ensure(InItem->DiffItem.IsValid()))
+		if (InItem->DiffItem.IsValid())
 		{
 			return !InFilter->PassesFilter(*InItem->DiffItem);
 		}
 
-		return true;
+		return false;
 	});
 }

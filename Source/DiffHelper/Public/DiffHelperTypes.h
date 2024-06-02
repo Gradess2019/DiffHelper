@@ -16,6 +16,9 @@ namespace SDiffHelperDiffPanelConstants
 {
 	const FName StatusColumnId(TEXT("State"));
 	const FName PathColumnId(TEXT("Path"));
+
+	const int32 ListWidgetIndex = 0;
+	const int32 TreeWidgetIndex = 1;
 }
 
 namespace SDiffHelperCommitPanelConstants
@@ -136,6 +139,8 @@ struct FDiffHelperDiffPanelData
 {
 	GENERATED_BODY()
 
+	int32 CurrentWidgetIndex = 0;
+	
 	TSharedPtr<TTextFilter<const FDiffHelperDiffItem&>> SearchFilter = nullptr;
 	
 	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalDiff;
