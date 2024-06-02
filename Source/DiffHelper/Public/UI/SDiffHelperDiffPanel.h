@@ -6,6 +6,8 @@
 #include "DiffHelperTypes.h"
 #include "Widgets/SCompoundWidget.h"
 
+class SDiffHelperDiffPanelList;
+class SDiffHelperDiffPanelTree;
 class UDiffHelperTabModel;
 struct FDiffHelperDiffItem;
 class UDiffHelperTabController;
@@ -27,7 +29,8 @@ protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
 	TWeakObjectPtr<const UDiffHelperTabModel> Model;
 
-	TSharedPtr<SListView<TSharedPtr<FDiffHelperItemNode>>> DiffList;
+	TSharedPtr<SDiffHelperDiffPanelList> DiffList;
+	TSharedPtr<SDiffHelperDiffPanelTree> DiffTree;
 	TSharedPtr<SSearchBox> SearchBox;
 
 public:

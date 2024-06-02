@@ -22,6 +22,23 @@ bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, cons
 	return static_cast<uint8>(InStatusA) < static_cast<uint8>(InStatusB);
 }
 
+TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateList(const TArray<FDiffHelperDiffItem>& InItems)
+{
+	TArray<TSharedPtr<FDiffHelperItemNode>> OutArray;
+
+	for (const auto& Item : InItems)
+	{
+		auto Node = MakeShared<FDiffHelperItemNode>();
+		Node->DiffItem = MakeShared<FDiffHelperDiffItem>(Item);
+		Node->Path = Item.Path;
+		Node->Name = FPaths::GetCleanFilename(Item.Path);
+
+		OutArray.Add(Node);
+	}
+
+	return OutArray;
+}
+
 TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateTree(const TArray<FDiffHelperDiffItem>& InItems)
 {
 	TSharedPtr<FDiffHelperItemNode> Root = PopulateTree(ConvertToShared(InItems));
@@ -96,7 +113,7 @@ TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::ConvertTreeToList(cons
 TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::ConvertListToTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InList)
 {
 	TArray<TSharedPtr<FDiffHelperDiffItem>> Items;
-	
+
 	for (const auto& Node : InList)
 	{
 		if (ensure(Node->DiffItem.IsValid()))
@@ -108,53 +125,73 @@ TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::ConvertListToTree(cons
 	return GenerateTree(Items);
 }
 
-// TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::FilterDiffTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InTree, const TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter)
-// {
-// 	
-// }
-
-void UDiffHelperUtils::SortDiffArray(const FName& InSortColumnId, const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
+void UDiffHelperUtils::SortDiffList(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
 {
-	// verify array that it hass valid data
+	auto SorterByName = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
+	{
+		return UE::ComparisonUtility::CompareNaturalOrder(A->Name, B->Name) < 0;
+	};
+
+	// verify array that it has valid data
+	OutArray.RemoveAll([](const TSharedPtr<FDiffHelperItemNode>& InItem)
+	{
+		return !ensure(InItem.IsValid()) || !ensure(InItem->DiffItem.IsValid());
+	});
+
+	Sort(InSortMode, SorterByName, OutArray);
+}
+
+void UDiffHelperUtils::SortDiffTree(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
+{
+	auto SorterByPath = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
+	{
+		return UE::ComparisonUtility::CompareNaturalOrder(A->Path, B->Path) < 0;
+	};
+
+	Sort(InSortMode, SorterByPath, OutArray);
+	for (const auto& Node : OutArray)
+	{
+		SortDiffTree(InSortMode, Node->Children);
+	}
+}
+
+void UDiffHelperUtils::Sort(EColumnSortMode::Type InSortMode, const TFunction<bool(const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)>& InFileComparator, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
+{
 	if (OutArray.Num() == 0)
 	{
 		return;
 	}
 
-	OutArray.RemoveAll([](const TSharedPtr<FDiffHelperItemNode>& InItem)
+	OutArray.Sort([InSortMode, InFileComparator](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
 	{
-		return !ensure(InItem.IsValid()) || !ensure(InItem->DiffItem.IsValid());
-	});
-	
-	auto CompareIcons = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
-	{
-		return CompareStatus(A->DiffItem->Status, B->DiffItem->Status);
-	};
-
-	auto CompareFiles = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
-	{
-		return UE::ComparisonUtility::CompareNaturalOrder(A->Path, B->Path) < 0;
-	};
-
-	auto GetCompareFunc = [CompareIcons, CompareFiles](const FName& ColumnId)
-	{
-		if (ColumnId == SDiffHelperDiffPanelConstants::StatusColumnId)
-		{
-			return TFunction<bool(const TSharedPtr<FDiffHelperItemNode>&, const TSharedPtr<FDiffHelperItemNode>)>(CompareIcons);
-		}
-		else if (ColumnId == SDiffHelperDiffPanelConstants::PathColumnId)
-		{
-			return TFunction<bool(const TSharedPtr<FDiffHelperItemNode>&, const TSharedPtr<FDiffHelperItemNode>)>(CompareFiles);
-		}
-
-		ensure(false);
-		return TFunction<bool(const TSharedPtr<FDiffHelperItemNode>&, const TSharedPtr<FDiffHelperItemNode>)>();
-	};
-
-	const auto CompareFunc = GetCompareFunc(InSortColumnId);
-	OutArray.Sort([InSortMode, &CompareFunc](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
-	{
-		const auto Result = CompareFunc(A, B);
+		const auto Result = InFileComparator(A, B);
 		return InSortMode == EColumnSortMode::Ascending ? Result : !Result;
+	});
+}
+
+void UDiffHelperUtils::FilterListItems(const TSharedPtr<IFilter<const FDiffHelperDiffItem&>>& InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
+{
+	Filter(InFilter, OutArray);
+}
+
+void UDiffHelperUtils::FilterTreeItems(const TSharedPtr<IFilter<const FDiffHelperDiffItem&>>& InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
+{
+	Filter(InFilter, OutArray);
+	for (const auto& Node : OutArray)
+	{
+		FilterTreeItems(InFilter, Node->Children);
+	}
+}
+
+void UDiffHelperUtils::Filter(TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
+{
+	OutArray.RemoveAll([InFilter](const TSharedPtr<FDiffHelperItemNode>& InItem)
+	{
+		if (ensure(InItem->DiffItem.IsValid()))
+		{
+			return !InFilter->PassesFilter(*InItem->DiffItem);
+		}
+
+		return true;
 	});
 }

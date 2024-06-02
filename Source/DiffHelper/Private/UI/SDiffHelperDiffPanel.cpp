@@ -107,7 +107,16 @@ void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)
 void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode)
 {
 	Controller->SetSortingMode(InColumnId, InSortMode);
-	DiffList->RequestListRefresh();
+
+	if (DiffList.IsValid())
+	{
+		DiffList->RequestListRefresh();
+	}
+
+	if (DiffTree.IsValid())
+	{
+		DiffTree->RequestTreeRefresh();
+	}
 }
 
 void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> InSelectedItem, ESelectInfo::Type InSelectType)

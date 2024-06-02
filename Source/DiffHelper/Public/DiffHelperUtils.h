@@ -37,6 +37,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
 	static bool CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB);
 
+	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateList(const TArray<FDiffHelperDiffItem>& InItems);
+	
 	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateTree(const TArray<FDiffHelperDiffItem>& InItems);
 	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems);
 	static TSharedPtr<FDiffHelperItemNode> PopulateTree(const TArray<TSharedPtr<FDiffHelperDiffItem>>& InItems);
@@ -44,7 +46,11 @@ public:
 	static TArray<TSharedPtr<FDiffHelperItemNode>> ConvertTreeToList(const TArray<TSharedPtr<FDiffHelperItemNode>>& InRoot);
 	static TArray<TSharedPtr<FDiffHelperItemNode>> ConvertListToTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InList);
 
-	// static TArray<TSharedPtr<FDiffHelperItemNode>> FilterDiffTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InTree, const TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter);
-	
-	static void SortDiffArray(const FName& InSortColumnId, const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
+	static void SortDiffList(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
+	static void SortDiffTree(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
+	static void Sort(EColumnSortMode::Type InSortMode, const TFunction<bool(const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)>& InFileComparator, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
+
+	static void FilterListItems(const TSharedPtr<IFilter<const FDiffHelperDiffItem&>>& InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
+	static void FilterTreeItems(const TSharedPtr<IFilter<const FDiffHelperDiffItem&>>& InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
+	static void Filter(TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 };

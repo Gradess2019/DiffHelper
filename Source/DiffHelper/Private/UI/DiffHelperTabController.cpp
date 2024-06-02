@@ -94,8 +94,13 @@ void UDiffHelperTabController::CollectDiff()
 
 	Model->Diff = Diff;
 
-	Model->DiffPanelData.OriginalTreeDiff = Model->DiffPanelData.FilteredTreeDiff = UDiffHelperUtils::GenerateTree(Model->Diff);
-	Model->DiffPanelData.OriginalDiff = Model->DiffPanelData.FilteredDiff = UDiffHelperUtils::ConvertTreeToList(Model->DiffPanelData.OriginalTreeDiff);
+	Model->DiffPanelData.OriginalDiff = UDiffHelperUtils::GenerateList(Model->Diff);
+	UDiffHelperUtils::SortDiffList(Model->DiffPanelData.SortMode, Model->DiffPanelData.OriginalDiff);
+	Model->DiffPanelData.FilteredDiff = Model->DiffPanelData.OriginalDiff;
+	
+	Model->DiffPanelData.OriginalTreeDiff = UDiffHelperUtils::GenerateTree(Model->Diff);
+	UDiffHelperUtils::SortDiffTree(Model->DiffPanelData.SortMode, Model->DiffPanelData.OriginalTreeDiff);
+	Model->DiffPanelData.FilteredTreeDiff = Model->DiffPanelData.OriginalTreeDiff;
 
 	Model->DiffPanelData.SearchFilter = MakeShared<TTextFilter<const FDiffHelperDiffItem&>>(TTextFilter<const FDiffHelperDiffItem&>::FItemToStringArray::CreateUObject(this, &UDiffHelperTabController::PopulateFilterSearchString));
 	Model->DiffPanelData.SearchFilter->OnChanged().AddUObject(this, &UDiffHelperTabController::OnFilterChanged);
@@ -171,7 +176,8 @@ void UDiffHelperTabController::SetSortingMode(const FName& InColumnId, EColumnSo
 	Data.SortColumn = InColumnId;
 	Data.SortMode = InSortMode;
 
-	UDiffHelperUtils::SortDiffArray(Data.SortColumn, Data.SortMode, Data.FilteredDiff);
+	UDiffHelperUtils::SortDiffList(Data.SortMode, Data.FilteredDiff);
+	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.FilteredTreeDiff);
 
 	CallModelUpdated();
 }
@@ -185,18 +191,13 @@ void UDiffHelperTabController::OnFilterChanged()
 {
 	auto& Data = Model->DiffPanelData;
 	Data.FilteredDiff = Data.OriginalDiff;
-	Data.FilteredDiff.RemoveAll([Data](const TSharedPtr<FDiffHelperItemNode>& InItem)
-	{
-		if (ensure(InItem->DiffItem.IsValid()))
-		{
-			return !Data.SearchFilter->PassesFilter(*InItem->DiffItem);
-		}
-		
-		return true;
-	});
+	Data.FilteredTreeDiff = Data.OriginalTreeDiff;
+	
+	UDiffHelperUtils::FilterListItems(Data.SearchFilter, Data.FilteredDiff);
+	UDiffHelperUtils::FilterTreeItems(Data.SearchFilter, Data.FilteredTreeDiff);
 
-	UDiffHelperUtils::SortDiffArray(Data.SortColumn, Data.SortMode, Data.FilteredDiff);
-	Data.FilteredTreeDiff = UDiffHelperUtils::ConvertListToTree(Data.FilteredDiff);
+	UDiffHelperUtils::SortDiffList(Data.SortMode, Data.FilteredDiff);
+	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.FilteredTreeDiff);
 
 	// TODO: We need to add more specific events for model update. Calling global update is not good approach.
 	CallModelUpdated();
