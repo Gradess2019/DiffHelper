@@ -21,8 +21,13 @@ public:
 		}
 
 		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
+
+		SLATE_ATTRIBUTE(EColumnSortMode::Type, SortMode)
+		
 		SLATE_EVENT(FOnSelectionChanged, OnSelectionChanged)
 		SLATE_EVENT(FOnGenerateRow, OnGenerateRow)
+		SLATE_EVENT(FOnSortModeChanged, OnSortModeChanged)
+		
 
 	SLATE_END_ARGS()
 

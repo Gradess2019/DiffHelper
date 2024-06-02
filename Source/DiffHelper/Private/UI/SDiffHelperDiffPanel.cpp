@@ -64,36 +64,25 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			.Controller(Controller)
 			.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
 			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
+			.SortMode(this, &SDiffHelperDiffPanel::GetSortMode)
+			.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn)
 		]
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		[
-			SNew(SDiffHelperDiffPanelTree)
+			SAssignNew(DiffTree, SDiffHelperDiffPanelTree)
 			.Controller(Controller)
 			.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
 			.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
+			.SortMode(this, &SDiffHelperDiffPanel::GetSortMode)
+			.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn)
 		]
 	];
 }
 
-EColumnSortMode::Type SDiffHelperDiffPanel::GetSortModeForColumn(FName InColumnId) const
+EColumnSortMode::Type SDiffHelperDiffPanel::GetSortMode() const
 {
-	if (InColumnId == Model->DiffPanelData.SortColumn)
-	{
-		return Model->DiffPanelData.SortMode;
-	}
-
-	return EColumnSortMode::None;
-}
-
-EColumnSortPriority::Type SDiffHelperDiffPanel::GetSortPriorityForColumn(FName InColumnId) const
-{
-	if (InColumnId == Model->DiffPanelData.SortColumn)
-	{
-		return EColumnSortPriority::Primary;
-	}
-
-	return EColumnSortPriority::None;
+	return Model.IsValid() ? Model->DiffPanelData.SortMode : EColumnSortMode::Ascending;
 }
 
 void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)

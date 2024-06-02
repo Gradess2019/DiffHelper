@@ -42,9 +42,9 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 			+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
 			.DefaultLabel(LOCTEXT("PathColumn", "Path"))
 			.FillWidth(1.f)
-			// .SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::PathColumnId)
+			.SortMode(InArgs._SortMode)
 			// .SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-			// .OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
+			.OnSort(InArgs._OnSortModeChanged)
 		)
 	);
 

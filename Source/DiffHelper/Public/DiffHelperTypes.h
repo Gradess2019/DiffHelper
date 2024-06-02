@@ -144,6 +144,7 @@ struct FDiffHelperDiffPanelData
 	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalTreeDiff;
 	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredTreeDiff;
 
+	UE_DEPRECATED(5.4, "SortColumn will be removed")
 	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
 };

@@ -38,8 +38,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 protected:
-	EColumnSortMode::Type GetSortModeForColumn(FName InColumnId) const;
-	EColumnSortPriority::Type GetSortPriorityForColumn(FName InColumnId) const;
+	EColumnSortMode::Type GetSortMode() const;
 
 	void OnSearchTextChanged(const FText& InText);
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);

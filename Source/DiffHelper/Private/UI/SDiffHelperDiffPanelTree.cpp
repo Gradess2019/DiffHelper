@@ -29,6 +29,8 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 			+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
 			.DefaultLabel(LOCTEXT("PathColumn", "Path"))
 			.FillWidth(1.f)
+			.SortMode(InArgs._SortMode)
+			.OnSort(InArgs._OnSortModeChanged)
 		)
 	);
 
