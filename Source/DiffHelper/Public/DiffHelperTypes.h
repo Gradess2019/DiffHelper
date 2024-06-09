@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/TextFilter.h"
 #include "DiffHelperTypes.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDiffHelperSimpleDynamicDelegate);
@@ -10,6 +11,24 @@ DECLARE_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
 DECLARE_DELEGATE(FDiffHelperEvent)
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
+
+namespace SDiffHelperDiffPanelConstants
+{
+	const FName PathColumnId(TEXT("Path"));
+
+	const int32 ListWidgetIndex = 0;
+	const int32 TreeWidgetIndex = 1;
+}
+
+namespace SDiffHelperCommitPanelConstants
+{
+	const FName HashColumnId(TEXT("CommitHash"));
+	const FName MessageColumnId(TEXT("CommitMessage"));
+	const FName AuthorColumnId(TEXT("CommitAuthor"));
+	const FName DateColumnId(TEXT("CommitDate"));
+	const FName DiffButtonColumnId(TEXT("DiffButton"));
+}
+
 
 UENUM()
 enum class EDiffHelperFileStatus : uint8
@@ -99,17 +118,34 @@ struct FDiffHelperDiffItem
 	FORCEINLINE bool IsValid() const { return !Path.IsEmpty(); }
 };
 
-namespace SDiffHelperDiffPanelConstants
+USTRUCT()
+struct FDiffHelperItemNode
 {
-	const FName StatusColumnId(TEXT("State"));
-	const FName PathColumnId(TEXT("Path"));
-}
+	GENERATED_BODY()
 
-namespace SDiffHelperCommitPanelConstants
+	UPROPERTY()
+	FString Path;
+
+	UPROPERTY()
+	FString Name;
+
+	TSharedPtr<FDiffHelperDiffItem> DiffItem;
+	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
+};
+
+USTRUCT()
+struct FDiffHelperDiffPanelData
 {
-	const FName HashColumnId(TEXT("CommitHash"));
-	const FName MessageColumnId(TEXT("CommitMessage"));
-	const FName AuthorColumnId(TEXT("CommitAuthor"));
-	const FName DateColumnId(TEXT("CommitDate"));
-	const FName DiffButtonColumnId(TEXT("DiffButton"));
-}
+	GENERATED_BODY()
+
+	int32 CurrentWidgetIndex = 0;
+	
+	TSharedPtr<TTextFilter<const FDiffHelperDiffItem&>> SearchFilter = nullptr;
+	
+	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalDiff;
+	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredDiff;
+	
+	TArray<TSharedPtr<FDiffHelperItemNode>> TreeDiff;
+
+	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
+};

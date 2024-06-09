@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "DiffHelperTypes.h"
-#include "Misc/TextFilter.h"
 #include "Widgets/SCompoundWidget.h"
 
+class SDiffHelperDiffPanelList;
+class SDiffHelperDiffPanelTree;
+class UDiffHelperTabModel;
 struct FDiffHelperDiffItem;
 class UDiffHelperTabController;
 
@@ -25,31 +27,23 @@ public:
 
 protected:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
-	TSharedPtr<SListView<TSharedPtr<FDiffHelperDiffItem>>> DiffList;
-	TSharedPtr<TTextFilter<const FDiffHelperDiffItem&>> SearchFilter;
-	TSharedPtr<SSearchBox> SearchBox;
-	
-	TArray<TSharedPtr<FDiffHelperDiffItem>> OriginalDiff;
-	TArray<TSharedPtr<FDiffHelperDiffItem>> FilteredDiff;
+	TWeakObjectPtr<const UDiffHelperTabModel> Model;
 
-	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
-	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
+	TSharedPtr<SDiffHelperDiffPanelList> DiffList;
+	TSharedPtr<SDiffHelperDiffPanelTree> DiffTree;
+	TSharedPtr<SSearchBox> SearchBox;
 
 public:
-	
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
 protected:
-	EColumnSortMode::Type GetSortModeForColumn(FName InColumnId) const;
-	EColumnSortPriority::Type GetSortPriorityForColumn(FName InColumnId) const;
+	EColumnSortMode::Type GetSortMode() const;
+	int GetWidgetIndex() const;
 
-	void PopulateSearchString(const FDiffHelperDiffItem& InItem, TArray<FString>& OutStrings);
-	void SortDiffArray(TArray<TSharedPtr<FDiffHelperDiffItem>>& OutArray) const;
-	
 	void OnSearchTextChanged(const FText& InText);
-	void OnFilterChanged();
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
-	void OnSelectionChanged(TSharedPtr<FDiffHelperDiffItem, ESPMode::ThreadSafe> InSelectedItem, ESelectInfo::Type InSelectType);
-	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperDiffItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	void OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> InSelectedItem, ESelectInfo::Type InSelectType);
+	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	void OnGroupingStateChanged(ECheckBoxState CheckBoxState);
 };

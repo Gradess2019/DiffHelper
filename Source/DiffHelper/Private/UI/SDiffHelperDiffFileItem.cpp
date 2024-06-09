@@ -23,11 +23,7 @@ void SDiffHelperDiffFileItem::Construct(const FArguments& InArgs, const TSharedR
 
 TSharedRef<SWidget> SDiffHelperDiffFileItem::GenerateWidgetForColumn(const FName& InColumnName)
 {
-	if (InColumnName.IsEqual(SDiffHelperDiffPanelConstants::StatusColumnId))
-	{
-		return CreateStatusColumn();
-	}
-	else if (InColumnName.IsEqual(SDiffHelperDiffPanelConstants::PathColumnId))
+	if (InColumnName.IsEqual(SDiffHelperDiffPanelConstants::PathColumnId))
 	{
 		return CreatePathColumn();
 	}
@@ -40,6 +36,7 @@ TSharedRef<SWidget> SDiffHelperDiffFileItem::CreateStatusColumn() const
 {
 	if (Item->Commits.Num() > 0)
 	{
+		// TODO: DIFF-23
 		const auto* FileDataPtr = Item->Commits[0].Files.FindByPredicate([this](const FDiffHelperFileData& FileData) { return FileData.Path == Item->Path; });
 		if (FileDataPtr)
 		{

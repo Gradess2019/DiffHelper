@@ -1,7 +1,7 @@
 ﻿// Copyright 2024 Gradess Games. All Rights Reserved.
 
 
-#include "SDiffHelperCommitTextBlock.h"
+#include "UI/SDiffHelperCommitTextBlock.h"
 #include "SlateOptMacros.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
