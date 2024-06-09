@@ -172,7 +172,6 @@ void UDiffHelperTabController::SetSearchFilter(const FText& InText) const
 void UDiffHelperTabController::SetSortingMode(const FName& InColumnId, EColumnSortMode::Type InSortMode) const
 {
 	auto& Data = Model->DiffPanelData;
-	Data.SortColumn = InColumnId;
 	Data.SortMode = InSortMode;
 
 	UDiffHelperUtils::SortDiffList(Data.SortMode, Data.FilteredDiff);

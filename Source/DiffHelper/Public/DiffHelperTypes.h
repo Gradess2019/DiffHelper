@@ -14,7 +14,6 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
 
 namespace SDiffHelperDiffPanelConstants
 {
-	const FName StatusColumnId(TEXT("State"));
 	const FName PathColumnId(TEXT("Path"));
 
 	const int32 ListWidgetIndex = 0;
@@ -148,7 +147,5 @@ struct FDiffHelperDiffPanelData
 	
 	TArray<TSharedPtr<FDiffHelperItemNode>> TreeDiff;
 
-	UE_DEPRECATED(5.4, "SortColumn will be removed")
-	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
 };

@@ -23,11 +23,7 @@ void SDiffHelperDiffFileItem::Construct(const FArguments& InArgs, const TSharedR
 
 TSharedRef<SWidget> SDiffHelperDiffFileItem::GenerateWidgetForColumn(const FName& InColumnName)
 {
-	if (InColumnName.IsEqual(SDiffHelperDiffPanelConstants::StatusColumnId))
-	{
-		return CreateStatusColumn();
-	}
-	else if (InColumnName.IsEqual(SDiffHelperDiffPanelConstants::PathColumnId))
+	if (InColumnName.IsEqual(SDiffHelperDiffPanelConstants::PathColumnId))
 	{
 		return CreatePathColumn();
 	}
