@@ -98,9 +98,8 @@ void UDiffHelperTabController::CollectDiff()
 	UDiffHelperUtils::SortDiffList(Model->DiffPanelData.SortMode, Model->DiffPanelData.OriginalDiff);
 	Model->DiffPanelData.FilteredDiff = Model->DiffPanelData.OriginalDiff;
 	
-	Model->DiffPanelData.OriginalTreeDiff = UDiffHelperUtils::GenerateTree(Model->Diff);
-	UDiffHelperUtils::SortDiffTree(Model->DiffPanelData.SortMode, Model->DiffPanelData.OriginalTreeDiff);
-	Model->DiffPanelData.FilteredTreeDiff = Model->DiffPanelData.OriginalTreeDiff;
+	Model->DiffPanelData.TreeDiff = UDiffHelperUtils::GenerateTree(Model->Diff);
+	UDiffHelperUtils::SortDiffTree(Model->DiffPanelData.SortMode, Model->DiffPanelData.TreeDiff);
 
 	Model->DiffPanelData.SearchFilter = MakeShared<TTextFilter<const FDiffHelperDiffItem&>>(TTextFilter<const FDiffHelperDiffItem&>::FItemToStringArray::CreateUObject(this, &UDiffHelperTabController::PopulateFilterSearchString));
 	Model->DiffPanelData.SearchFilter->OnChanged().AddUObject(this, &UDiffHelperTabController::OnFilterChanged);
@@ -177,7 +176,7 @@ void UDiffHelperTabController::SetSortingMode(const FName& InColumnId, EColumnSo
 	Data.SortMode = InSortMode;
 
 	UDiffHelperUtils::SortDiffList(Data.SortMode, Data.FilteredDiff);
-	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.FilteredTreeDiff);
+	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.TreeDiff);
 
 	CallModelUpdated();
 }
@@ -198,13 +197,12 @@ void UDiffHelperTabController::OnFilterChanged()
 {
 	auto& Data = Model->DiffPanelData;
 	Data.FilteredDiff = Data.OriginalDiff;
-	Data.FilteredTreeDiff = Data.OriginalTreeDiff;
 	
 	UDiffHelperUtils::FilterListItems(Data.SearchFilter, Data.FilteredDiff);
-	UDiffHelperUtils::FilterTreeItems(Data.SearchFilter, Data.FilteredTreeDiff);
+	Data.TreeDiff = UDiffHelperUtils::ConvertListToTree(Data.FilteredDiff);
 
 	UDiffHelperUtils::SortDiffList(Data.SortMode, Data.FilteredDiff);
-	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.FilteredTreeDiff);
+	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.TreeDiff);
 
 	// TODO: We need to add more specific events for model update. Calling global update is not good approach.
 	CallModelUpdated();

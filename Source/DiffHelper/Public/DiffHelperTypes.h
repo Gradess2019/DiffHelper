@@ -146,8 +146,7 @@ struct FDiffHelperDiffPanelData
 	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalDiff;
 	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredDiff;
 	
-	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalTreeDiff;
-	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredTreeDiff;
+	TArray<TSharedPtr<FDiffHelperItemNode>> TreeDiff;
 
 	UE_DEPRECATED(5.4, "SortColumn will be removed")
 	FName SortColumn = SDiffHelperDiffPanelConstants::PathColumnId;

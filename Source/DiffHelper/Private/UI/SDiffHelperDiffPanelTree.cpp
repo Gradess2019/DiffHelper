@@ -18,7 +18,7 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 	
 	STreeView::Construct(
 		STreeView<TSharedPtr<FDiffHelperItemNode>>::FArguments()
-		.TreeItemsSource(&Controller->GetModel()->DiffPanelData.FilteredTreeDiff)
+		.TreeItemsSource(&Controller->GetModel()->DiffPanelData.TreeDiff)
 		.SelectionMode(ESelectionMode::SingleToggle)
 		.OnSelectionChanged(InArgs._OnSelectionChanged)
 		.OnGenerateRow(InArgs._OnGenerateRow)
