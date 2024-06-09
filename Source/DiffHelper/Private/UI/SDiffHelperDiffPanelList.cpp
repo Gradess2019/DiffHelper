@@ -18,12 +18,6 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 	Model = Controller->GetModel();
 	if (!ensure(Model.IsValid())) { return; }
 
-	// ==================================
-	// TODO: This is uncompileable comment.
-	// Next task:
-	// - Think about sort, probably we don't need it
-	// ==================================
-	
 	SListView::Construct(
 		SListView::FArguments()
 		.ListItemsSource(&Model->DiffPanelData.FilteredDiff)
@@ -33,17 +27,10 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 		.HeaderRow
 		(
 			SNew(SHeaderRow)
-			// + SHeaderRow::Column(SDiffHelperDiffPanelConstants::StatusColumnId)
-			// .DefaultLabel(FText::GetEmpty())
-			// .FixedWidth(28.f)
-			// .SortMode(this, &SDiffHelperDiffPanel::GetSortModeForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-			// .SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
-			// .OnSort(this, &SDiffHelperDiffPanel::OnSortColumn)
 			+ SHeaderRow::Column(SDiffHelperDiffPanelConstants::PathColumnId)
 			.DefaultLabel(LOCTEXT("PathColumn", "Path"))
 			.FillWidth(1.f)
 			.SortMode(InArgs._SortMode)
-			// .SortPriority(this, &SDiffHelperDiffPanel::GetSortPriorityForColumn, SDiffHelperDiffPanelConstants::StatusColumnId)
 			.OnSort(InArgs._OnSortModeChanged)
 		)
 	);
