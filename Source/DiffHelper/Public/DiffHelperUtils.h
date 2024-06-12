@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DiffHelperTypes.h"
+
 #include "UObject/Object.h"
 #include "Misc/IFilter.h"
 #include "DiffHelperUtils.generated.h"
@@ -37,6 +39,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
 	static bool CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB);
 
+public:
+	static int32 GetItemNodeFilesCount(const TSharedPtr<FDiffHelperItemNode>& InItem);
+	
 	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateList(const TArray<FDiffHelperDiffItem>& InItems);
 	
 	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateTree(const TArray<FDiffHelperDiffItem>& InItems);
