@@ -7,6 +7,8 @@
 
 #include "DiffHelperTypes.h"
 
+class STextBlock;
+
 /**
  * 
  */
@@ -22,6 +24,7 @@ public:
 	SLATE_END_ARGS()
 
 protected:
+	TSharedPtr<STextBlock> Text;
 	TSharedPtr<FDiffHelperItemNode> Item;
 	
 public:

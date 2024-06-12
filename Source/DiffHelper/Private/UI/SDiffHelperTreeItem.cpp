@@ -2,6 +2,8 @@
 
 
 #include "UI/SDiffHelperTreeItem.h"
+
+#include "DiffHelperSettings.h"
 #include "SlateOptMacros.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -12,12 +14,20 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 	Item = InArgs._Item;
 	if (!ensure(Item.IsValid())) { return; }
 
+	Text = SNew(STextBlock)
+		.Text(FText::FromString(Item->Name));
+
+	if (Item->DiffItem.IsValid())
+	{
+		const auto& StatusColor = GetDefault<UDiffHelperSettings>()->StatusColors.FindRef(Item->DiffItem->Status, FLinearColor::White);
+		Text->SetColorAndOpacity(StatusColor);
+	}
+	
 	STableRow::Construct(
 		STableRow::FArguments()
 		.Content()
 		[
-			SNew(STextBlock)
-			.Text(FText::FromString(Item->Name))
+			Text.ToSharedRef()
 		],
 		InOwner
 	);

@@ -4,6 +4,7 @@
 
 #include <CoreMinimal.h>
 #include <UObject/Object.h>
+#include "DiffHelperTypes.h"
 #include "DiffHelperSettings.generated.h"
 
 UCLASS(Config=DiffHelper)
@@ -15,7 +16,8 @@ public:
 	/** if true the plugin will cache source and target branches and will put them into selectors on a first Diff Helper view */
 	UPROPERTY(Config, EditAnywhere, Category = "Caching")
 	bool bEnableCaching = true;
-	
+
+#pragma region Git
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	FString BranchParserPattern = TEXT("(?:\n*\\s\\s|(?:\\*\\s))(.+?)\\s+(\\w+)");
 
@@ -75,6 +77,18 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	int32 ChangedFilePathGroup = 2;
+#pragma endregion Git
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
+	TMap<EDiffHelperFileStatus, FLinearColor> StatusColors = {
+		{EDiffHelperFileStatus::None, FLinearColor(1.f, 1.f, 1.f)},
+		{EDiffHelperFileStatus::Added, FLinearColor(0.384, 0.592, 0.333)},
+		{EDiffHelperFileStatus::Modified, FLinearColor(0.408, 0.592, 0.733)},
+		{EDiffHelperFileStatus::Deleted, FLinearColor(0.424, 0.424, 0.424)},
+		{EDiffHelperFileStatus::Renamed, FLinearColor(0.227, 0.518, 0.518)},
+		{EDiffHelperFileStatus::Copied, FLinearColor(0.039, 0.467, 0.0)},
+		{EDiffHelperFileStatus::Unmerged, FLinearColor(0.835, 0.459, 0.424)},
+	};
 
 public:
 	static bool IsCachingEnabled() { return GetDefault<UDiffHelperSettings>()->bEnableCaching; }
