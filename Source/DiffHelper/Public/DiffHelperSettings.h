@@ -90,6 +90,10 @@ public:
 		{EDiffHelperFileStatus::Unmerged, FLinearColor(0.835, 0.459, 0.424)},
 	};
 
+	// Color of the hint that is located on the right side of the item name in the Diff List, that displays files / tree structure
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
+	FLinearColor ItemHintColor = FLinearColor(0.380, 0.427, 0.443, 0.5);
+
 public:
 	static bool IsCachingEnabled() { return GetDefault<UDiffHelperSettings>()->bEnableCaching; }
 };

@@ -21,7 +21,9 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 	Text = SNew(STextBlock)
 		.Text(FText::FromString(Item->Name));
 
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	Hint = SNew(STextBlock);
+	Hint->SetColorAndOpacity(Settings->ItemHintColor);
 	
 	if (Item->DiffItem.IsValid())
 	{
@@ -55,7 +57,8 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 
 void SDiffHelperTreeItem::ShowFileHint()
 {
-	const auto& StatusColor = GetDefault<UDiffHelperSettings>()->StatusColors.FindRef(Item->DiffItem->Status, FLinearColor::White);
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	const auto& StatusColor = Settings->StatusColors.FindRef(Item->DiffItem->Status, FLinearColor::White);
 	Text->SetColorAndOpacity(StatusColor);
 
 	auto PathWithoutFilename = FPaths::GetPath(Item->Path).TrimStartAndEnd();
@@ -63,13 +66,12 @@ void SDiffHelperTreeItem::ShowFileHint()
 	PathWithoutFilename.TrimCharInline(TEXT('\\'), nullptr);
 	
 	Hint->SetText(FText::FromString(PathWithoutFilename));
-	Hint->SetColorAndOpacity(FLinearColor(0.380,0.427,0.443, 0.5));
 }
 
 void SDiffHelperTreeItem::ShowDirectoryHint()
 {
 	const auto& AllChildrenCount = UDiffHelperUtils::GetItemNodeFilesCount(Item);
-	Hint->SetText(FText::Format(LOCTEXT("TreeItemFilesCount", "{0} files"), AllChildrenCount));	
+	Hint->SetText(FText::Format(LOCTEXT("TreeItemFilesCount", "{0} files"), AllChildrenCount));
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
