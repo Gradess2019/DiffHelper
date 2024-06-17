@@ -22,6 +22,19 @@ bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, cons
 	return static_cast<uint8>(InStatusA) < static_cast<uint8>(InStatusB);
 }
 
+int32 UDiffHelperUtils::GetItemNodeFilesCount(const TSharedPtr<FDiffHelperItemNode>& InItem)
+{
+	const auto& Children = InItem->Children;
+	int32 Count = InItem->DiffItem.IsValid() ? 1 : 0;
+
+	for (const auto& Child : Children)
+	{
+		Count += GetItemNodeFilesCount(Child);
+	}
+
+	return Count;
+}
+
 TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GenerateList(const TArray<FDiffHelperDiffItem>& InItems)
 {
 	TArray<TSharedPtr<FDiffHelperItemNode>> OutArray;

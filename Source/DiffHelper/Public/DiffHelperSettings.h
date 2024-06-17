@@ -4,6 +4,7 @@
 
 #include <CoreMinimal.h>
 #include <UObject/Object.h>
+#include "DiffHelperTypes.h"
 #include "DiffHelperSettings.generated.h"
 
 UCLASS(Config=DiffHelper)
@@ -15,7 +16,8 @@ public:
 	/** if true the plugin will cache source and target branches and will put them into selectors on a first Diff Helper view */
 	UPROPERTY(Config, EditAnywhere, Category = "Caching")
 	bool bEnableCaching = true;
-	
+
+#pragma region Git
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	FString BranchParserPattern = TEXT("(?:\n*\\s\\s|(?:\\*\\s))(.+?)\\s+(\\w+)");
 
@@ -75,6 +77,22 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	int32 ChangedFilePathGroup = 2;
+#pragma endregion Git
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
+	TMap<EDiffHelperFileStatus, FLinearColor> StatusColors = {
+		{EDiffHelperFileStatus::None, FLinearColor(1.f, 1.f, 1.f)},
+		{EDiffHelperFileStatus::Added, FLinearColor(0.384f, 0.8f, 0.333f)},
+		{EDiffHelperFileStatus::Modified, FLinearColor(0.408f, 0.592f, 0.95f)},
+		{EDiffHelperFileStatus::Deleted, FLinearColor(0.9f, 0.2f, 0.2f)},
+		{EDiffHelperFileStatus::Renamed, FLinearColor(0.5f, 0.8f, 0.8f)},
+		{EDiffHelperFileStatus::Copied, FLinearColor(0.039f, 0.467f, 0.0f)},
+		{EDiffHelperFileStatus::Unmerged, FLinearColor(0.835f, 0.459f, 0.424f)},
+	};
+
+	// Color of the hint that is located on the right side of the item name in the Diff List, that displays files / tree structure
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
+	FLinearColor ItemHintColor = FLinearColor(0.380, 0.427, 0.443, 0.5);
 
 public:
 	static bool IsCachingEnabled() { return GetDefault<UDiffHelperSettings>()->bEnableCaching; }

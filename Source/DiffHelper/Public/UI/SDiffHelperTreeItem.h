@@ -7,6 +7,8 @@
 
 #include "DiffHelperTypes.h"
 
+class STextBlock;
+
 /**
  * 
  */
@@ -22,9 +24,19 @@ public:
 	SLATE_END_ARGS()
 
 protected:
+	TSharedPtr<STextBlock> Text;
+	TSharedPtr<STextBlock> Hint;
 	TSharedPtr<FDiffHelperItemNode> Item;
 	
 public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwner);
+	
+private:
+	void ShowFileHint();
+	void ShowDirectoryHint();
+
+	const FSlateBrush* GetIconImage() const;
+	EVisibility GetIconVisibility() const;
+	
 };
