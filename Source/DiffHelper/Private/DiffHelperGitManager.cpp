@@ -78,7 +78,14 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 		return {};
 	}
 
-	const auto Branches = ParseBranches(Results);
+	auto Branches = ParseBranches(Results);
+
+	// Auxiliary branch for the current state
+	FDiffHelperBranch Local;
+	Local.Name = TEXT("HEAD");
+	Local.Revision = TEXT("HEAD");
+	Branches.Insert(Local, 0);
+	
 	return Branches;
 }
 
