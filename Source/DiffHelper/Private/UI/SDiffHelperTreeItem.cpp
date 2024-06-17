@@ -4,6 +4,7 @@
 #include "UI/SDiffHelperTreeItem.h"
 
 #include "DiffHelperSettings.h"
+#include "DiffHelperStyle.h"
 #include "DiffHelperUtils.h"
 #include "SlateOptMacros.h"
 
@@ -33,6 +34,8 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 	{
 		ShowDirectoryHint();
 	}
+
+	static const auto DefaultPadding = FMargin(4.f, 0.f, 0.f, 0.f);
 	
 	STableRow::Construct(
 		STableRow::FArguments()
@@ -42,11 +45,19 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
+				SNew(SImage)
+				.Image(this, &SDiffHelperTreeItem::GetIconImage)
+				.Visibility(this, &SDiffHelperTreeItem::GetIconVisibility)
+			]
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(DefaultPadding)
+			[
 				Text.ToSharedRef()
 			]
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
-			.Padding(4.f, 0.f, 0.f, 0.f)
+			.Padding(DefaultPadding)
 			[
 				Hint.ToSharedRef()
 			]
@@ -72,6 +83,16 @@ void SDiffHelperTreeItem::ShowDirectoryHint()
 {
 	const auto& AllChildrenCount = UDiffHelperUtils::GetItemNodeFilesCount(Item);
 	Hint->SetText(FText::Format(LOCTEXT("TreeItemFilesCount", "{0} files"), AllChildrenCount));
+}
+
+const FSlateBrush* SDiffHelperTreeItem::GetIconImage() const
+{
+	return FDiffHelperStyle::Get().GetBrush("DiffHelper.Directory.Small");
+}
+
+EVisibility SDiffHelperTreeItem::GetIconVisibility() const
+{
+	return Item->DiffItem.IsValid() ? EVisibility::Collapsed : EVisibility::HitTestInvisible;
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

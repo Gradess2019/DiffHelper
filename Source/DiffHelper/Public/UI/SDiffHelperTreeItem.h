@@ -36,6 +36,7 @@ private:
 	void ShowFileHint();
 	void ShowDirectoryHint();
 
-	
+	const FSlateBrush* GetIconImage() const;
+	EVisibility GetIconVisibility() const;
 	
 };
