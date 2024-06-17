@@ -9,7 +9,6 @@
 class FDiffHelperCommands : public TCommands<FDiffHelperCommands>
 {
 public:
-
 	FDiffHelperCommands()
 		: TCommands<FDiffHelperCommands>(TEXT("DiffHelper"), NSLOCTEXT("Contexts", "DiffHelper", "DiffHelper Plugin"), NAME_None, FDiffHelperStyle::GetStyleSetName())
 	{
@@ -19,5 +18,6 @@ public:
 	virtual void RegisterCommands() override;
 
 public:
-	TSharedPtr< FUICommandInfo > PluginAction;
+	TSharedPtr<FUICommandInfo> PluginAction;
+	TSharedPtr<FUICommandInfo> CreateNewDiff;
 };

@@ -9,6 +9,7 @@
 #include "ISourceControlProvider.h"
 #include "SourceControlHelpers.h"
 #include "SourceControlOperations.h"
+#include "RevisionControlStyle/RevisionControlStyle.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelperGitManager"
 
@@ -60,6 +61,7 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 	if (!RepositoryRoot.IsSet())
 	{
 		UE_LOG(LogSourceControl, Error, TEXT("Failed to get repository root!"));
+		return {};
 	}
 
 	TArray<FString> Params;
@@ -76,7 +78,14 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 		return {};
 	}
 
-	const auto Branches = ParseBranches(Results);
+	auto Branches = ParseBranches(Results);
+
+	// Auxiliary branch for the current state
+	FDiffHelperBranch Local;
+	Local.Name = TEXT("HEAD");
+	Local.Revision = TEXT("HEAD");
+	Branches.Insert(Local, 0);
+	
 	return Branches;
 }
 
@@ -103,6 +112,7 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 	{
 		FDiffHelperDiffItem DiffItem;
 		DiffItem.Path = Pair.Key;
+		DiffItem.Status = Pair.Value[0].Files.FindByPredicate([Pair](const FDiffHelperFileData& InFile) { return InFile.Path == Pair.Key; })->Status;
 
 		const auto RelativePath = FPaths::Combine(FPaths::ProjectDir(), DiffItem.Path);
 		if (FPaths::IsUnderDirectory(RelativePath, FPaths::ProjectContentDir()))
@@ -118,6 +128,7 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 			}
 		}
 
+		DiffItem.LastTargetCommit = GetLastCommitForFile(DiffItem.Path, InTargetRevision);
 		DiffItem.Commits = Pair.Value;
 		DiffItems.Add(DiffItem);
 	}
@@ -145,6 +156,68 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FStrin
 
 	TArray<FDiffHelperCommit> Commits = ParseCommits(Result);
 	return Commits;
+}
+
+FDiffHelperCommit UDiffHelperGitManager::GetLastCommitForFile(const FString& InFilePath, const FString& InBranch) const
+{
+	const FString Command = TEXT("log");
+	FString Result;
+	FString Errors;
+
+	TArray<FString> Params;
+	Params.Add(InBranch);
+	Params.Add(TEXT("-n 1"));
+	Params.Add(TEXT("--pretty=format:\"<Hash:%h> <Message:%s> <Author:%an> <Date:%ad>\""));
+	Params.Add(TEXT("--date=format-local:\"%d/%m/%Y %H:%M\""));
+	Params.Add(TEXT("-- ") + InFilePath);
+
+	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
+	{
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get last commit for file: %s. Error: %s"), *InFilePath, *Errors);
+		return {};
+	}
+
+	FDiffHelperCommit Commit = ParseCommit(Result);
+	return Commit;
+}
+
+FSlateIcon UDiffHelperGitManager::GetStatusIcon(const EDiffHelperFileStatus InStatus) const
+{
+	switch (InStatus)
+	{
+	case EDiffHelperFileStatus::Added: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.OpenForAdd");
+	case EDiffHelperFileStatus::Modified: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.CheckedOut");
+	case EDiffHelperFileStatus::Deleted: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.MarkedForDelete");
+	case EDiffHelperFileStatus::Renamed:
+	case EDiffHelperFileStatus::Copied: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Branched");
+	case EDiffHelperFileStatus::Unmerged: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Conflicted");
+	default: return FSlateIcon();
+	}
+}
+
+TOptional<FString> UDiffHelperGitManager::GetFile(const FString& InFilename, const FString& InRevision) const
+{
+	IFileManager::Get().MakeDirectory(*FPaths::DiffDir(), true);
+	const FString TempFileName = FString::Printf(TEXT("%stemp-%s-%s"), *FPaths::DiffDir(), *InRevision, *FPaths::GetCleanFilename(InFilename));
+	TOptional<FString> FilePath = FPaths::ConvertRelativePathToFull(TempFileName);
+
+	// Diff against the revision
+	const FString Parameter = FString::Printf(TEXT("%s:%s"), *InRevision, *InFilename);
+
+	bool bCommandSuccessful;
+	if(FPaths::FileExists(FilePath.GetValue()))
+	{
+		// if the temp file already exists, reuse it directly
+		bCommandSuccessful = true;
+	}
+	else
+	{
+		const auto RepositoryRoot = GetRepositoryDirectory();
+		// bCommandSuccessful = GitSourceControlUtils::RunDumpToFile(GitBinaryPath, RepositoryRoot, Parameter, FilePath);
+		bCommandSuccessful = ExtractFile(Parameter, FilePath.GetValue());
+	}
+	
+	return bCommandSuccessful ? FilePath : TOptional<FString>();
 }
 
 void UDiffHelperGitManager::LoadGitBinaryPath()
@@ -246,6 +319,24 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::ParseCommits(const FString& InC
 	return Commits;
 }
 
+FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) const
+{
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	const auto Pattern = FRegexPattern(Settings->SingleCommitPattern);
+	auto Matcher = FRegexMatcher(Pattern, String);
+
+	FDiffHelperCommit Commit;
+	if (Matcher.FindNext())
+	{
+		Commit.Revision = Matcher.GetCaptureGroup(Settings->HashGroup);
+		Commit.Message = Matcher.GetCaptureGroup(Settings->MessageGroup);
+		Commit.Author = Matcher.GetCaptureGroup(Settings->AuthorGroup);
+		Commit.Date = ParseDate(Matcher.GetCaptureGroup(Settings->DateGroup));
+	}
+
+	return Commit;
+}
+
 FDateTime UDiffHelperGitManager::ParseDate(const FString& InDate) const
 {
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
@@ -297,6 +388,107 @@ EDiffHelperFileStatus UDiffHelperGitManager::ConvertFileStatus(const FString& In
 	if (InStatus == TEXT("U")) { return EDiffHelperFileStatus::Unmerged; }
 
 	return EDiffHelperFileStatus::None;
+}
+
+bool UDiffHelperGitManager::ExtractFile(const FString& InParameter, const FString& InDumpFileName) const
+{
+	// Modified copy of GitSourceControlUtils::RunDumpToFile
+	// TODO: DIFF-24 - cleanup this method
+	int32 ReturnCode = -1;
+	FString FullCommand;
+
+	const auto RepositoryRoot = GetRepositoryDirectory();
+	if (!ensure(RepositoryRoot.IsSet()))
+	{
+		return false;
+	}
+	
+	// FGitSourceControlModule& GitSourceControl = FModuleManager::LoadModuleChecked<FGitSourceControlModule>("GitSourceControl");
+	// const FGitVersion& GitVersion = GitSourceControl.GetProvider().GetGitVersion();
+
+	if(!RepositoryRoot->IsEmpty())
+	{
+		// Specify the working copy (the root) of the git repository (before the command itself)
+		FullCommand  = TEXT("-C \"");
+		FullCommand += *RepositoryRoot;
+		FullCommand += TEXT("\" ");
+	}
+
+	// then the git command itself
+	// if(GitVersion.bHasCatFileWithFilters)
+	// {
+		// Newer versions (2.9.3.windows.2) support smudge/clean filters used by Git LFS, git-fat, git-annex, etc
+		FullCommand += TEXT("cat-file --filters ");
+	// }
+	// else
+	// {
+		// Previous versions fall-back on "git show" like before
+		// FullCommand += TEXT("show ");
+	// }
+
+	// Append to the command the parameter
+	FullCommand += InParameter;
+
+	const bool bLaunchDetached = false;
+	const bool bLaunchHidden = true;
+	const bool bLaunchReallyHidden = bLaunchHidden;
+
+	void* PipeRead = nullptr;
+	void* PipeWrite = nullptr;
+
+	verify(FPlatformProcess::CreatePipe(PipeRead, PipeWrite));
+
+	FProcHandle ProcessHandle = FPlatformProcess::CreateProc(*GitBinaryPath, *FullCommand, bLaunchDetached, bLaunchHidden, bLaunchReallyHidden, nullptr, 0, **RepositoryRoot, PipeWrite, nullptr, nullptr);
+	if(ProcessHandle.IsValid())
+	{
+		FPlatformProcess::Sleep(0.01);
+
+		TArray<uint8> BinaryFileContent;
+		while(FPlatformProcess::IsProcRunning(ProcessHandle))
+		{
+			TArray<uint8> BinaryData;
+			FPlatformProcess::ReadPipeToArray(PipeRead, BinaryData);
+			if(BinaryData.Num() > 0)
+			{
+				BinaryFileContent.Append(MoveTemp(BinaryData));
+			}
+		}
+		TArray<uint8> BinaryData;
+		FPlatformProcess::ReadPipeToArray(PipeRead, BinaryData);
+		if(BinaryData.Num() > 0)
+		{
+			BinaryFileContent.Append(MoveTemp(BinaryData));
+		}
+
+		FPlatformProcess::GetProcReturnCode(ProcessHandle, &ReturnCode);
+		if(ReturnCode == 0)
+		{
+			// Save buffer into temp file
+			if(FFileHelper::SaveArrayToFile(BinaryFileContent, *InDumpFileName))
+			{
+				UE_LOG(LogSourceControl, Log, TEXT("Writed '%s' (%do)"), *InDumpFileName, BinaryFileContent.Num());
+			}
+			else
+			{
+				UE_LOG(LogSourceControl, Error, TEXT("Could not write %s"), *InDumpFileName);
+				ReturnCode = -1;
+			}
+		}
+		else
+		{
+			UE_LOG(LogSourceControl, Error, TEXT("DumpToFile: ReturnCode=%d"), ReturnCode);
+		}
+
+		FPlatformProcess::CloseProc(ProcessHandle);
+	}
+	else
+	{
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to launch 'git cat-file'"));
+	}
+
+	FPlatformProcess::ClosePipe(PipeRead, PipeWrite);
+
+	return (ReturnCode == 0);
 }
 
 #undef LOCTEXT_NAMESPACE

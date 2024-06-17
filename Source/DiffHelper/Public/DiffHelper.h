@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class UDiffHelperCacheManager;
+class SDiffHelperWindow;
 class IDiffHelperManager;
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -13,6 +15,8 @@ class FDiffHelperModule : public IModuleInterface
 {
 protected:
 	IDiffHelperManager* DiffHelperManager = nullptr;
+	TStrongObjectPtr<UDiffHelperCacheManager> CacheManager;
+	TSharedPtr<SDiffHelperWindow> DiffHelperWindow;
 	
 public:
 
@@ -22,6 +26,11 @@ public:
 	
 	/** This function will be bound to Command. */
 	void PluginButtonClicked();
+
+	static FDiffHelperModule& Get();
+
+	const IDiffHelperManager* GetManager() const { return DiffHelperManager; }
+	UDiffHelperCacheManager* GetCacheManager() const { return CacheManager.Get(); }
 	
 private:
 

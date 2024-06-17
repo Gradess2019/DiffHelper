@@ -1,11 +1,14 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "DiffHelper.h"
+#include "DiffHelperCacheManager.h"
 #include "DiffHelperStyle.h"
 #include "DiffHelperCommands.h"
 #include "DiffHelperGitManager.h"
 #include "DiffHelperTypes.h"
 #include "ToolMenus.h"
+
+#include "UI/SDiffHelperWindow.h"
 
 static const FName DiffHelperTabName("DiffHelper");
 
@@ -21,6 +24,9 @@ void FDiffHelperModule::StartupModule()
 	DiffHelperManager = NewObject<UDiffHelperGitManager>();
 	DiffHelperManager->Init();
 
+	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
+	CacheManager->Init();
+	
 	FDiffHelperCommands::Register();
 
 	PluginCommands = MakeShareable(new FUICommandList);
@@ -35,6 +41,7 @@ void FDiffHelperModule::StartupModule()
 
 void FDiffHelperModule::ShutdownModule()
 {
+	// TODO: crash on shutdown
 	if (DiffHelperManager)
 	{
 		DiffHelperManager->Deinit();
@@ -51,7 +58,18 @@ void FDiffHelperModule::ShutdownModule()
 
 void FDiffHelperModule::PluginButtonClicked()
 {
-	const auto Branches = DiffHelperManager->GetCurrentBranch();
+	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
+	DiffHelperWindow->GetOnWindowClosedEvent().AddLambda([this](const TSharedRef<SWindow>& Window)
+	{
+		DiffHelperWindow.Reset();
+	});
+	
+	FSlateApplication::Get().AddWindow(DiffHelperWindow.ToSharedRef());
+}
+
+FDiffHelperModule& FDiffHelperModule::Get()
+{
+	return FModuleManager::LoadModuleChecked<FDiffHelperModule>("DiffHelper");
 }
 
 void FDiffHelperModule::RegisterMenus()
