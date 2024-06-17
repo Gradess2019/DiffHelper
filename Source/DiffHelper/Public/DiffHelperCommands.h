@@ -18,6 +18,6 @@ public:
 	virtual void RegisterCommands() override;
 
 public:
-	TSharedPtr<FUICommandInfo> PluginAction;
+	TSharedPtr<FUICommandInfo> OpenDiffWindow;
 	TSharedPtr<FUICommandInfo> CreateNewDiff;
 };

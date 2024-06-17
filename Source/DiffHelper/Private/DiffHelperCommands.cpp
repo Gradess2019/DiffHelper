@@ -6,7 +6,7 @@
 
 void FDiffHelperCommands::RegisterCommands()
 {
-	UI_COMMAND(PluginAction, "DiffHelper", "Execute DiffHelper action", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(OpenDiffWindow, "DiffHelper", "Open diff helper window", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(CreateNewDiff, "New...", "Create a new diff", EUserInterfaceActionType::Button, FInputChord());
 }
 

@@ -32,7 +32,7 @@ void FDiffHelperModule::StartupModule()
 	PluginCommands = MakeShareable(new FUICommandList);
 
 	PluginCommands->MapAction(
-		FDiffHelperCommands::Get().PluginAction,
+		FDiffHelperCommands::Get().OpenDiffWindow,
 		FExecuteAction::CreateRaw(this, &FDiffHelperModule::PluginButtonClicked),
 		FCanExecuteAction());
 
@@ -74,6 +74,8 @@ FDiffHelperModule& FDiffHelperModule::Get()
 
 void FDiffHelperModule::RegisterMenus()
 {
+	// TODO: Move this auto-generated code to a different place
+	
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
 	FToolMenuOwnerScoped OwnerScoped(this);
 
@@ -81,7 +83,8 @@ void FDiffHelperModule::RegisterMenus()
 		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
 		{
 			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-			Section.AddMenuEntryWithCommandList(FDiffHelperCommands::Get().PluginAction, PluginCommands);
+			auto& Entry = Section.AddMenuEntryWithCommandList(FDiffHelperCommands::Get().OpenDiffWindow, PluginCommands);
+			Entry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Diff");
 		}
 	}
 
@@ -90,8 +93,9 @@ void FDiffHelperModule::RegisterMenus()
 		{
 			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("PluginTools");
 			{
-				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FDiffHelperCommands::Get().PluginAction));
+				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FDiffHelperCommands::Get().OpenDiffWindow));
 				Entry.SetCommandList(PluginCommands);
+				Entry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Diff");
 			}
 		}
 	}
