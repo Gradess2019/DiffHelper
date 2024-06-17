@@ -82,12 +82,12 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
 	TMap<EDiffHelperFileStatus, FLinearColor> StatusColors = {
 		{EDiffHelperFileStatus::None, FLinearColor(1.f, 1.f, 1.f)},
-		{EDiffHelperFileStatus::Added, FLinearColor(0.384, 0.592, 0.333)},
-		{EDiffHelperFileStatus::Modified, FLinearColor(0.408, 0.592, 0.733)},
-		{EDiffHelperFileStatus::Deleted, FLinearColor(0.424, 0.424, 0.424)},
-		{EDiffHelperFileStatus::Renamed, FLinearColor(0.227, 0.518, 0.518)},
-		{EDiffHelperFileStatus::Copied, FLinearColor(0.039, 0.467, 0.0)},
-		{EDiffHelperFileStatus::Unmerged, FLinearColor(0.835, 0.459, 0.424)},
+		{EDiffHelperFileStatus::Added, FLinearColor(0.384f, 0.8f, 0.333f)},
+		{EDiffHelperFileStatus::Modified, FLinearColor(0.408f, 0.592f, 0.95f)},
+		{EDiffHelperFileStatus::Deleted, FLinearColor(0.9f, 0.2f, 0.2f)},
+		{EDiffHelperFileStatus::Renamed, FLinearColor(0.5f, 0.8f, 0.8f)},
+		{EDiffHelperFileStatus::Copied, FLinearColor(0.039f, 0.467f, 0.0f)},
+		{EDiffHelperFileStatus::Unmerged, FLinearColor(0.835f, 0.459f, 0.424f)},
 	};
 
 	// Color of the hint that is located on the right side of the item name in the Diff List, that displays files / tree structure
