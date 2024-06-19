@@ -38,6 +38,7 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SNew(SDiffHelperCommitPanelToolbar)
+			.Controller(Controller)
 		]
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
@@ -45,6 +46,7 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 			SAssignNew(CommitList, SListView<TSharedPtr<FDiffHelperCommit>>)
 			.ListItemsSource(&Commits)
 			.OnGenerateRow(this, &SDiffHelperCommitPanel::OnGenerateRow)
+			.OnSelectionChanged(this, &SDiffHelperCommitPanel::OnSelectionChanged)
 			.HeaderRow
 			(
 				SNew(SHeaderRow)
@@ -78,10 +80,15 @@ SDiffHelperCommitPanel::~SDiffHelperCommitPanel()
 
 TSharedRef<ITableRow> SDiffHelperCommitPanel::OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
-	return
-			SNew(SDiffHelperCommitItem, InOwnerTable)
-			.Controller(Controller)
-			.Item(InItem);
+	return SNew(SDiffHelperCommitItem, InOwnerTable)
+		.Controller(Controller)
+		.Item(InItem);
+}
+
+void SDiffHelperCommitPanel::OnSelectionChanged(TSharedPtr<FDiffHelperCommit> InCommit, ESelectInfo::Type InSelectInfo)
+{
+	const auto& SelectedCommits = CommitList->GetSelectedItems();
+	Controller->SetSelectedCommits(SelectedCommits);
 }
 
 void SDiffHelperCommitPanel::OnModelUpdated()

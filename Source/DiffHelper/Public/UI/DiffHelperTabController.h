@@ -55,6 +55,8 @@ public:
 	void SetSortingMode(const FName& InColumnId, EColumnSortMode::Type InSortMode) const;
 	void SetActiveWidgetIndex(const int32& InIndex) const;
 
+	void SetSelectedCommits(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits) const;
+
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
 
 private:

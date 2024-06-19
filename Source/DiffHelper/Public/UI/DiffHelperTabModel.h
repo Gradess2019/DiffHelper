@@ -35,4 +35,7 @@ public:
 
 	UPROPERTY()
 	FDiffHelperDiffPanelData DiffPanelData;
+	
+	UPROPERTY()
+	FDiffHelperCommitPanelData CommitPanelData;
 };

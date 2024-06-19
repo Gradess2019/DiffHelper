@@ -151,3 +151,11 @@ struct FDiffHelperDiffPanelData
 
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
 };
+
+USTRUCT()
+struct FDiffHelperCommitPanelData
+{
+	GENERATED_BODY()
+
+	TArray<TSharedPtr<FDiffHelperCommit>> SelectedCommits;
+};

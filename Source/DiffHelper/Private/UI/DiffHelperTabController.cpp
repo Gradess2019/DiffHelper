@@ -187,6 +187,11 @@ void UDiffHelperTabController::SetActiveWidgetIndex(const int32& InIndex) const
 	CallModelUpdated();
 }
 
+void UDiffHelperTabController::SetSelectedCommits(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits) const
+{
+	Model->CommitPanelData.SelectedCommits = InCommits;
+}
+
 FDiffHelperSimpleDelegate& UDiffHelperTabController::OnModelUpdated() const
 {
 	return Model->OnModelUpdated_Raw;
