@@ -9,6 +9,7 @@
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
 #include "UI/SDiffHelperCommitItem.h"
+#include "UI/SDiffHelperCommitPanelToolbar.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -32,28 +33,38 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 
 	ChildSlot
 	[
-		SAssignNew(CommitList, SListView<TSharedPtr<FDiffHelperCommit>>)
-		.ListItemsSource(&Commits)
-		.OnGenerateRow(this, &SDiffHelperCommitPanel::OnGenerateRow)
-		.HeaderRow
-		(
-			SNew(SHeaderRow)
-			+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::HashColumnId)
-			.DefaultLabel(LOCTEXT("HashColumnLabel", "Hash"))
-			.FillWidth(0.05f)
-			+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::MessageColumnId)
-			.DefaultLabel(LOCTEXT("MessageColumnLabel", "Message"))
-			.FillWidth(0.5f)
-			+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::AuthorColumnId)
-			.DefaultLabel(LOCTEXT("AuthorColumnLabel", "Author"))
-			.FillWidth(0.1f)
-			+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::DateColumnId)
-			.DefaultLabel(LOCTEXT("DateColumnLabel", "Date"))
-			.FillWidth(0.25f)
-			+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::DiffButtonColumnId)
-			.DefaultLabel(FText::GetEmpty())
-			.FillWidth(0.1f)
-		)
+		SNew(SVerticalBox)
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SNew(SDiffHelperCommitPanelToolbar)
+		]
+		+ SVerticalBox::Slot()
+		.FillHeight(1.f)
+		[
+			SAssignNew(CommitList, SListView<TSharedPtr<FDiffHelperCommit>>)
+			.ListItemsSource(&Commits)
+			.OnGenerateRow(this, &SDiffHelperCommitPanel::OnGenerateRow)
+			.HeaderRow
+			(
+				SNew(SHeaderRow)
+				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::HashColumnId)
+				.DefaultLabel(LOCTEXT("HashColumnLabel", "Hash"))
+				.FillWidth(0.05f)
+				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::MessageColumnId)
+				.DefaultLabel(LOCTEXT("MessageColumnLabel", "Message"))
+				.FillWidth(0.5f)
+				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::AuthorColumnId)
+				.DefaultLabel(LOCTEXT("AuthorColumnLabel", "Author"))
+				.FillWidth(0.1f)
+				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::DateColumnId)
+				.DefaultLabel(LOCTEXT("DateColumnLabel", "Date"))
+				.FillWidth(0.25f)
+				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::DiffButtonColumnId)
+				.DefaultLabel(FText::GetEmpty())
+				.FillWidth(0.1f)
+			)
+		]
 	];
 }
 
@@ -68,9 +79,9 @@ SDiffHelperCommitPanel::~SDiffHelperCommitPanel()
 TSharedRef<ITableRow> SDiffHelperCommitPanel::OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
 	return
-		SNew(SDiffHelperCommitItem, InOwnerTable)
-		.Controller(Controller)
-		.Item(InItem);
+			SNew(SDiffHelperCommitItem, InOwnerTable)
+			.Controller(Controller)
+			.Item(InItem);
 }
 
 void SDiffHelperCommitPanel::OnModelUpdated()
