@@ -46,6 +46,13 @@ TSharedRef< FSlateStyleSet > FDiffHelperStyle::Create()
 	Style->Set("DiffHelper.Diff", new IMAGE_BRUSH_SVG(TEXT("DiffIcon"), Icon20x20));
 	Style->Set("DiffHelper.Directory", new IMAGE_BRUSH_SVG(TEXT("DirectoryIcon"), Icon20x20));
 	Style->Set("DiffHelper.Directory.Small", new IMAGE_BRUSH_SVG(TEXT("DirectoryIcon"), Icon16x16));
+
+	// Arrows
+	Style->Set("DiffHelper.ArrowUp", new IMAGE_BRUSH_SVG(TEXT("ArrowUp"), Icon16x16));
+	Style->Set("DiffHelper.ArrowDown", new IMAGE_BRUSH_SVG(TEXT("ArrowDown"), Icon16x16));
+	Style->Set("DiffHelper.DoubleArrowUp", new IMAGE_BRUSH_SVG(TEXT("DoubleArrowUp"), Icon16x16));
+	Style->Set("DiffHelper.DoubleArrowDown", new IMAGE_BRUSH_SVG(TEXT("DoubleArrowDown"), Icon16x16));
+	Style->Set("DiffHelper.DoubleHeadedArrow", new IMAGE_BRUSH_SVG(TEXT("DoubleHeadedArrow"), Icon16x16));
 	return Style;
 }
 
