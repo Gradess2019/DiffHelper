@@ -87,7 +87,12 @@ TSharedRef<ITableRow> SDiffHelperCommitPanel::OnGenerateRow(TSharedPtr<FDiffHelp
 
 void SDiffHelperCommitPanel::OnSelectionChanged(TSharedPtr<FDiffHelperCommit> InCommit, ESelectInfo::Type InSelectInfo)
 {
-	const auto& SelectedCommits = CommitList->GetSelectedItems();
+	auto SelectedCommits = CommitList->GetSelectedItems();
+	SelectedCommits.Sort([&](const TSharedPtr<FDiffHelperCommit>& A, const TSharedPtr<FDiffHelperCommit>& B)
+	{
+		return Commits.IndexOfByKey(A) > Commits.IndexOfByKey(B);
+	});
+	
 	Controller->SetSelectedCommits(SelectedCommits);
 }
 
