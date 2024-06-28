@@ -30,7 +30,7 @@ void SDiffHelperCommitPanelToolbar::Construct(const FArguments& InArgs)
 			SAssignNew(DiffSelectedButton, SButton)
 			.ButtonStyle(FDiffHelperStyle::Get(), "CommitPanelToolbarButton")
 			.ToolTipText(LOCTEXT("CommitPanelToolbar_DiffSelectedButtonTooltip", "Diff selected commits against each other"))
-			// .OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffSelectedButtonClicked)
+			.OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffSelectedButtonClicked)
 			.IsEnabled(this, &SDiffHelperCommitPanelToolbar::IsDiffSelectedButtonEnabled)
 			.Content()
 			[
@@ -44,7 +44,7 @@ void SDiffHelperCommitPanelToolbar::Construct(const FArguments& InArgs)
 			SAssignNew(DiffAgainstNextButton, SButton)
 			.ButtonStyle(FDiffHelperStyle::Get(), "CommitPanelToolbarButton")
 			.ToolTipText(LOCTEXT("CommitPanelToolbar_DiffAgainstNextButtonTooltip", "Diff selected commit against the next one"))
-			// .OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstNextButtonClicked)
+			.OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstNextButtonClicked)
 			.IsEnabled(this, &SDiffHelperCommitPanelToolbar::HasNextCommit)
 			.Content()
 			[
@@ -58,7 +58,7 @@ void SDiffHelperCommitPanelToolbar::Construct(const FArguments& InArgs)
 			SAssignNew(DiffAgainstPreviousButton, SButton)
 			.ButtonStyle(FDiffHelperStyle::Get(), "CommitPanelToolbarButton")
 			.ToolTipText(LOCTEXT("CommitPanelToolbar_DiffAgainstPreviousButtonTooltip", "Diff selected commit against the previous one"))
-			// .OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstPreviousButtonClicked)
+			.OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstPreviousButtonClicked)
 			.IsEnabled(this, &SDiffHelperCommitPanelToolbar::HasPreviousCommit)
 			.Content()
 			[
@@ -72,7 +72,7 @@ void SDiffHelperCommitPanelToolbar::Construct(const FArguments& InArgs)
 			SAssignNew(DiffAgainstHeadButton, SButton)
 			.ButtonStyle(FDiffHelperStyle::Get(), "CommitPanelToolbarButton")
 			.ToolTipText(LOCTEXT("CommitPanelToolbar_DiffAgainstHeadButtonTooltip", "Diff selected commit against the head"))
-			// .OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstHeadButtonClicked)
+			.OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstHeadButtonClicked)
 			.IsEnabled(this, &SDiffHelperCommitPanelToolbar::HasNextCommit)
 			.Content()
 			[
@@ -86,7 +86,7 @@ void SDiffHelperCommitPanelToolbar::Construct(const FArguments& InArgs)
 			SAssignNew(DiffAgainstOldestButton, SButton)
 			.ButtonStyle(FDiffHelperStyle::Get(), "CommitPanelToolbarButton")
 			.ToolTipText(LOCTEXT("CommitPanelToolbar_DiffAgainstOldestButtonTooltip", "Diff selected commit against the oldest one"))
-			// .OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstOldestButtonClicked)
+			.OnClicked(this, &SDiffHelperCommitPanelToolbar::OnDiffAgainstOldestButtonClicked)
 			.IsEnabled(this, &SDiffHelperCommitPanelToolbar::HasPreviousCommit)
 			.Content()
 			[
@@ -135,6 +135,58 @@ bool SDiffHelperCommitPanelToolbar::HasPreviousCommit() const
 
 	const auto Index = GetCommitIndex(*Data.SelectedCommits[0]);
 	return Index < Model->SelectedDiffItem.Commits.Num() - 1;
+}
+
+FReply SDiffHelperCommitPanelToolbar::OnDiffSelectedButtonClicked()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	Controller->DiffAsset(DiffItem.Path, *SelectedCommits[0], *SelectedCommits[1]);
+
+	return FReply::Handled();
+}
+
+FReply SDiffHelperCommitPanelToolbar::OnDiffAgainstNextButtonClicked()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	const auto Index = GetCommitIndex(*SelectedCommits[0]);
+	Controller->DiffAsset(DiffItem.Path, *SelectedCommits[0], DiffItem.Commits[Index - 1]);
+
+	return FReply::Handled();
+}
+
+FReply SDiffHelperCommitPanelToolbar::OnDiffAgainstPreviousButtonClicked()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	const auto Index = GetCommitIndex(*SelectedCommits[0]);
+	Controller->DiffAsset(DiffItem.Path, DiffItem.Commits[Index + 1], *SelectedCommits[0]);
+
+	return FReply::Handled();
+}
+
+FReply SDiffHelperCommitPanelToolbar::OnDiffAgainstHeadButtonClicked()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	Controller->DiffAsset(DiffItem.Path, *SelectedCommits[0], DiffItem.Commits[0]);
+
+	return FReply::Handled();
+}
+
+FReply SDiffHelperCommitPanelToolbar::OnDiffAgainstOldestButtonClicked()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	Controller->DiffAsset(DiffItem.Path, DiffItem.Commits.Last(), *SelectedCommits[0]);
+
+	return FReply::Handled();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

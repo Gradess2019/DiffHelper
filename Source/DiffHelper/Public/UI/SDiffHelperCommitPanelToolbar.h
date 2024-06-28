@@ -42,4 +42,10 @@ private:
 	bool IsDiffSelectedButtonEnabled() const;
 	bool HasNextCommit() const;
 	bool HasPreviousCommit() const;
+
+	FReply OnDiffSelectedButtonClicked();
+	FReply OnDiffAgainstNextButtonClicked();
+	FReply OnDiffAgainstPreviousButtonClicked();
+	FReply OnDiffAgainstHeadButtonClicked();
+	FReply OnDiffAgainstOldestButtonClicked();
 };
