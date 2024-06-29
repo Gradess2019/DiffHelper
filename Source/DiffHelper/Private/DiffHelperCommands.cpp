@@ -8,6 +8,12 @@ void FDiffHelperCommands::RegisterCommands()
 {
 	UI_COMMAND(OpenDiffWindow, "DiffHelper", "Open diff helper window", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(CreateNewDiff, "New...", "Create a new diff", EUserInterfaceActionType::Button, FInputChord());
+
+	UI_COMMAND(DiffSelectedCommits, "Diff Selected", "Diff selected commits against each other", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(DiffSelectedCommitAgainstNext, "Diff Selected Against Next", "Diff selected commit against the next one", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(DiffSelectedCommitAgainstPrevious, "Diff Selected Against Previous", "Diff selected commit against the previous one", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(DiffSelectedCommitAgainstNewest, "Diff Selected Against Newest", "Diff selected commit against the newest one", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(DiffSelectedCommitAgainstOldest, "Diff Selected Against Oldest", "Diff selected commit against the oldest one", EUserInterfaceActionType::Button, FInputChord());
 }
 
 #undef LOCTEXT_NAMESPACE
