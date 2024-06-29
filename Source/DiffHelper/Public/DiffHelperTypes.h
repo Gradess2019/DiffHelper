@@ -26,9 +26,6 @@ namespace SDiffHelperCommitPanelConstants
 	const FName MessageColumnId(TEXT("CommitMessage"));
 	const FName AuthorColumnId(TEXT("CommitAuthor"));
 	const FName DateColumnId(TEXT("CommitDate"));
-
-	UE_DEPRECATED(5.4, "DiffButtonColumnId is deprecated")
-	const FName DiffButtonColumnId(TEXT("DiffButton"));
 }
 
 

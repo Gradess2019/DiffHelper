@@ -62,9 +62,6 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::DateColumnId)
 				.DefaultLabel(LOCTEXT("DateColumnLabel", "Date"))
 				.FillWidth(0.25f)
-				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::DiffButtonColumnId)
-				.DefaultLabel(FText::GetEmpty())
-				.FillWidth(0.1f)
 			)
 		]
 	];

@@ -38,10 +38,4 @@ protected:
 	TSharedRef<SWidget> CreateMessageColumn() const;
 	TSharedRef<SWidget> CreateAuthorColumn() const;
 	TSharedRef<SWidget> CreateDateColumn() const;
-
-	UE_DEPRECATED(5.4, "CreateDiffButtonColumn is deprecated")
-	TSharedRef<SWidget> CreateDiffButtonColumn() const;
-
-	UE_DEPRECATED(5.4, "OnDiffButtonClicked is deprecated")
-	FReply OnDiffButtonClicked() const;
 };
