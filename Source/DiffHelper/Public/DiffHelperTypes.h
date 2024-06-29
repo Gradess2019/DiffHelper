@@ -154,5 +154,7 @@ struct FDiffHelperCommitPanelData
 {
 	GENERATED_BODY()
 
+	TSharedPtr<FUICommandList> Commands;
+
 	TArray<TSharedPtr<FDiffHelperCommit>> SelectedCommits;
 };

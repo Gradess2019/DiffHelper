@@ -16,7 +16,7 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 {
-	if (!ensure(InArgs._Controller.IsValid())) { return; }
+	if (!ensure(InArgs._Controller.IsValid()) || !ensure(IsValid(InArgs._Controller->GetModel()))) { return; }
 
 	Controller = InArgs._Controller;
 
@@ -31,14 +31,20 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 		Commits = UDiffHelperUtils::ConvertToShared(Controller->GetModel()->SelectedDiffItem.Commits);
 	}
 
+	FToolMenuContext MenuContext(Controller->GetModel()->CommitPanelData.Commands);
+
 	ChildSlot
 	[
 		SNew(SVerticalBox)
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		[
-			SNew(SDiffHelperCommitPanelToolbar)
-			.Controller(Controller)
+			SNew(SBorder)
+			.Padding(0)
+			.BorderImage(FAppStyle::Get().GetBrush("NoBorder"))
+			[
+				UToolMenus::Get()->GenerateWidget("DiffHelper.CommitPanel.Toolbar", MenuContext)
+			]
 		]
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
