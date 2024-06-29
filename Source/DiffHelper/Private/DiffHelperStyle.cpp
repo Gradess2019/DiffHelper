@@ -7,6 +7,7 @@
 #include "Slate/SlateGameResources.h"
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleMacros.h"
+#include "Styling/ToolBarStyle.h"
 
 #define RootToContentDir Style->RootToContentDir
 
@@ -61,6 +62,12 @@ TSharedRef< FSlateStyleSet > FDiffHelperStyle::Create()
 	CommitPanelToolbarButton.SetPressedPadding(FMargin(2.f, 3.f, 2.f, 1.f));
 
 	Style->Set("CommitPanelToolbarButton", CommitPanelToolbarButton);
+
+	// Toolbars
+	FToolBarStyle CommitPanelToolbar = FAppStyle::Get().GetWidgetStyle<FToolBarStyle>("ToolBar");
+	CommitPanelToolbar.SetButtonStyle(CommitPanelToolbarButton);
+	CommitPanelToolbar.SetShowLabels(false);
+	Style->Set("CommitPanelToolbar", CommitPanelToolbar);
 		
 	return Style;
 }
