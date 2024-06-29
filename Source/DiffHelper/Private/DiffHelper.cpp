@@ -8,6 +8,7 @@
 #include "DiffHelperTypes.h"
 #include "ToolMenus.h"
 
+#include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/SDiffHelperWindow.h"
 
 static const FName DiffHelperTabName("DiffHelper");
@@ -99,6 +100,8 @@ void FDiffHelperModule::RegisterMenus()
 			}
 		}
 	}
+
+	FDiffHelperCommitPanelToolbar::RegisterMenu();
 }
 
 #undef LOCTEXT_NAMESPACE

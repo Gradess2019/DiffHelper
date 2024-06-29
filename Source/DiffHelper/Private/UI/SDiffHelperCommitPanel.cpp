@@ -9,7 +9,6 @@
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
 #include "UI/SDiffHelperCommitItem.h"
-#include "UI/SDiffHelperCommitPanelToolbar.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
