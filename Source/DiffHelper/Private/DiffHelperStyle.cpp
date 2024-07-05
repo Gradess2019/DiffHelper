@@ -42,6 +42,31 @@ const FVector2D Icon20x20(20.0f, 20.0f);
 TSharedRef< FSlateStyleSet > FDiffHelperStyle::Create()
 {
 	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("DiffHelperStyle"));
+	SetStyles(Style);
+	
+	return Style;
+}
+
+void FDiffHelperStyle::ReloadTextures()
+{
+	if (FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().GetRenderer()->ReloadTextureResources();
+	}
+}
+
+void FDiffHelperStyle::ReloadStyles()
+{
+	if (StyleInstance.IsValid())
+	{
+		SetStyles(StyleInstance.ToSharedRef());
+		FSlateApplication::Get().GetRenderer()->ReleaseAccessedResources(false);
+		FSlateApplication::Get().GetRenderer()->LoadStyleResources(*StyleInstance);
+	}
+}
+
+void FDiffHelperStyle::SetStyles(TSharedRef<FSlateStyleSet> Style)
+{
 	Style->SetContentRoot(IPluginManager::Get().FindPlugin("DiffHelper")->GetBaseDir() / TEXT("Resources"));
 
 	// TODO: I assume we dont need "DiffHelper" prefix for the property names because our style is already inside the "DiffHelper"
@@ -67,17 +92,12 @@ TSharedRef< FSlateStyleSet > FDiffHelperStyle::Create()
 	FToolBarStyle CommitPanelToolbar = FAppStyle::Get().GetWidgetStyle<FToolBarStyle>("ToolBar");
 	CommitPanelToolbar.SetButtonStyle(CommitPanelToolbarButton);
 	CommitPanelToolbar.SetShowLabels(false);
-	Style->Set("CommitPanelToolbar", CommitPanelToolbar);
-		
-	return Style;
-}
 
-void FDiffHelperStyle::ReloadTextures()
-{
-	if (FSlateApplication::IsInitialized())
-	{
-		FSlateApplication::Get().GetRenderer()->ReloadTextureResources();
-	}
+	// ===================
+	// TODO: Think about how to set proper design and content for the expand button
+	// CommitPanelToolbar.SetExpandBrush());
+	// ===================
+	Style->Set("CommitPanelToolbar", CommitPanelToolbar);
 }
 
 const ISlateStyle& FDiffHelperStyle::Get()
