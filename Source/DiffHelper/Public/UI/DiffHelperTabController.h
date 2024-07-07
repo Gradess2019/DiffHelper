@@ -62,6 +62,7 @@ public:
 
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
 
+	void ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const;
 	void DiffSelectedCommits();
 	void DiffSelectedCommitAgainstNext();
 	void DiffSelectedCommitAgainstPrevious();

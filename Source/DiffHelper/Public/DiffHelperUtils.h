@@ -33,6 +33,16 @@ public:
 		return OutArray;
 	}
 
+	template<typename T>
+	static FString EnumToString(const T EnumValue)
+	{
+		FString Name = StaticEnum<T>()->GetNameStringByValue(static_cast<__underlying_type(T)>(EnumValue));
+
+		ensure(Name.Len() != 0);
+
+		return Name;
+	}
+
 	UFUNCTION(BlueprintPure, Category = "DiffHelper|Utils")
 	static TArray<FString> ConvertBranchesToStringArray(const TArray<FDiffHelperBranch>& InBranches);
 
@@ -40,6 +50,9 @@ public:
 	static bool CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB);
 
 public:
+	static bool IsDiffAvailable(const TSharedPtr<FDiffHelperCommit>& InCommit, const FString& InPath);
+	static bool IsDiffAvailable(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath);
+
 	static int32 GetItemNodeFilesCount(const TSharedPtr<FDiffHelperItemNode>& InItem);
 	
 	static TArray<TSharedPtr<FDiffHelperItemNode>> GenerateList(const TArray<FDiffHelperDiffItem>& InItems);
@@ -58,4 +71,6 @@ public:
 	static void FilterListItems(const TSharedPtr<IFilter<const FDiffHelperDiffItem&>>& InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 	static void FilterTreeItems(const TSharedPtr<IFilter<const FDiffHelperDiffItem&>>& InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 	static void Filter(TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
+
+	static void ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath);
 };
