@@ -44,10 +44,6 @@ TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& 
 	{
 		return CreateDateColumn();
 	}
-	else if (InColumnName == SDiffHelperCommitPanelConstants::DiffButtonColumnId)
-	{
-		return CreateDiffButtonColumn();
-	}
 
 	ensureMsgf(false, TEXT("Unknown column name %s"), *InColumnName.ToString());
 	return SNullWidget::NullWidget;
@@ -83,31 +79,6 @@ TSharedRef<SWidget> SDiffHelperCommitItem::CreateDateColumn() const
 		SNew(SDiffHelperCommitTextBlock)
 		.Text(FText::FromString(Item->Date.ToString()))
 		.ToolTip(FText::FromString(Item->Date.ToString()));
-}
-
-TSharedRef<SWidget> SDiffHelperCommitItem::CreateDiffButtonColumn() const
-{
-	return
-		SNew(SButton)
-		.OnClicked(this, &SDiffHelperCommitItem::OnDiffButtonClicked)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("DiffButtonText", "Diff"))
-			.Justification(ETextJustify::Center)
-		];
-}
-
-FReply SDiffHelperCommitItem::OnDiffButtonClicked() const
-{
-	const auto& SelectedDiffItem = Controller->GetModel()->SelectedDiffItem;
-
-	if (!ensure(SelectedDiffItem.IsValid())) { return FReply::Handled(); }
-
-	const auto& Path = SelectedDiffItem.Path;
-	const auto& TargetRevision = SelectedDiffItem.LastTargetCommit;
-	Controller->DiffAsset(Path, TargetRevision, *Item);
-
-	return FReply::Handled();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

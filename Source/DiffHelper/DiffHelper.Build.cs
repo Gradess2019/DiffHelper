@@ -45,7 +45,8 @@ public class DiffHelper : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore", 
-				"EditorScriptingUtilities",
+				"EditorScriptingUtilities", 
+				"LiveCoding",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -20,4 +20,10 @@ public:
 public:
 	TSharedPtr<FUICommandInfo> OpenDiffWindow;
 	TSharedPtr<FUICommandInfo> CreateNewDiff;
+
+	TSharedPtr<FUICommandInfo> DiffSelectedCommits;
+	TSharedPtr<FUICommandInfo> DiffSelectedCommitAgainstNext;
+	TSharedPtr<FUICommandInfo> DiffSelectedCommitAgainstPrevious;
+	TSharedPtr<FUICommandInfo> DiffSelectedCommitAgainstNewest;
+	TSharedPtr<FUICommandInfo> DiffSelectedCommitAgainstOldest;
 };

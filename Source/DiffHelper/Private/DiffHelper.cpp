@@ -6,8 +6,10 @@
 #include "DiffHelperCommands.h"
 #include "DiffHelperGitManager.h"
 #include "DiffHelperTypes.h"
+#include "ILiveCodingModule.h"
 #include "ToolMenus.h"
 
+#include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/SDiffHelperWindow.h"
 
 static const FName DiffHelperTabName("DiffHelper");
@@ -37,6 +39,17 @@ void FDiffHelperModule::StartupModule()
 		FCanExecuteAction());
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FDiffHelperModule::RegisterMenus));
+
+	// Reload slate style
+	if (FModuleManager::Get().IsModuleLoaded("LiveCoding"))
+	{
+		auto& LiveCodingModule = FModuleManager::GetModuleChecked<ILiveCodingModule>("LiveCoding");
+		LiveCodingModule.GetOnPatchCompleteDelegate().AddLambda([]
+		{
+			FDiffHelperStyle::ReloadStyles();
+			FDiffHelperStyle::ReloadTextures();
+		});
+	}
 }
 
 void FDiffHelperModule::ShutdownModule()
@@ -99,6 +112,8 @@ void FDiffHelperModule::RegisterMenus()
 			}
 		}
 	}
+
+	FDiffHelperCommitPanelToolbar::RegisterMenu();
 }
 
 #undef LOCTEXT_NAMESPACE

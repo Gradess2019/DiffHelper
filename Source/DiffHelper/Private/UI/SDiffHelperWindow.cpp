@@ -30,6 +30,8 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 		SWindow::FArguments()
 		.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
 		.ClientSize(FVector2f(800, 600))
+		.MinWidth(300)
+		.MinHeight(200)
 		[
 			DiffPicker
 		]

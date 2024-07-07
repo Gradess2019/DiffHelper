@@ -2,6 +2,7 @@
 
 
 #include "DiffHelperUtils.h"
+#include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
 #include "Misc/ComparisonUtility.h"
 
@@ -20,6 +21,38 @@ TArray<FString> UDiffHelperUtils::ConvertBranchesToStringArray(const TArray<FDif
 bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB)
 {
 	return static_cast<uint8>(InStatusA) < static_cast<uint8>(InStatusB);
+}
+
+bool UDiffHelperUtils::IsDiffAvailable(const TSharedPtr<FDiffHelperCommit>& InCommit, const FString& InPath)
+{
+	if (!InCommit.IsValid())
+	{
+		return false;
+	}
+
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	for (const auto& Item : InCommit->Files)
+	{
+		if (Item.Path == InPath && !Settings->StatusBlacklist.Contains(Item.Status))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UDiffHelperUtils::IsDiffAvailable(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath)
+{
+	for (const auto& Commit : InCommits)
+	{
+		if (!IsDiffAvailable(Commit, InPath))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 int32 UDiffHelperUtils::GetItemNodeFilesCount(const TSharedPtr<FDiffHelperItemNode>& InItem)
@@ -212,4 +245,24 @@ void UDiffHelperUtils::Filter(TSharedPtr<IFilter<const FDiffHelperDiffItem&>> In
 
 		return false;
 	});
+}
+
+void UDiffHelperUtils::ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath)
+{
+	for (const auto& Commit : InCommits)
+	{
+		if (!IsDiffAvailable(Commit, InPath))
+		{
+			FMessageDialog::Open(
+				EAppMsgCategory::Error,
+				EAppMsgType::Ok,
+				FText::Format(
+					NSLOCTEXT("DiffHelper", "DiffUnavailable", "Diff is not available for path: {0}\nCommit: {1}\nFile Status: {2}"),
+					FText::FromString(InPath),
+					FText::FromString(Commit->Revision),
+					FText::FromString(EnumToString(Commit->Files[0].Status))
+				)
+			);
+		}
+	}
 }

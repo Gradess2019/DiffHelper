@@ -36,5 +36,6 @@ public:
 
 protected:
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	void OnSelectionChanged(TSharedPtr<FDiffHelperCommit> InCommit, ESelectInfo::Type InSelectInfo);
 	void OnModelUpdated();
 };

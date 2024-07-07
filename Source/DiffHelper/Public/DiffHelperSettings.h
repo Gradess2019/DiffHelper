@@ -13,6 +13,14 @@ class DIFFHELPER_API UDiffHelperSettings : public UObject
 	GENERATED_BODY()
 
 public:
+	/** Files with these statuses couldn't be used for diff */
+	UPROPERTY(Config, EditAnywhere, Category = "General")
+	TArray<EDiffHelperFileStatus> StatusBlacklist = {
+		EDiffHelperFileStatus::None,
+		EDiffHelperFileStatus::Deleted,
+		EDiffHelperFileStatus::Unmerged,
+	};
+
 	/** if true the plugin will cache source and target branches and will put them into selectors on a first Diff Helper view */
 	UPROPERTY(Config, EditAnywhere, Category = "Caching")
 	bool bEnableCaching = true;

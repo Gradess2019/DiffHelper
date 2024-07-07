@@ -7,6 +7,7 @@
 #include "Misc/ComparisonUtility.h"
 #include "DiffHelper.h"
 #include "DiffHelperCacheManager.h"
+#include "DiffHelperCommands.h"
 #include "DiffHelperManager.h"
 #include "DiffHelperSettings.h"
 #include "DiffHelperUtils.h"
@@ -26,6 +27,8 @@ void UDiffHelperTabController::Init()
 	{
 		LoadCachedBranches();
 	}
+
+	BindCommitPanelCommands();
 }
 
 void UDiffHelperTabController::LoadCachedBranches()
@@ -187,9 +190,145 @@ void UDiffHelperTabController::SetActiveWidgetIndex(const int32& InIndex) const
 	CallModelUpdated();
 }
 
+void UDiffHelperTabController::SetSelectedCommits(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits) const
+{
+	Model->CommitPanelData.SelectedCommits = InCommits;
+}
+
+void UDiffHelperTabController::BindCommitPanelCommands()
+{
+	const auto& Commands = FDiffHelperCommands::Get();
+	auto& CommitPanelCommands = Model->CommitPanelData.Commands = MakeShared<FUICommandList>();
+
+	CommitPanelCommands->MapAction(
+		Commands.DiffSelectedCommits,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffSelectedCommits),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffSelectedCommits)
+	);
+
+	CommitPanelCommands->MapAction(
+		Commands.DiffSelectedCommitAgainstNext,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffSelectedCommitAgainstNext),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffSelectedCommitAgainstNext)
+	);
+
+	CommitPanelCommands->MapAction(
+		Commands.DiffSelectedCommitAgainstPrevious,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffSelectedCommitAgainstPrevious),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffSelectedCommitAgainstPrevious)
+	);
+
+	CommitPanelCommands->MapAction(
+		Commands.DiffSelectedCommitAgainstNewest,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffSelectedCommitAgainstNewest),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffSelectedCommitAgainstNext)
+	);
+
+	CommitPanelCommands->MapAction(
+		Commands.DiffSelectedCommitAgainstOldest,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffSelectedCommitAgainstOldest),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffSelectedCommitAgainstPrevious)
+	);
+}
+
 FDiffHelperSimpleDelegate& UDiffHelperTabController::OnModelUpdated() const
 {
 	return Model->OnModelUpdated_Raw;
+}
+
+void UDiffHelperTabController::ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const
+{
+	if (UDiffHelperUtils::IsDiffAvailable(InCommits, InPath))
+	{
+		DiffAsset(InPath, *InCommits[0], *InCommits[1]);
+	}
+	else
+	{
+		UDiffHelperUtils::ShowDiffUnavailableDialog(InCommits, InPath);
+	}
+}
+
+void UDiffHelperTabController::DiffSelectedCommits()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	ExecuteDiff(SelectedCommits, DiffItem.Path);
+}
+
+void UDiffHelperTabController::DiffSelectedCommitAgainstNext()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	const auto Index = GetCommitIndex(*SelectedCommits[0]);
+	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({SelectedCommits[0], MakeShared<FDiffHelperCommit>(DiffItem.Commits[Index - 1])});
+
+	ExecuteDiff(CommitsToDiff, DiffItem.Path);
+}
+
+void UDiffHelperTabController::DiffSelectedCommitAgainstPrevious()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	const auto Index = GetCommitIndex(*SelectedCommits[0]);
+	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({SelectedCommits[0], MakeShared<FDiffHelperCommit>(DiffItem.Commits[Index + 1])});
+
+	ExecuteDiff(CommitsToDiff, DiffItem.Path);
+}
+
+void UDiffHelperTabController::DiffSelectedCommitAgainstNewest()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({SelectedCommits[0], MakeShared<FDiffHelperCommit>(DiffItem.Commits[0])});
+
+	ExecuteDiff(CommitsToDiff, DiffItem.Path);
+}
+
+void UDiffHelperTabController::DiffSelectedCommitAgainstOldest()
+{
+	const auto& SelectedCommits = Model->CommitPanelData.SelectedCommits;
+	const auto& DiffItem = Model->SelectedDiffItem;
+
+	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({MakeShared<FDiffHelperCommit>(DiffItem.Commits.Last()), SelectedCommits[0]});
+
+	ExecuteDiff(CommitsToDiff, DiffItem.Path);
+}
+
+bool UDiffHelperTabController::CanDiffSelectedCommits()
+{
+	const auto& Data = Model->CommitPanelData;
+	return Data.SelectedCommits.Num() == 2;
+}
+
+bool UDiffHelperTabController::CanDiffSelectedCommitAgainstNext()
+{
+	const auto& Data = Model->CommitPanelData;
+	if (Data.SelectedCommits.Num() != 1) { return false; }
+
+	const auto Index = GetCommitIndex(*Data.SelectedCommits[0]);
+	return Index > 0;
+}
+
+bool UDiffHelperTabController::CanDiffSelectedCommitAgainstPrevious()
+{
+	const auto& Data = Model->CommitPanelData;
+	if (Data.SelectedCommits.Num() != 1) { return false; }
+
+	const auto Index = GetCommitIndex(*Data.SelectedCommits[0]);
+	return Index < Model->SelectedDiffItem.Commits.Num() - 1;
+}
+
+int32 UDiffHelperTabController::GetCommitIndex(const FDiffHelperCommit& InCommit) const
+{
+	const auto& Commits = Model->SelectedDiffItem.Commits;
+	return Commits.IndexOfByPredicate([&InCommit](const FDiffHelperCommit& Commit)
+	{
+		return Commit.Revision == InCommit.Revision;
+	});
 }
 
 void UDiffHelperTabController::OnFilterChanged()
