@@ -92,11 +92,7 @@ void FDiffHelperStyle::SetStyles(TSharedRef<FSlateStyleSet> Style)
 	FToolBarStyle CommitPanelToolbar = FAppStyle::Get().GetWidgetStyle<FToolBarStyle>("ToolBar");
 	CommitPanelToolbar.SetButtonStyle(CommitPanelToolbarButton);
 	CommitPanelToolbar.SetShowLabels(false);
-
-	// ===================
-	// TODO: Think about how to set proper design and content for the expand button
-	// CommitPanelToolbar.SetExpandBrush());
-	// ===================
+	
 	Style->Set("CommitPanelToolbar", CommitPanelToolbar);
 }
 
