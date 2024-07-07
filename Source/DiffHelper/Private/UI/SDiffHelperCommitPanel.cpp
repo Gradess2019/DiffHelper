@@ -8,6 +8,7 @@
 
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
+#include "UI/SDiffHelperCommitContextMenu.h"
 #include "UI/SDiffHelperCommitItem.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
@@ -52,6 +53,7 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 			.ListItemsSource(&Commits)
 			.OnGenerateRow(this, &SDiffHelperCommitPanel::OnGenerateRow)
 			.OnSelectionChanged(this, &SDiffHelperCommitPanel::OnSelectionChanged)
+			.OnContextMenuOpening(this, &SDiffHelperCommitPanel::OnContextMenuOpening)
 			.HeaderRow
 			(
 				SNew(SHeaderRow)
@@ -80,6 +82,12 @@ SDiffHelperCommitPanel::~SDiffHelperCommitPanel()
 	}
 }
 
+TSharedPtr<SWidget> SDiffHelperCommitPanel::OnContextMenuOpening()
+{
+	return SNew(SDiffHelperCommitContextMenu)
+		.CommandList(Controller->GetModel()->CommitPanelData.Commands);
+}
+
 TSharedRef<ITableRow> SDiffHelperCommitPanel::OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
 	return SNew(SDiffHelperCommitItem, InOwnerTable)
@@ -94,7 +102,7 @@ void SDiffHelperCommitPanel::OnSelectionChanged(TSharedPtr<FDiffHelperCommit> In
 	{
 		return Commits.IndexOfByKey(A) > Commits.IndexOfByKey(B);
 	});
-	
+
 	Controller->SetSelectedCommits(SelectedCommits);
 }
 

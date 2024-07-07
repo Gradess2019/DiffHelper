@@ -273,7 +273,7 @@ void UDiffHelperTabController::DiffSelectedCommitAgainstPrevious()
 	const auto& DiffItem = Model->SelectedDiffItem;
 
 	const auto Index = GetCommitIndex(*SelectedCommits[0]);
-	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({SelectedCommits[0], MakeShared<FDiffHelperCommit>(DiffItem.Commits[Index + 1])});
+	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({MakeShared<FDiffHelperCommit>(DiffItem.Commits[Index + 1]), SelectedCommits[0]});
 
 	ExecuteDiff(CommitsToDiff, DiffItem.Path);
 }

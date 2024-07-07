@@ -34,8 +34,9 @@ public:
 	void Construct(const FArguments& InArgs);
 	virtual ~SDiffHelperCommitPanel() override;
 
-protected:
+private:
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	TSharedPtr<SWidget> OnContextMenuOpening();
 	void OnSelectionChanged(TSharedPtr<FDiffHelperCommit> InCommit, ESelectInfo::Type InSelectInfo);
 	void OnModelUpdated();
 };
