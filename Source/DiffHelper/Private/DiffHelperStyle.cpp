@@ -79,7 +79,8 @@ void FDiffHelperStyle::SetStyles(TSharedRef<FSlateStyleSet> Style)
 	Style->Set("DiffHelper.ArrowDown", new IMAGE_BRUSH_SVG(TEXT("ArrowDown"), Icon20x20));
 	Style->Set("DiffHelper.DoubleArrowUp", new IMAGE_BRUSH_SVG(TEXT("DoubleArrowUp"), Icon20x20));
 	Style->Set("DiffHelper.DoubleArrowDown", new IMAGE_BRUSH_SVG(TEXT("DoubleArrowDown"), Icon20x20));
-	Style->Set("DiffHelper.DoubleHeadedArrow", new IMAGE_BRUSH_SVG(TEXT("DoubleHeadedArrow"), Icon20x20));
+	Style->Set("DiffHelper.VerticalOutwardArrow", new IMAGE_BRUSH_SVG(TEXT("VerticalOutwardArrow"), Icon20x20));
+	Style->Set("DiffHelper.HorizontalOutwardArrow", new IMAGE_BRUSH_SVG(TEXT("HorizontalOutwardArrow"), Icon20x20));
 
 	// Buttons
 	FButtonStyle CommitPanelToolbarButton = FAppStyle::Get().GetWidgetStyle<FButtonStyle>("Button");

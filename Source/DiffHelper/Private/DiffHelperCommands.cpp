@@ -9,6 +9,7 @@ void FDiffHelperCommands::RegisterCommands()
 	UI_COMMAND(OpenDiffWindow, "DiffHelper", "Open diff helper window", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(CreateNewDiff, "New...", "Create a new diff", EUserInterfaceActionType::Button, FInputChord());
 
+	UI_COMMAND(DiffAgainstTarget, "Diff Against Target", "Diff file against the target branch", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(DiffSelectedCommits, "Diff Selected", "Diff selected commits against each other", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(DiffSelectedCommitAgainstNext, "Diff Selected Against Next", "Diff selected commit against the next one", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(DiffSelectedCommitAgainstPrevious, "Diff Selected Against Previous", "Diff selected commit against the previous one", EUserInterfaceActionType::Button, FInputChord());

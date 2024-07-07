@@ -201,6 +201,11 @@ void UDiffHelperTabController::BindCommitPanelCommands()
 	auto& CommitPanelCommands = Model->CommitPanelData.Commands = MakeShared<FUICommandList>();
 
 	CommitPanelCommands->MapAction(
+		Commands.DiffAgainstTarget,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffAgainstTarget)
+    );
+		
+	CommitPanelCommands->MapAction(
 		Commands.DiffSelectedCommits,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffSelectedCommits),
 		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffSelectedCommits)
@@ -246,6 +251,10 @@ void UDiffHelperTabController::ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCo
 	{
 		UDiffHelperUtils::ShowDiffUnavailableDialog(InCommits, InPath);
 	}
+}
+
+void UDiffHelperTabController::DiffAgainstTarget()
+{
 }
 
 void UDiffHelperTabController::DiffSelectedCommits()

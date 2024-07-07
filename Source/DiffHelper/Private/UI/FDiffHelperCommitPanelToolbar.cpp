@@ -15,8 +15,12 @@ void FDiffHelperCommitPanelToolbar::RegisterMenu()
 	Menu->StyleName = "CommitPanelToolbar";
 	
 	FToolMenuSection& Section = Menu->AddSection("Content");
+
+	auto& DiffAgainstTargetEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.DiffAgainstTarget));
+	DiffAgainstTargetEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.HorizontalOutwardArrow");
+	
 	auto& DiffSelectedCommitsEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.DiffSelectedCommits));
-	DiffSelectedCommitsEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.DoubleHeadedArrow");
+	DiffSelectedCommitsEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.VerticalOutwardArrow");
 
 	auto& DiffSelectedCommitAgainstNext = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.DiffSelectedCommitAgainstNext));
 	DiffSelectedCommitAgainstNext.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.ArrowUp");
