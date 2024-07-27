@@ -169,6 +169,7 @@ FDiffHelperCommit UDiffHelperGitManager::GetLastCommitForFile(const FString& InF
 	Params.Add(TEXT("-n 1"));
 	Params.Add(TEXT("--pretty=format:\"<Hash:%h> <Message:%s> <Author:%an> <Date:%ad>\""));
 	Params.Add(TEXT("--date=format-local:\"%d/%m/%Y %H:%M\""));
+	Params.Add(TEXT("--name-status"));
 	Params.Add(TEXT("-- ") + InFilePath);
 
 	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
@@ -322,7 +323,7 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::ParseCommits(const FString& InC
 FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) const
 {
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
-	const auto Pattern = FRegexPattern(Settings->SingleCommitPattern);
+	const auto Pattern = FRegexPattern(Settings->CommitDataPattern);
 	auto Matcher = FRegexMatcher(Pattern, String);
 
 	FDiffHelperCommit Commit;
@@ -332,6 +333,9 @@ FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) cons
 		Commit.Message = Matcher.GetCaptureGroup(Settings->MessageGroup);
 		Commit.Author = Matcher.GetCaptureGroup(Settings->AuthorGroup);
 		Commit.Date = ParseDate(Matcher.GetCaptureGroup(Settings->DateGroup));
+
+		const auto ChangedFiles = Matcher.GetCaptureGroup(Settings->ChangedFilesGroup);
+		Commit.Files = ParseChangedFiles(ChangedFiles);
 	}
 
 	return Commit;

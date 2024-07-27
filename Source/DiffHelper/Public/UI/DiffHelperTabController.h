@@ -69,7 +69,8 @@ public:
 	void DiffSelectedCommitAgainstPrevious();
 	void DiffSelectedCommitAgainstNewest();
 	void DiffSelectedCommitAgainstOldest();
-	
+
+	bool CanDiffAgainstTarget();
 	bool CanDiffSelectedCommits();
 	bool CanDiffSelectedCommitAgainstNext();
 	bool CanDiffSelectedCommitAgainstPrevious();

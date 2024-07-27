@@ -202,7 +202,8 @@ void UDiffHelperTabController::BindCommitPanelCommands()
 
 	CommitPanelCommands->MapAction(
 		Commands.DiffAgainstTarget,
-		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffAgainstTarget)
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffAgainstTarget),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffAgainstTarget)
     );
 		
 	CommitPanelCommands->MapAction(
@@ -255,6 +256,10 @@ void UDiffHelperTabController::ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCo
 
 void UDiffHelperTabController::DiffAgainstTarget()
 {
+	const auto& DiffItem = Model->SelectedDiffItem;
+	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({MakeShared<FDiffHelperCommit>(DiffItem.LastTargetCommit), MakeShared<FDiffHelperCommit>(DiffItem.Commits[0])});
+
+	ExecuteDiff(CommitsToDiff, DiffItem.Path);
 }
 
 void UDiffHelperTabController::DiffSelectedCommits()
@@ -305,6 +310,14 @@ void UDiffHelperTabController::DiffSelectedCommitAgainstOldest()
 	const auto CommitsToDiff = TArray<TSharedPtr<FDiffHelperCommit>>({MakeShared<FDiffHelperCommit>(DiffItem.Commits.Last()), SelectedCommits[0]});
 
 	ExecuteDiff(CommitsToDiff, DiffItem.Path);
+}
+
+bool UDiffHelperTabController::CanDiffAgainstTarget()
+{
+	const auto& DiffItem = Model->SelectedDiffItem;
+	if (!DiffItem.IsValid()) { return false; }
+
+	return DiffItem.LastTargetCommit.IsValid();
 }
 
 bool UDiffHelperTabController::CanDiffSelectedCommits()
