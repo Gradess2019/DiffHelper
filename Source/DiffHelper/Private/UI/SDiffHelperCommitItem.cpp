@@ -2,6 +2,9 @@
 
 
 #include "UI/SDiffHelperCommitItem.h"
+
+#include "DiffHelperSettings.h"
+
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
 #include "UI/SDiffHelperCommitTextBlock.h"
@@ -22,6 +25,20 @@ void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef
 		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("PropertyTable.TableRow")),
 		InOwnerTable
 	);
+
+	const auto& DiffItem = Controller->GetModel()->SelectedDiffItem;
+	const auto* StatusInCommit = Item->Files.FindByPredicate([&DiffItem](const FDiffHelperFileData& File)
+	{
+		return File.Path == DiffItem.Path;
+	});
+
+	if (StatusInCommit)
+	{
+		const auto* Settings = GetDefault<UDiffHelperSettings>();
+		const auto& StatusColor = Settings->StatusColors.FindRef(StatusInCommit->Status, FLinearColor::White);
+		
+		SetForegroundColor(StatusColor);
+	}
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& InColumnName)
