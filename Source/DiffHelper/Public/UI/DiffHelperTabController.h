@@ -63,12 +63,14 @@ public:
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
 
 	void ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const;
+	void DiffAgainstTarget();
 	void DiffSelectedCommits();
 	void DiffSelectedCommitAgainstNext();
 	void DiffSelectedCommitAgainstPrevious();
 	void DiffSelectedCommitAgainstNewest();
 	void DiffSelectedCommitAgainstOldest();
-	
+
+	bool CanDiffAgainstTarget();
 	bool CanDiffSelectedCommits();
 	bool CanDiffSelectedCommitAgainstNext();
 	bool CanDiffSelectedCommitAgainstPrevious();

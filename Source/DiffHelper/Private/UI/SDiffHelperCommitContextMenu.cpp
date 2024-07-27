@@ -14,6 +14,7 @@ void SDiffHelperCommitContextMenu::Construct(const FArguments& InArgs)
 	FMenuBuilder MenuBuilder(true, InArgs._CommandList);
 
 	MenuBuilder.BeginSection("DiffHelper.CommitPanel.ContextMenu");
+	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffAgainstTarget);
 	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommits);
 	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstNext);
 	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstPrevious);

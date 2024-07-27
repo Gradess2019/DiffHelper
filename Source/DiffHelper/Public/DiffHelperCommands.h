@@ -21,6 +21,7 @@ public:
 	TSharedPtr<FUICommandInfo> OpenDiffWindow;
 	TSharedPtr<FUICommandInfo> CreateNewDiff;
 
+	TSharedPtr<FUICommandInfo> DiffAgainstTarget;
 	TSharedPtr<FUICommandInfo> DiffSelectedCommits;
 	TSharedPtr<FUICommandInfo> DiffSelectedCommitAgainstNext;
 	TSharedPtr<FUICommandInfo> DiffSelectedCommitAgainstPrevious;
