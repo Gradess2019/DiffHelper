@@ -78,7 +78,7 @@ public:
 	int32 MinuteGroup = 5;
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
-	FString ChangedFilePattern = TEXT("([a-zA-Z]{1})\\s+(.+?)(?:[\\s\n]|$)");
+	FString ChangedFilePattern = TEXT("(.).*\t(.*)(?:[\\s\n]|$)");
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	int32 ChangedFileStatusGroup = 1;

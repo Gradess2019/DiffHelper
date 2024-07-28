@@ -55,6 +55,7 @@ protected:
 
 	bool ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const;
 	TOptional<FString> GetForkPoint(const FDiffHelperBranch& InSourceBranch, const FDiffHelperBranch& InTargetBranch) const;
+	TMap<FString, EDiffHelperFileStatus> GetStatuses(const FString& InSourceRevision, const FString& InTargetRevision) const;
 
 	TArray<FDiffHelperBranch> ParseBranches(const FString& InBranches) const;
 	TArray<FDiffHelperCommit> ParseCommits(const FString& InCommits) const;
