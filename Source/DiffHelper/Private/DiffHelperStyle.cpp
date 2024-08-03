@@ -95,6 +95,9 @@ void FDiffHelperStyle::SetStyles(TSharedRef<FSlateStyleSet> Style)
 	CommitPanelToolbar.SetShowLabels(false);
 	
 	Style->Set("CommitPanelToolbar", CommitPanelToolbar);
+
+	// Diff panel tree item
+	Style->Set("DiffHelper.Highlight", new FSlateColorBrush(FLinearColor(0.259f, 0.541f, 0.067f, 0.3f)));
 }
 
 const ISlateStyle& FDiffHelperStyle::Get()

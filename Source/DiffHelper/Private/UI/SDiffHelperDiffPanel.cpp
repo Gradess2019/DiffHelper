@@ -164,6 +164,7 @@ void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> In
 TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
 	auto NewRow = SNew(SDiffHelperTreeItem, InOwnerTable)
+		.Controller(Controller)
 		.Item(InItem);
 
 	if (InOwnerTable == DiffList)

@@ -6,7 +6,9 @@
 #include "DiffHelperSettings.h"
 #include "DiffHelperStyle.h"
 #include "DiffHelperUtils.h"
+#include "UI/DiffHelperTabController.h"
 #include "SlateOptMacros.h"
+#include "UI/DiffHelperTabModel.h"
 
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
@@ -16,11 +18,17 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwner)
 {
+	if (!ensure(InArgs._Controller.IsValid()) || !ensure(InArgs._Item.IsValid())) { return; }
+	Controller = InArgs._Controller;
 	Item = InArgs._Item;
-	if (!ensure(Item.IsValid())) { return; }
 
 	Text = SNew(STextBlock)
-		.Text(FText::FromString(Item->Name));
+		.Text(FText::FromString(Item->Name))
+		.ColorAndOpacity(this, &SDiffHelperTreeItem::GetTextColor)
+		.HighlightText(this, &SDiffHelperTreeItem::GetHighlightText)
+		.HighlightColor(this, &SDiffHelperTreeItem::GetTextHighlightColor)
+		.HighlightShape(this, &SDiffHelperTreeItem::GetBackgroundHighlightColor);
+
 
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	Hint = SNew(STextBlock);
@@ -68,10 +76,6 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 
 void SDiffHelperTreeItem::ShowFileHint()
 {
-	const auto* Settings = GetDefault<UDiffHelperSettings>();
-	const auto& StatusColor = Settings->StatusColors.FindRef(Item->DiffItem->Status, FLinearColor::White);
-	Text->SetColorAndOpacity(StatusColor);
-
 	auto PathWithoutFilename = FPaths::GetPath(Item->Path).TrimStartAndEnd();
 	PathWithoutFilename.TrimCharInline(TEXT('/'), nullptr);
 	PathWithoutFilename.TrimCharInline(TEXT('\\'), nullptr);
@@ -83,6 +87,31 @@ void SDiffHelperTreeItem::ShowDirectoryHint()
 {
 	const auto& AllChildrenCount = UDiffHelperUtils::GetItemNodeFilesCount(Item);
 	Hint->SetText(FText::Format(LOCTEXT("TreeItemFilesCount", "{0} files"), AllChildrenCount));
+}
+
+FSlateColor SDiffHelperTreeItem::GetTextColor() const
+{
+	if (!Item->DiffItem.IsValid()) { return FStyleColors::Foreground; }
+	
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	const auto& StatusColor = Settings->StatusColors.FindRef(Item->DiffItem->Status, FLinearColor::White);
+	return StatusColor;
+}
+
+FLinearColor SDiffHelperTreeItem::GetTextHighlightColor() const
+{
+	return FLinearColor::Red;
+}
+
+FText SDiffHelperTreeItem::GetHighlightText() const
+{
+	const auto SearchFilter = Controller->GetModel()->DiffPanelData.SearchFilter;
+	return SearchFilter.IsValid() ? SearchFilter->GetRawFilterText() : FText();
+}
+
+const FSlateBrush* SDiffHelperTreeItem::GetBackgroundHighlightColor() const
+{
+	return FDiffHelperStyle::Get().GetBrush("DiffHelper.Highlight");
 }
 
 const FSlateBrush* SDiffHelperTreeItem::GetIconImage() const
