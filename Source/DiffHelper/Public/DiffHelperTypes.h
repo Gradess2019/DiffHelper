@@ -128,6 +128,9 @@ struct FDiffHelperItemNode
 	UPROPERTY()
 	FString Name;
 
+	UPROPERTY()
+	bool bExpanded = false;
+
 	TSharedPtr<FDiffHelperDiffItem> DiffItem;
 	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
 };

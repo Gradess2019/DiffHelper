@@ -23,6 +23,7 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 		.OnSelectionChanged(InArgs._OnSelectionChanged)
 		.OnGenerateRow(InArgs._OnGenerateRow)
 		.OnGetChildren(this, &SDiffHelperDiffPanelTree::OnGetChildren)
+		.OnSetExpansionRecursive(this, &SDiffHelperDiffPanelTree::SetExpansionRecursive)
 		.HeaderRow
 		(
 			SNew(SHeaderRow)
@@ -40,6 +41,15 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 void SDiffHelperDiffPanelTree::OnGetChildren(TSharedPtr<FDiffHelperItemNode> InItem, TArray<TSharedPtr<FDiffHelperItemNode>>& OutChildren)
 {
 	OutChildren = InItem->Children;
+}
+
+void SDiffHelperDiffPanelTree::SetExpansionRecursive(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand)
+{
+	SetItemExpansion(InItem, bInExpand);
+	for (const auto& Child : InItem->Children)
+	{
+		SetExpansionRecursive(Child, bInExpand);
+	}
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
