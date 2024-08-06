@@ -105,7 +105,6 @@ void UDiffHelperTabController::CollectDiff()
 	UDiffHelperUtils::SortDiffTree(Model->DiffPanelData.SortMode, Model->DiffPanelData.TreeDiff);
 
 	Model->DiffPanelData.SearchFilter = MakeShared<TTextFilter<const FDiffHelperDiffItem&>>(TTextFilter<const FDiffHelperDiffItem&>::FItemToStringArray::CreateUObject(this, &UDiffHelperTabController::PopulateFilterSearchString));
-	Model->DiffPanelData.SearchFilter->OnChanged().AddUObject(this, &UDiffHelperTabController::OnFilterChanged);
 }
 
 void UDiffHelperTabController::DiffAsset(const FString& InPath, const FDiffHelperCommit& InFirstRevision, const FDiffHelperCommit& InSecondRevision) const
@@ -353,13 +352,17 @@ int32 UDiffHelperTabController::GetCommitIndex(const FDiffHelperCommit& InCommit
 	});
 }
 
-void UDiffHelperTabController::OnFilterChanged()
+void UDiffHelperTabController::UpdateItemsData()
 {
+	// TODO: Estimate performance of this method.
 	auto& Data = Model->DiffPanelData;
 	Data.FilteredDiff = Data.OriginalDiff;
 	
 	UDiffHelperUtils::FilterListItems(Data.SearchFilter, Data.FilteredDiff);
+
+	const auto OldTreeDiff = Data.TreeDiff;
 	Data.TreeDiff = UDiffHelperUtils::ConvertListToTree(Data.FilteredDiff);
+	UDiffHelperUtils::CopyExpandedState(OldTreeDiff, Data.TreeDiff);
 
 	UDiffHelperUtils::SortDiffList(Data.SortMode, Data.FilteredDiff);
 	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.TreeDiff);

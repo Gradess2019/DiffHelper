@@ -52,6 +52,8 @@ public:
 	void CallModelUpdated() const;
 
 public:
+	void UpdateItemsData();
+	
 	void SetSearchFilter(const FText& InText) const;
 	void SetSortingMode(const FName& InColumnId, EColumnSortMode::Type InSortMode) const;
 	void SetActiveWidgetIndex(const int32& InIndex) const;
@@ -78,6 +80,5 @@ public:
 	int32 GetCommitIndex(const FDiffHelperCommit& InCommit) const;
 
 private:
-	void OnFilterChanged();
 	void PopulateFilterSearchString(const FDiffHelperDiffItem& InItem, TArray<FString>& OutStrings) const;
 };

@@ -127,9 +127,13 @@ int SDiffHelperDiffPanel::GetWidgetIndex() const
 void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)
 {
 	Controller->SetSearchFilter(InText);
+	Controller->UpdateItemsData();
 
 	const auto Error = Model->DiffPanelData.SearchFilter->GetFilterErrorText();
 	SearchBox->SetError(Error);
+
+	DiffList->RequestListRefresh();
+	DiffTree->RequestTreeRefresh();
 }
 
 void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode)
