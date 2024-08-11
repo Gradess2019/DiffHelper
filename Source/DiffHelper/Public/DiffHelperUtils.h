@@ -64,6 +64,9 @@ public:
 	static TArray<TSharedPtr<FDiffHelperItemNode>> ConvertTreeToList(const TArray<TSharedPtr<FDiffHelperItemNode>>& InRoot);
 	static TArray<TSharedPtr<FDiffHelperItemNode>> ConvertListToTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InList);
 
+	static TMap<FString, TSharedPtr<FDiffHelperItemNode>> GetDirectories(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems);
+	static TMap<FString, TSharedPtr<FDiffHelperItemNode>> GetDirectories(const TArrayView<const TSharedPtr<FDiffHelperItemNode>>& InItems);
+
 	static void SortDiffList(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 	static void SortDiffTree(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 	static void Sort(EColumnSortMode::Type InSortMode, const TFunction<bool(const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)>& InFileComparator, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
@@ -72,6 +75,7 @@ public:
 	static void FilterTreeItems(const TSharedPtr<IFilter<const FDiffHelperDiffItem&>>& InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 	static void Filter(TSharedPtr<IFilter<const FDiffHelperDiffItem&>> InFilter, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 
+	static void CopyExpandedState(const TArray<TSharedPtr<FDiffHelperItemNode>>& InSource, TArray<TSharedPtr<FDiffHelperItemNode>>& InTarget);
 	static void SetExpansionState(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray, const bool bInExpanded);
 	static void ExpandAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray);
 	static void CollapseAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray);
