@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "SDiffHelperBaseCommitContextMenu.h"
 
-class UDiffHelperTabController;
+#include "Widgets/SCompoundWidget.h"
 
-class DIFFHELPER_API SDiffHelperCommitContextMenu : public SDiffHelperBaseCommitContextMenu
+/**
+ * 
+ */
+class DIFFHELPER_API SDiffHelperDiffItemContextMenu : public SDiffHelperBaseCommitContextMenu
 {
 protected:
 	virtual void BuildMenu(FMenuBuilder& InMenuBuilder) override;

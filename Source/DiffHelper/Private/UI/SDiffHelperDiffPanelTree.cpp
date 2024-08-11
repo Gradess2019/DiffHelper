@@ -8,6 +8,8 @@
 #include "DiffHelperUtils.h"
 #include "SlateOptMacros.h"
 
+#include "UI/SDiffHelperDiffItemContextMenu.h"
+
 #define LOCTEXT_NAMESPACE "DiffPanelTree"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -26,6 +28,7 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 		.OnGetChildren(this, &SDiffHelperDiffPanelTree::OnGetChildren)
 		.OnExpansionChanged(this, &SDiffHelperDiffPanelTree::UpdateExpansionState)
 		.OnSetExpansionRecursive(this, &SDiffHelperDiffPanelTree::SetExpansionRecursive)
+		.OnContextMenuOpening(this, &SDiffHelperDiffPanelTree::CreateContextMenu)
 		.HeaderRow
 		(
 			SNew(SHeaderRow)
@@ -79,6 +82,12 @@ void SDiffHelperDiffPanelTree::SetExpansionRecursive(TSharedPtr<FDiffHelperItemN
 void SDiffHelperDiffPanelTree::UpdateExpansionState(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand)
 {
 	InItem->bExpanded = bInExpand;
+}
+
+TSharedPtr<SWidget> SDiffHelperDiffPanelTree::CreateContextMenu()
+{
+	return SNew(SDiffHelperDiffItemContextMenu)
+		.Controller(Controller);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

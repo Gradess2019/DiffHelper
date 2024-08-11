@@ -43,6 +43,9 @@ public:
 
 private:
 	void OnGetChildren(TSharedPtr<FDiffHelperItemNode> InItem, TArray<TSharedPtr<FDiffHelperItemNode>>& OutChildren);
+
 	void SetExpansionRecursive(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand);
 	void UpdateExpansionState(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand);
+
+	TSharedPtr<SWidget> CreateContextMenu();
 };

@@ -7,30 +7,16 @@
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-void SDiffHelperCommitContextMenu::Construct(const FArguments& InArgs)
+void SDiffHelperCommitContextMenu::BuildMenu(FMenuBuilder& InMenuBuilder)
 {
-	if (!ensure(InArgs._CommandList.IsValid())) { return; }
-
-	FMenuBuilder MenuBuilder(true, InArgs._CommandList);
-
-	MenuBuilder.BeginSection("DiffHelper.CommitPanel.ContextMenu");
-	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffAgainstTarget);
-	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommits);
-	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstNext);
-	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstPrevious);
-	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstNewest);
-	MenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstOldest);
-	MenuBuilder.EndSection();
-
-	ChildSlot
-	[
-		SNew(SBorder)
-		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-		.Content()
-		[
-			MenuBuilder.MakeWidget()
-		]
-	];
+	InMenuBuilder.BeginSection("DiffHelper.CommitPanel.ContextMenu");
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffAgainstTarget);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommits);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstNext);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstPrevious);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstNewest);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstOldest);
+	InMenuBuilder.EndSection();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
