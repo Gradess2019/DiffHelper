@@ -46,7 +46,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn)
 		.OnContextMenuOpening(this, &SDiffHelperDiffPanel::OnContextMenuOpening);
 
-	FToolMenuContext MenuContext(Controller->GetModel()->DiffPanelData.Commands);
+	FToolMenuContext MenuContext(Controller->GetDiffPanelCommands());
 
 	ChildSlot
 	[

@@ -14,7 +14,7 @@ void SDiffHelperBaseCommitContextMenu::Construct(const FArguments& InArgs)
 {
 	if (!ensure(InArgs._Controller.IsValid())) { return; }
 
-	auto& CommandList = InArgs._Controller->GetModel()->CommitPanelData.Commands;
+	const auto& CommandList = InArgs._Controller->GetCommitPanelCommands();
 	FMenuBuilder MenuBuilder(true, CommandList);
 	MenuBuilder.SetStyle(&FAppStyle::Get(), "PinnedCommandList");
 
