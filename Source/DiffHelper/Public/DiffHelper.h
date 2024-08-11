@@ -33,7 +33,6 @@ public:
 	UDiffHelperCacheManager* GetCacheManager() const { return CacheManager.Get(); }
 	
 private:
-
 	void RegisterMenus();
 
 

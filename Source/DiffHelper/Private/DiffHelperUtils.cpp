@@ -171,6 +171,59 @@ TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::ConvertListToTree(cons
 	return GenerateTree(Items);
 }
 
+TMap<FString, TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GetDirectories(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems)
+{
+	TMap<FString, TSharedPtr<FDiffHelperItemNode>> OutMap;
+	for (const auto& Node : InItems)
+	{
+		if (!Node->DiffItem.IsValid() && !Node->Path.IsEmpty())
+		{
+			OutMap.Add(Node->Path, Node);
+		}
+
+		OutMap.Append(GetDirectories(Node->Children));
+	}
+
+	return OutMap;
+}
+
+TMap<FString, TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GetDirectories(const TArrayView<const TSharedPtr<FDiffHelperItemNode>>& InItems)
+{
+	TMap<FString, TSharedPtr<FDiffHelperItemNode>> OutMap;
+	for (const auto& Node : InItems)
+	{
+		if (!Node->DiffItem.IsValid() && !Node->Path.IsEmpty())
+		{
+			OutMap.Add(Node->Path, Node);
+		}
+
+		OutMap.Append(GetDirectories(Node->Children));
+	}
+
+	return OutMap;
+}
+
+void UDiffHelperUtils::CopyExpandedState(const TArray<TSharedPtr<FDiffHelperItemNode>>& InSource, TArray<TSharedPtr<FDiffHelperItemNode>>& InTarget)
+{
+	for (const auto& TargetNode : InTarget)
+	{
+		if (TargetNode->DiffItem.IsValid())
+		{
+			continue;
+		}
+
+		for (const auto& SourceNode : InSource)
+		{
+			if (SourceNode->Path == TargetNode->Path)
+			{
+				TargetNode->bExpanded = SourceNode->bExpanded;
+				CopyExpandedState(SourceNode->Children, TargetNode->Children);
+				break;
+			}
+		}
+	}
+}
+
 void UDiffHelperUtils::SortDiffList(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
 {
 	auto SorterByName = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
@@ -265,4 +318,23 @@ void UDiffHelperUtils::ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHe
 			);
 		}
 	}
+}
+
+void UDiffHelperUtils::SetExpansionState(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray, const bool bInExpanded)
+{
+	for (const auto& Node : InArray)
+	{
+		Node->bExpanded = bInExpanded;
+		SetExpansionState(Node->Children, bInExpanded);
+	}
+}
+
+void UDiffHelperUtils::ExpandAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray)
+{
+	SetExpansionState(InArray, true);
+}
+
+void UDiffHelperUtils::CollapseAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray)
+{
+	SetExpansionState(InArray, false);
 }

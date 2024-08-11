@@ -128,6 +128,9 @@ struct FDiffHelperItemNode
 	UPROPERTY()
 	FString Name;
 
+	UPROPERTY()
+	bool bExpanded = false;
+
 	TSharedPtr<FDiffHelperDiffItem> DiffItem;
 	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
 };
@@ -136,6 +139,8 @@ USTRUCT()
 struct FDiffHelperDiffPanelData
 {
 	GENERATED_BODY()
+
+	TSharedPtr<FUICommandList> Commands;
 
 	int32 CurrentWidgetIndex = 0;
 	

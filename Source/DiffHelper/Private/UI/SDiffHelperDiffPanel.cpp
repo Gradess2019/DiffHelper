@@ -42,7 +42,9 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 		.SortMode(this, &SDiffHelperDiffPanel::GetSortMode)
 		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn);
-	
+
+	FToolMenuContext MenuContext(Controller->GetModel()->DiffPanelData.Commands);
+
 	ChildSlot
 	[
 		SNew(SVerticalBox)
@@ -57,39 +59,19 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
-				.Padding(0.f)
-				[
-					SNew(STextBlock)
-					.Justification(ETextJustify::Center)
-					.Text(LOCTEXT("DiffPanelTitle", "Diff List"))
-				]
-				+ SVerticalBox::Slot()
 				.HAlign(HAlign_Fill)
 				.AutoHeight()
-				.Padding(4.f)
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
+					SNew(SBorder)
+					.Padding(0)
+					.BorderImage(FAppStyle::Get().GetBrush("NoBorder"))
 					[
-						
-						SNew(SCheckBox)
-						.Style(&FAppStyle::GetWidgetStyle<FToolBarStyle>("EditorViewportToolBar").ToggleButton)
-						.CheckBoxContentUsesAutoWidth(false)
-						.IsFocusable(true)
-						.ToolTipText(LOCTEXT("DiffPanelGrouping", "Group by Directory"))		
-						.OnCheckStateChanged(this, &SDiffHelperDiffPanel::OnGroupingStateChanged)
-						[
-							SNew(SImage)
-							.Image(FDiffHelperStyle::Get().GetBrush("DiffHelper.Directory"))
-						]
+						UToolMenus::Get()->GenerateWidget("DiffHelper.DiffPanel.Toolbar", MenuContext)
 					]
-					
 				]
 				+ SVerticalBox::Slot()
 				.HAlign(HAlign_Fill)
 				.AutoHeight()
-				.Padding(4.f)
 				[
 					SAssignNew(SearchBox, SSearchBox)
 					.HintText(LOCTEXT("SearchBoxHint", "Search the files"))
@@ -112,6 +94,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	Controller->OnModelUpdated().AddRaw(this, &SDiffHelperDiffPanel::OnModelUpdated);
 }
 
 EColumnSortMode::Type SDiffHelperDiffPanel::GetSortMode() const
@@ -124,12 +108,22 @@ int SDiffHelperDiffPanel::GetWidgetIndex() const
 	return Model.IsValid() ? Model->DiffPanelData.CurrentWidgetIndex : 0;
 }
 
+void SDiffHelperDiffPanel::OnModelUpdated()
+{
+	DiffList->RequestListRefresh();
+	DiffTree->RequestTreeRefresh();
+}
+
 void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)
 {
 	Controller->SetSearchFilter(InText);
+	Controller->UpdateItemsData();
 
 	const auto Error = Model->DiffPanelData.SearchFilter->GetFilterErrorText();
 	SearchBox->SetError(Error);
+
+	DiffList->RequestListRefresh();
+	DiffTree->RequestTreeRefresh();
 }
 
 void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode)
@@ -164,6 +158,7 @@ void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> In
 TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable)
 {
 	auto NewRow = SNew(SDiffHelperTreeItem, InOwnerTable)
+		.Controller(Controller)
 		.Item(InItem);
 
 	if (InOwnerTable == DiffList)

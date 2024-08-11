@@ -21,6 +21,12 @@ public:
 	TSharedPtr<FUICommandInfo> OpenDiffWindow;
 	TSharedPtr<FUICommandInfo> CreateNewDiff;
 
+	// Diff panel commands
+	TSharedPtr<FUICommandInfo> GroupByDirectory;
+	TSharedPtr<FUICommandInfo> ExpandAll;
+	TSharedPtr<FUICommandInfo> CollapseAll;
+
+	// Commit panel commands
 	TSharedPtr<FUICommandInfo> DiffAgainstTarget;
 	TSharedPtr<FUICommandInfo> DiffSelectedCommits;
 	TSharedPtr<FUICommandInfo> DiffSelectedCommitAgainstNext;

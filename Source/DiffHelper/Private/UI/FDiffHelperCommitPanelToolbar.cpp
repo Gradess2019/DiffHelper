@@ -11,8 +11,7 @@ void FDiffHelperCommitPanelToolbar::RegisterMenu()
 	const auto& Commands = FDiffHelperCommands::Get();
 	
 	UToolMenu* Menu = UToolMenus::Get()->RegisterMenu("DiffHelper.CommitPanel.Toolbar", NAME_None, EMultiBoxType::ToolBar);
-	Menu->SetStyleSet(&FDiffHelperStyle::Get());
-	Menu->StyleName = "CommitPanelToolbar";
+	Menu->StyleName = "AssetEditorToolbar";
 	
 	FToolMenuSection& Section = Menu->AddSection("Content");
 
