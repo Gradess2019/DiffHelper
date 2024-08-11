@@ -2,6 +2,7 @@
 
 
 #include "DiffHelperUtils.h"
+#include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
 #include "Misc/ComparisonUtility.h"
 
@@ -20,6 +21,38 @@ TArray<FString> UDiffHelperUtils::ConvertBranchesToStringArray(const TArray<FDif
 bool UDiffHelperUtils::CompareStatus(const EDiffHelperFileStatus InStatusA, const EDiffHelperFileStatus InStatusB)
 {
 	return static_cast<uint8>(InStatusA) < static_cast<uint8>(InStatusB);
+}
+
+bool UDiffHelperUtils::IsDiffAvailable(const TSharedPtr<FDiffHelperCommit>& InCommit, const FString& InPath)
+{
+	if (!InCommit.IsValid())
+	{
+		return false;
+	}
+
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	for (const auto& Item : InCommit->Files)
+	{
+		if (Item.Path == InPath && !Settings->StatusBlacklist.Contains(Item.Status))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UDiffHelperUtils::IsDiffAvailable(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath)
+{
+	for (const auto& Commit : InCommits)
+	{
+		if (!IsDiffAvailable(Commit, InPath))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 int32 UDiffHelperUtils::GetItemNodeFilesCount(const TSharedPtr<FDiffHelperItemNode>& InItem)
@@ -138,6 +171,59 @@ TArray<TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::ConvertListToTree(cons
 	return GenerateTree(Items);
 }
 
+TMap<FString, TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GetDirectories(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems)
+{
+	TMap<FString, TSharedPtr<FDiffHelperItemNode>> OutMap;
+	for (const auto& Node : InItems)
+	{
+		if (!Node->DiffItem.IsValid() && !Node->Path.IsEmpty())
+		{
+			OutMap.Add(Node->Path, Node);
+		}
+
+		OutMap.Append(GetDirectories(Node->Children));
+	}
+
+	return OutMap;
+}
+
+TMap<FString, TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GetDirectories(const TArrayView<const TSharedPtr<FDiffHelperItemNode>>& InItems)
+{
+	TMap<FString, TSharedPtr<FDiffHelperItemNode>> OutMap;
+	for (const auto& Node : InItems)
+	{
+		if (!Node->DiffItem.IsValid() && !Node->Path.IsEmpty())
+		{
+			OutMap.Add(Node->Path, Node);
+		}
+
+		OutMap.Append(GetDirectories(Node->Children));
+	}
+
+	return OutMap;
+}
+
+void UDiffHelperUtils::CopyExpandedState(const TArray<TSharedPtr<FDiffHelperItemNode>>& InSource, TArray<TSharedPtr<FDiffHelperItemNode>>& InTarget)
+{
+	for (const auto& TargetNode : InTarget)
+	{
+		if (TargetNode->DiffItem.IsValid())
+		{
+			continue;
+		}
+
+		for (const auto& SourceNode : InSource)
+		{
+			if (SourceNode->Path == TargetNode->Path)
+			{
+				TargetNode->bExpanded = SourceNode->bExpanded;
+				CopyExpandedState(SourceNode->Children, TargetNode->Children);
+				break;
+			}
+		}
+	}
+}
+
 void UDiffHelperUtils::SortDiffList(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray)
 {
 	auto SorterByName = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
@@ -212,4 +298,43 @@ void UDiffHelperUtils::Filter(TSharedPtr<IFilter<const FDiffHelperDiffItem&>> In
 
 		return false;
 	});
+}
+
+void UDiffHelperUtils::ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath)
+{
+	for (const auto& Commit : InCommits)
+	{
+		if (!IsDiffAvailable(Commit, InPath))
+		{
+			FMessageDialog::Open(
+				EAppMsgCategory::Error,
+				EAppMsgType::Ok,
+				FText::Format(
+					NSLOCTEXT("DiffHelper", "DiffUnavailable", "Diff is not available for path: {0}\nCommit: {1}\nFile Status: {2}"),
+					FText::FromString(InPath),
+					FText::FromString(Commit->Revision),
+					FText::FromString(EnumToString(Commit->Files[0].Status))
+				)
+			);
+		}
+	}
+}
+
+void UDiffHelperUtils::SetExpansionState(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray, const bool bInExpanded)
+{
+	for (const auto& Node : InArray)
+	{
+		Node->bExpanded = bInExpanded;
+		SetExpansionState(Node->Children, bInExpanded);
+	}
+}
+
+void UDiffHelperUtils::ExpandAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray)
+{
+	SetExpansionState(InArray, true);
+}
+
+void UDiffHelperUtils::CollapseAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray)
+{
+	SetExpansionState(InArray, false);
 }

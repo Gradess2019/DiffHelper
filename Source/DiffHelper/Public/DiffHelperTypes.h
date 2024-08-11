@@ -26,7 +26,6 @@ namespace SDiffHelperCommitPanelConstants
 	const FName MessageColumnId(TEXT("CommitMessage"));
 	const FName AuthorColumnId(TEXT("CommitAuthor"));
 	const FName DateColumnId(TEXT("CommitDate"));
-	const FName DiffButtonColumnId(TEXT("DiffButton"));
 }
 
 
@@ -129,6 +128,9 @@ struct FDiffHelperItemNode
 	UPROPERTY()
 	FString Name;
 
+	UPROPERTY()
+	bool bExpanded = false;
+
 	TSharedPtr<FDiffHelperDiffItem> DiffItem;
 	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
 };
@@ -137,6 +139,8 @@ USTRUCT()
 struct FDiffHelperDiffPanelData
 {
 	GENERATED_BODY()
+
+	TSharedPtr<FUICommandList> Commands;
 
 	int32 CurrentWidgetIndex = 0;
 	
@@ -148,4 +152,14 @@ struct FDiffHelperDiffPanelData
 	TArray<TSharedPtr<FDiffHelperItemNode>> TreeDiff;
 
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
+};
+
+USTRUCT()
+struct FDiffHelperCommitPanelData
+{
+	GENERATED_BODY()
+
+	TSharedPtr<FUICommandList> Commands;
+
+	TArray<TSharedPtr<FDiffHelperCommit>> SelectedCommits;
 };

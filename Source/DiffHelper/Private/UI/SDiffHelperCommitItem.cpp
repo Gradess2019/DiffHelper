@@ -2,6 +2,9 @@
 
 
 #include "UI/SDiffHelperCommitItem.h"
+
+#include "DiffHelperSettings.h"
+
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
 #include "UI/SDiffHelperCommitTextBlock.h"
@@ -22,6 +25,20 @@ void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef
 		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("PropertyTable.TableRow")),
 		InOwnerTable
 	);
+
+	const auto& DiffItem = Controller->GetModel()->SelectedDiffItem;
+	const auto* StatusInCommit = Item->Files.FindByPredicate([&DiffItem](const FDiffHelperFileData& File)
+	{
+		return File.Path == DiffItem.Path;
+	});
+
+	if (StatusInCommit)
+	{
+		const auto* Settings = GetDefault<UDiffHelperSettings>();
+		const auto& StatusColor = Settings->StatusColors.FindRef(StatusInCommit->Status, FLinearColor::White);
+		
+		SetForegroundColor(StatusColor);
+	}
 }
 
 TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& InColumnName)
@@ -43,10 +60,6 @@ TSharedRef<SWidget> SDiffHelperCommitItem::GenerateWidgetForColumn(const FName& 
 	else if (InColumnName == SDiffHelperCommitPanelConstants::DateColumnId)
 	{
 		return CreateDateColumn();
-	}
-	else if (InColumnName == SDiffHelperCommitPanelConstants::DiffButtonColumnId)
-	{
-		return CreateDiffButtonColumn();
 	}
 
 	ensureMsgf(false, TEXT("Unknown column name %s"), *InColumnName.ToString());
@@ -83,31 +96,6 @@ TSharedRef<SWidget> SDiffHelperCommitItem::CreateDateColumn() const
 		SNew(SDiffHelperCommitTextBlock)
 		.Text(FText::FromString(Item->Date.ToString()))
 		.ToolTip(FText::FromString(Item->Date.ToString()));
-}
-
-TSharedRef<SWidget> SDiffHelperCommitItem::CreateDiffButtonColumn() const
-{
-	return
-		SNew(SButton)
-		.OnClicked(this, &SDiffHelperCommitItem::OnDiffButtonClicked)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("DiffButtonText", "Diff"))
-			.Justification(ETextJustify::Center)
-		];
-}
-
-FReply SDiffHelperCommitItem::OnDiffButtonClicked() const
-{
-	const auto& SelectedDiffItem = Controller->GetModel()->SelectedDiffItem;
-
-	if (!ensure(SelectedDiffItem.IsValid())) { return FReply::Handled(); }
-
-	const auto& Path = SelectedDiffItem.Path;
-	const auto& TargetRevision = SelectedDiffItem.LastTargetCommit;
-	Controller->DiffAsset(Path, TargetRevision, *Item);
-
-	return FReply::Handled();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

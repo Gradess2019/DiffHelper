@@ -107,12 +107,19 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 		}
 	}
 
+	const auto& Statuses = GetStatuses(InSourceRevision, InTargetRevision);
+	
 	TArray<FDiffHelperDiffItem> DiffItems;
 	for (const auto& Pair : ChangedFiles)
 	{
 		FDiffHelperDiffItem DiffItem;
 		DiffItem.Path = Pair.Key;
-		DiffItem.Status = Pair.Value[0].Files.FindByPredicate([Pair](const FDiffHelperFileData& InFile) { return InFile.Path == Pair.Key; })->Status;
+		DiffItem.Status = Statuses.FindRef(DiffItem.Path, EDiffHelperFileStatus::None);
+
+		if (DiffItem.Status == EDiffHelperFileStatus::None)
+		{
+			UE_LOG(LogDiffHelper, Error, TEXT("Failed to get status for file: %s"), *DiffItem.Path);
+		}
 
 		const auto RelativePath = FPaths::Combine(FPaths::ProjectDir(), DiffItem.Path);
 		if (FPaths::IsUnderDirectory(RelativePath, FPaths::ProjectContentDir()))
@@ -169,6 +176,7 @@ FDiffHelperCommit UDiffHelperGitManager::GetLastCommitForFile(const FString& InF
 	Params.Add(TEXT("-n 1"));
 	Params.Add(TEXT("--pretty=format:\"<Hash:%h> <Message:%s> <Author:%an> <Date:%ad>\""));
 	Params.Add(TEXT("--date=format-local:\"%d/%m/%Y %H:%M\""));
+	Params.Add(TEXT("--name-status"));
 	Params.Add(TEXT("-- ") + InFilePath);
 
 	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
@@ -269,6 +277,38 @@ TOptional<FString> UDiffHelperGitManager::GetForkPoint(const FDiffHelperBranch& 
 	return TOptional(Result.TrimStartAndEnd());
 }
 
+TMap<FString, EDiffHelperFileStatus> UDiffHelperGitManager::GetStatuses(const FString& InSourceRevision, const FString& InTargetRevision) const
+{
+	const auto Command = TEXT("diff");
+	FString Result;
+	FString Errors;
+
+	TArray<FString> Params;
+	Params.Add(TEXT("--name-status"));
+	Params.Add(InTargetRevision + TEXT("..") + InSourceRevision);
+
+	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
+	{
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get statuses: %s"), *Errors);
+		return {};
+	}
+
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	const auto Pattern = FRegexPattern(Settings->ChangedFilePattern);
+	auto Matcher = FRegexMatcher(Pattern, Result);
+
+	TMap<FString, EDiffHelperFileStatus> Statuses;
+	while (Matcher.FindNext())
+	{
+		const auto Status = Matcher.GetCaptureGroup(Settings->ChangedFileStatusGroup);
+		const auto Path = Matcher.GetCaptureGroup(Settings->ChangedFilePathGroup);
+
+		Statuses.Add(Path, ConvertFileStatus(Status));
+	}
+
+	return Statuses;
+}
+
 TArray<FDiffHelperBranch> UDiffHelperGitManager::ParseBranches(const FString& InBranches) const
 {
 	const auto* DiffHelperSettings = GetDefault<UDiffHelperSettings>();
@@ -322,7 +362,7 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::ParseCommits(const FString& InC
 FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) const
 {
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
-	const auto Pattern = FRegexPattern(Settings->SingleCommitPattern);
+	const auto Pattern = FRegexPattern(Settings->CommitDataPattern);
 	auto Matcher = FRegexMatcher(Pattern, String);
 
 	FDiffHelperCommit Commit;
@@ -332,6 +372,9 @@ FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) cons
 		Commit.Message = Matcher.GetCaptureGroup(Settings->MessageGroup);
 		Commit.Author = Matcher.GetCaptureGroup(Settings->AuthorGroup);
 		Commit.Date = ParseDate(Matcher.GetCaptureGroup(Settings->DateGroup));
+
+		const auto ChangedFiles = Matcher.GetCaptureGroup(Settings->ChangedFilesGroup);
+		Commit.Files = ParseChangedFiles(ChangedFiles);
 	}
 
 	return Commit;

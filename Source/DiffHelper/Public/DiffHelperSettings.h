@@ -13,6 +13,14 @@ class DIFFHELPER_API UDiffHelperSettings : public UObject
 	GENERATED_BODY()
 
 public:
+	/** Files with these statuses couldn't be used for diff */
+	UPROPERTY(Config, EditAnywhere, Category = "General")
+	TArray<EDiffHelperFileStatus> StatusBlacklist = {
+		EDiffHelperFileStatus::None,
+		EDiffHelperFileStatus::Deleted,
+		EDiffHelperFileStatus::Unmerged,
+	};
+
 	/** if true the plugin will cache source and target branches and will put them into selectors on a first Diff Helper view */
 	UPROPERTY(Config, EditAnywhere, Category = "Caching")
 	bool bEnableCaching = true;
@@ -70,7 +78,7 @@ public:
 	int32 MinuteGroup = 5;
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
-	FString ChangedFilePattern = TEXT("([a-zA-Z]{1})\\s+(.+?)(?:[\\s\n]|$)");
+	FString ChangedFilePattern = TEXT("(.).*\t(.*)(?:[\\s\n]|$)");
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	int32 ChangedFileStatusGroup = 1;

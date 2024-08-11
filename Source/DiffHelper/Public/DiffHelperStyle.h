@@ -15,6 +15,8 @@ public:
 
 	/** reloads textures used by slate renderer */
 	static void ReloadTextures();
+	static void ReloadStyles();
+	static void SetStyles(TSharedRef<FSlateStyleSet> Style);
 
 	/** @return The Slate style set for the Shooter game */
 	static const ISlateStyle& Get();

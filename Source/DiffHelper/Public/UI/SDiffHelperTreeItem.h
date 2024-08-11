@@ -7,6 +7,7 @@
 
 #include "DiffHelperTypes.h"
 
+class UDiffHelperTabController;
 class STextBlock;
 
 /**
@@ -16,9 +17,11 @@ class DIFFHELPER_API SDiffHelperTreeItem : public STableRow<TSharedPtr<FDiffHelp
 {
 public:
 	SLATE_BEGIN_ARGS(SDiffHelperTreeItem)
+		: _Controller(nullptr)
 		{
 		}
 
+		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
 		SLATE_ARGUMENT(TSharedPtr<FDiffHelperItemNode>, Item)
 
 	SLATE_END_ARGS()
@@ -27,6 +30,8 @@ protected:
 	TSharedPtr<STextBlock> Text;
 	TSharedPtr<STextBlock> Hint;
 	TSharedPtr<FDiffHelperItemNode> Item;
+
+	TWeakObjectPtr<UDiffHelperTabController> Controller;
 	
 public:
 	/** Constructs this widget with InArgs */
@@ -36,6 +41,10 @@ private:
 	void ShowFileHint();
 	void ShowDirectoryHint();
 
+	FSlateColor GetTextColor() const;
+	FLinearColor GetTextHighlightColor() const;
+	FText GetHighlightText() const;
+	const FSlateBrush* GetBackgroundHighlightColor() const;
 	const FSlateBrush* GetIconImage() const;
 	EVisibility GetIconVisibility() const;
 	

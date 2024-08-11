@@ -24,6 +24,7 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 		.SelectionMode(ESelectionMode::SingleToggle)
 		.OnSelectionChanged(InArgs._OnSelectionChanged)
 		.OnGenerateRow(InArgs._OnGenerateRow)
+		.OnContextMenuOpening(InArgs._OnContextMenuOpening)
 		.HeaderRow
 		(
 			SNew(SHeaderRow)
@@ -34,8 +35,6 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 			.OnSort(InArgs._OnSortModeChanged)
 		)
 	);
-
-	Model->DiffPanelData.SearchFilter->OnChanged().AddSP(this, &SListView::RequestListRefresh);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
