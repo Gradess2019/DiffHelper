@@ -8,6 +8,8 @@
 #include "DiffHelperUtils.h"
 #include "SlateOptMacros.h"
 
+#include "UI/SDiffHelperDiffItemContextMenu.h"
+
 #define LOCTEXT_NAMESPACE "DiffPanelTree"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -23,6 +25,7 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 		.SelectionMode(ESelectionMode::SingleToggle)
 		.OnSelectionChanged(InArgs._OnSelectionChanged)
 		.OnGenerateRow(InArgs._OnGenerateRow)
+		.OnContextMenuOpening(InArgs._OnContextMenuOpening)
 		.OnGetChildren(this, &SDiffHelperDiffPanelTree::OnGetChildren)
 		.OnExpansionChanged(this, &SDiffHelperDiffPanelTree::UpdateExpansionState)
 		.OnSetExpansionRecursive(this, &SDiffHelperDiffPanelTree::SetExpansionRecursive)

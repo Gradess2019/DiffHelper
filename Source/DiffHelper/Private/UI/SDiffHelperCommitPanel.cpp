@@ -85,7 +85,7 @@ SDiffHelperCommitPanel::~SDiffHelperCommitPanel()
 TSharedPtr<SWidget> SDiffHelperCommitPanel::OnContextMenuOpening()
 {
 	return SNew(SDiffHelperCommitContextMenu)
-		.CommandList(Controller->GetModel()->CommitPanelData.Commands);
+		.Controller(Controller);
 }
 
 TSharedRef<ITableRow> SDiffHelperCommitPanel::OnGenerateRow(TSharedPtr<FDiffHelperCommit> InItem, const TSharedRef<STableViewBase>& InOwnerTable)

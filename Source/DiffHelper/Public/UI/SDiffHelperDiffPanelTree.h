@@ -27,6 +27,7 @@ public:
 		SLATE_EVENT(FOnSelectionChanged, OnSelectionChanged)
 		SLATE_EVENT(FOnGenerateRow, OnGenerateRow)
 		SLATE_EVENT(FOnSortModeChanged, OnSortModeChanged)
+		SLATE_EVENT(FOnContextMenuOpening, OnContextMenuOpening)
 		
 
 	SLATE_END_ARGS()
@@ -43,6 +44,9 @@ public:
 
 private:
 	void OnGetChildren(TSharedPtr<FDiffHelperItemNode> InItem, TArray<TSharedPtr<FDiffHelperItemNode>>& OutChildren);
+
 	void SetExpansionRecursive(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand);
 	void UpdateExpansionState(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand);
+
+	TSharedPtr<SWidget> CreateContextMenu();
 };

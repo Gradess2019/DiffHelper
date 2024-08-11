@@ -9,6 +9,7 @@
 #include "UI/SDiffHelperDiffPanelList.h"
 #include "UI/SDiffHelperDiffPanelTree.h"
 #include "UI/SDiffHelperTreeItem.h"
+#include "UI/SDiffHelperDiffItemContextMenu.h"
 #include "Styling/ToolBarStyle.h"
 #include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Layout/SWidgetSwitcher.h"
@@ -34,14 +35,16 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
 		.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 		.SortMode(this, &SDiffHelperDiffPanel::GetSortMode)
-		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn);
+		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn)
+		.OnContextMenuOpening(this, &SDiffHelperDiffPanel::OnContextMenuOpening);
 
 	DiffTree = SNew(SDiffHelperDiffPanelTree)
 		.Controller(Controller)
 		.OnSelectionChanged(this, &SDiffHelperDiffPanel::OnSelectionChanged)
 		.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 		.SortMode(this, &SDiffHelperDiffPanel::GetSortMode)
-		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn);
+		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn)
+		.OnContextMenuOpening(this, &SDiffHelperDiffPanel::OnContextMenuOpening);
 
 	FToolMenuContext MenuContext(Controller->GetModel()->DiffPanelData.Commands);
 
@@ -172,6 +175,12 @@ TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelper
 void SDiffHelperDiffPanel::OnGroupingStateChanged(ECheckBoxState CheckBoxState)
 {
 	Controller->SetActiveWidgetIndex(CheckBoxState == ECheckBoxState::Checked ? 1 : 0);
+}
+
+TSharedPtr<SWidget> SDiffHelperDiffPanel::OnContextMenuOpening()
+{
+	return SNew(SDiffHelperDiffItemContextMenu)
+		.Controller(Controller);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

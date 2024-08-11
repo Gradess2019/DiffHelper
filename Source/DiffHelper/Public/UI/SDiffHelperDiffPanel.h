@@ -47,4 +47,6 @@ protected:
 	void OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> InSelectedItem, ESelectInfo::Type InSelectType);
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
 	void OnGroupingStateChanged(ECheckBoxState CheckBoxState);
+	TSharedPtr<SWidget> OnContextMenuOpening();
+	
 };
