@@ -27,6 +27,7 @@ public:
 		SLATE_EVENT(FOnSelectionChanged, OnSelectionChanged)
 		SLATE_EVENT(FOnGenerateRow, OnGenerateRow)
 		SLATE_EVENT(FOnSortModeChanged, OnSortModeChanged)
+		SLATE_EVENT(FOnContextMenuOpening, OnContextMenuOpening)
 		
 
 	SLATE_END_ARGS()

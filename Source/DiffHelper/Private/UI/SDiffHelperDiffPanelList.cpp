@@ -24,6 +24,7 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 		.SelectionMode(ESelectionMode::SingleToggle)
 		.OnSelectionChanged(InArgs._OnSelectionChanged)
 		.OnGenerateRow(InArgs._OnGenerateRow)
+		.OnContextMenuOpening(InArgs._OnContextMenuOpening)
 		.HeaderRow
 		(
 			SNew(SHeaderRow)
