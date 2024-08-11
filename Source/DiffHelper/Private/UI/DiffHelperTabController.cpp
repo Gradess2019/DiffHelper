@@ -17,41 +17,17 @@
 void UDiffHelperTabController::Init()
 {
 	AddToRoot();
-	Model = NewObject<UDiffHelperTabModel>(this);
-	Model->OnModelUpdated_Raw.AddWeakLambda(this, [this]() { Model->OnModelUpdated.Broadcast(); });
+	InitModel();
 
-	const auto* Manager = FDiffHelperModule::Get().GetManager();
-	Model->Branches = Manager->GetBranches();
-
-	if (UDiffHelperSettings::IsCachingEnabled())
-	{
-		LoadCachedBranches();
-	}
-
+	BindMenuCommands();
 	BindDiffPanelCommands();
 	BindCommitPanelCommands();
 }
 
-void UDiffHelperTabController::LoadCachedBranches()
+void UDiffHelperTabController::Reset()
 {
-	auto* CacheManager = FDiffHelperModule::Get().GetCacheManager();
-	check(CacheManager);
-		
-	const auto CachedSourceBranchName = CacheManager->GetSourceBranch();
-	const auto CachedTargetBranchName = CacheManager->GetTargetBranch();
-
-	for (const auto& Branch : Model->Branches)
-	{
-		if (Branch.Name == CachedSourceBranchName)
-		{
-			Model->SourceBranch = Branch;
-		}
-
-		if (Branch.Name == CachedTargetBranchName)
-		{
-			Model->TargetBranch = Branch;
-		}
-	}
+	InitModel();
+	OnModelReset.Broadcast();
 }
 
 void UDiffHelperTabController::Deinit()
@@ -195,10 +171,67 @@ void UDiffHelperTabController::SetSelectedCommits(const TArray<TSharedPtr<FDiffH
 	Model->CommitPanelData.SelectedCommits = InCommits;
 }
 
+int32 UDiffHelperTabController::GetCommitIndex(const FDiffHelperCommit& InCommit) const
+{
+	const auto& Commits = Model->SelectedDiffItem.Commits;
+	return Commits.IndexOfByPredicate([&InCommit](const FDiffHelperCommit& Commit)
+	{
+		return Commit.Revision == InCommit.Revision;
+	});
+}
+
+void UDiffHelperTabController::InitModel()
+{
+	Model = NewObject<UDiffHelperTabModel>(this);
+	Model->OnModelUpdated_Raw.AddWeakLambda(this, [this]() { Model->OnModelUpdated.Broadcast(); });
+
+	const auto* Manager = FDiffHelperModule::Get().GetManager();
+	Model->Branches = Manager->GetBranches();
+
+	if (UDiffHelperSettings::IsCachingEnabled())
+	{
+		LoadCachedBranches();
+	}
+}
+
+void UDiffHelperTabController::LoadCachedBranches()
+{
+	auto* CacheManager = FDiffHelperModule::Get().GetCacheManager();
+	check(CacheManager);
+		
+	const auto CachedSourceBranchName = CacheManager->GetSourceBranch();
+	const auto CachedTargetBranchName = CacheManager->GetTargetBranch();
+
+	for (const auto& Branch : Model->Branches)
+	{
+		if (Branch.Name == CachedSourceBranchName)
+		{
+			Model->SourceBranch = Branch;
+		}
+
+		if (Branch.Name == CachedTargetBranchName)
+		{
+			Model->TargetBranch = Branch;
+		}
+	}
+}
+
+void UDiffHelperTabController::BindMenuCommands()
+{
+	const auto& Commands = FDiffHelperCommands::Get();
+
+	MenuCommands = MakeShared<FUICommandList>();
+
+	MenuCommands->MapAction(
+		Commands.CreateNewDiff,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::Reset)
+	);
+}
+
 void UDiffHelperTabController::BindDiffPanelCommands()
 {
 	const auto& Commands = FDiffHelperCommands::Get();
-	auto& DiffPanelCommands = Model->DiffPanelData.Commands = MakeShared<FUICommandList>();
+	DiffPanelCommands = MakeShared<FUICommandList>();
 
 	DiffPanelCommands->MapAction(
 		Commands.GroupByDirectory,
@@ -223,7 +256,7 @@ void UDiffHelperTabController::BindDiffPanelCommands()
 void UDiffHelperTabController::BindCommitPanelCommands()
 {
 	const auto& Commands = FDiffHelperCommands::Get();
-	auto& CommitPanelCommands = Model->CommitPanelData.Commands = MakeShared<FUICommandList>();
+	CommitPanelCommands = MakeShared<FUICommandList>();
 
 	CommitPanelCommands->MapAction(
 		Commands.DiffAgainstTarget,
@@ -392,15 +425,6 @@ bool UDiffHelperTabController::CanDiffSelectedCommitAgainstPrevious()
 
 	const auto Index = GetCommitIndex(*Data.SelectedCommits[0]);
 	return Index < Model->SelectedDiffItem.Commits.Num() - 1;
-}
-
-int32 UDiffHelperTabController::GetCommitIndex(const FDiffHelperCommit& InCommit) const
-{
-	const auto& Commits = Model->SelectedDiffItem.Commits;
-	return Commits.IndexOfByPredicate([&InCommit](const FDiffHelperCommit& Commit)
-	{
-		return Commit.Revision == InCommit.Revision;
-	});
 }
 
 void UDiffHelperTabController::UpdateItemsData()

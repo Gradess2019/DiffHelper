@@ -31,7 +31,7 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 		Commits = UDiffHelperUtils::ConvertToShared(Controller->GetModel()->SelectedDiffItem.Commits);
 	}
 
-	FToolMenuContext MenuContext(Controller->GetModel()->CommitPanelData.Commands);
+	FToolMenuContext MenuContext(Controller->GetCommitPanelCommands());
 
 	ChildSlot
 	[
