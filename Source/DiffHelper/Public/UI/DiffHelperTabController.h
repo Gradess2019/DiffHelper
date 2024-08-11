@@ -15,6 +15,10 @@ class DIFFHELPER_API UDiffHelperTabController : public UObject
 {
 	GENERATED_BODY()
 
+public:
+	DECLARE_MULTICAST_DELEGATE(FDiffHelperSimpleDelegate);
+	FDiffHelperSimpleDelegate OnModelReset;
+
 protected:
 	UPROPERTY(BlueprintGetter="GetModel")
 	TObjectPtr<UDiffHelperTabModel> Model;

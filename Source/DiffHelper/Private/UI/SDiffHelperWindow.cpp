@@ -24,6 +24,7 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 {
 	Controller = NewObject<UDiffHelperTabController>();
 	Controller->Init();
+	Controller->OnModelReset.AddRaw(this, &SDiffHelperWindow::Reset);
 
 	const auto DiffPicker = CreateDiffPicker();
 	SWindow::Construct(
@@ -63,14 +64,7 @@ TSharedRef<SWidget> SDiffHelperWindow::CreateDiffView()
 
 TSharedRef<SWidget> SDiffHelperWindow::CreateMenu()
 {
-	TSharedPtr<FUICommandList> CommandList = MakeShareable(new FUICommandList());
-
-	CommandList->MapAction(
-		FDiffHelperCommands::Get().CreateNewDiff,
-		FExecuteAction::CreateRaw(this, &SDiffHelperWindow::Reset)
-	);
-
-	FMenuBarBuilder MenuBarBuilder(CommandList);
+	FMenuBarBuilder MenuBarBuilder(Controller->GetMenuCommands());
 	MenuBarBuilder.AddPullDownMenu(
 		LOCTEXT("MenuLabel", "Diff"),
 		FText::GetEmpty(),
@@ -99,7 +93,7 @@ TSharedRef<SWidget> SDiffHelperWindow::CreateDiffViewer()
 
 void SDiffHelperWindow::Reset()
 {
-	const auto StartupView = CreateStartupView();
+	const auto& StartupView = CreateStartupView();
 	SetContent(StartupView);
 
 	SetTitle(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"));

@@ -19,6 +19,7 @@ void UDiffHelperTabController::Init()
 	AddToRoot();
 	InitModel();
 
+	BindMenuCommands();
 	BindDiffPanelCommands();
 	BindCommitPanelCommands();
 }
@@ -26,6 +27,7 @@ void UDiffHelperTabController::Init()
 void UDiffHelperTabController::Reset()
 {
 	InitModel();
+	OnModelReset.Broadcast();
 }
 
 void UDiffHelperTabController::Deinit()
