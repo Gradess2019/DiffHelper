@@ -203,7 +203,9 @@ void UDiffHelperTabController::BindDiffPanelCommands()
 
 	DiffPanelCommands->MapAction(
 		Commands.GroupByDirectory,
-		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ToggleGroupByDirectory)
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ToggleGroupByDirectory),
+		FCanExecuteAction::CreateLambda([]() { return true; }),
+		FIsActionChecked::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
 	);
 
 	DiffPanelCommands->MapAction(
