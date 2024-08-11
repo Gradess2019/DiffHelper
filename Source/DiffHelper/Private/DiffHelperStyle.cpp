@@ -73,6 +73,8 @@ void FDiffHelperStyle::SetStyles(TSharedRef<FSlateStyleSet> Style)
 	Style->Set("DiffHelper.Diff", new IMAGE_BRUSH_SVG(TEXT("DiffIcon"), Icon20x20));
 	Style->Set("DiffHelper.Directory", new IMAGE_BRUSH_SVG(TEXT("DirectoryIcon"), Icon20x20));
 	Style->Set("DiffHelper.Directory.Small", new IMAGE_BRUSH_SVG(TEXT("DirectoryIcon"), Icon16x16));
+	Style->Set("DiffHelper.ExpandAll", new IMAGE_BRUSH_SVG(TEXT("ExpandAll"), Icon20x20));
+	Style->Set("DiffHelper.CollapseAll", new IMAGE_BRUSH_SVG(TEXT("CollapseAll"), Icon20x20));
 
 	// Arrows
 	Style->Set("DiffHelper.ArrowUp", new IMAGE_BRUSH_SVG(TEXT("ArrowUp"), Icon20x20));
@@ -83,18 +85,42 @@ void FDiffHelperStyle::SetStyles(TSharedRef<FSlateStyleSet> Style)
 	Style->Set("DiffHelper.HorizontalOutwardArrow", new IMAGE_BRUSH_SVG(TEXT("HorizontalOutwardArrow"), Icon20x20));
 
 	// Buttons
-	FButtonStyle CommitPanelToolbarButton = FAppStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
-	CommitPanelToolbarButton.SetNormalPadding(FMargin(2.f, 2.f, 2.f, 2.f));
-	CommitPanelToolbarButton.SetPressedPadding(FMargin(2.f, 3.f, 2.f, 1.f));
+	FButtonStyle CommonToolbarButton = FAppStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
+	CommonToolbarButton.SetNormalPadding(FMargin(2.f, 2.f, 2.f, 2.f));
+	CommonToolbarButton.SetPressedPadding(FMargin(2.f, 3.f, 2.f, 1.f));
 
-	Style->Set("CommitPanelToolbarButton", CommitPanelToolbarButton);
+	Style->Set("CommonToolbarButton", CommonToolbarButton);
 
-	// Toolbars
-	FToolBarStyle CommitPanelToolbar = FAppStyle::Get().GetWidgetStyle<FToolBarStyle>("ToolBar");
-	CommitPanelToolbar.SetButtonStyle(CommitPanelToolbarButton);
-	CommitPanelToolbar.SetShowLabels(false);
+	// Checkboxes
+	// TODO: Use Starship Suite to create toggle button style
+	// FCheckBoxStyle CommonCheckbox = FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("CheckBox");
+	// FCheckBoxStyle CommonCheckbox = FAppStyle::GetWidgetStyle<FToolBarStyle>("EditorViewportToolBar").ToggleButton;
+
+	FCheckBoxStyle CommonCheckbox = 
+		FCheckBoxStyle()
+		.SetUncheckedImage(*Style->GetBrush("DiffHelper.Directory"))
+		.SetUncheckedPressedImage(*Style->GetBrush("DiffHelper.Directory"))
+		.SetUncheckedHoveredImage(*Style->GetBrush("DiffHelper.Directory"))
+		.SetCheckedImage(*Style->GetBrush("DiffHelper.Directory"))
+		.SetCheckedHoveredImage(*Style->GetBrush("DiffHelper.Directory"))
+		.SetCheckedPressedImage(*Style->GetBrush("DiffHelper.Directory"))
+		.SetForegroundColor(FStyleColors::Foreground)
+		.SetPressedForegroundColor(FStyleColors::ForegroundHover)
+		.SetHoveredForegroundColor(FStyleColors::ForegroundHover)
+		.SetCheckedForegroundColor(FStyleColors::Foreground)
+		.SetCheckedPressedForegroundColor(FStyleColors::ForegroundHover)
+		.SetCheckedHoveredForegroundColor(FStyleColors::ForegroundHover)
+		.SetPadding(FMargin(2.f));
 	
-	Style->Set("CommitPanelToolbar", CommitPanelToolbar);
+	Style->Set("CommonCheckbox", CommonCheckbox);
+	
+	// Toolbars
+	FToolBarStyle CommonToolbar = FAppStyle::Get().GetWidgetStyle<FToolBarStyle>("ToolBar");
+	CommonToolbar.SetButtonStyle(CommonToolbarButton);
+	CommonToolbar.SetToggleButtonStyle(CommonCheckbox);
+	CommonToolbar.SetShowLabels(false);
+	
+	Style->Set("CommonToolbar", CommonToolbar);
 
 	// Diff panel tree item
 	Style->Set("DiffHelper.Highlight", new FSlateColorBrush(FLinearColor(0.259f, 0.541f, 0.067f, 0.3f)));
