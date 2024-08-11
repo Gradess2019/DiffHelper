@@ -41,6 +41,7 @@ protected:
 	EColumnSortMode::Type GetSortMode() const;
 	int GetWidgetIndex() const;
 
+	void OnModelUpdated();
 	void OnSearchTextChanged(const FText& InText);
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
 	void OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> InSelectedItem, ESelectInfo::Type InSelectType);

@@ -59,16 +59,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
-				.Padding(0.f)
-				[
-					SNew(STextBlock)
-					.Justification(ETextJustify::Center)
-					.Text(LOCTEXT("DiffPanelTitle", "Diff List"))
-				]
-				+ SVerticalBox::Slot()
 				.HAlign(HAlign_Fill)
 				.AutoHeight()
-				.Padding(4.f)
 				[
 					SNew(SBorder)
 					.Padding(0)
@@ -80,7 +72,6 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				.HAlign(HAlign_Fill)
 				.AutoHeight()
-				.Padding(4.f)
 				[
 					SAssignNew(SearchBox, SSearchBox)
 					.HintText(LOCTEXT("SearchBoxHint", "Search the files"))
@@ -103,6 +94,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	Controller->OnModelUpdated().AddRaw(this, &SDiffHelperDiffPanel::OnModelUpdated);
 }
 
 EColumnSortMode::Type SDiffHelperDiffPanel::GetSortMode() const
@@ -113,6 +106,12 @@ EColumnSortMode::Type SDiffHelperDiffPanel::GetSortMode() const
 int SDiffHelperDiffPanel::GetWidgetIndex() const
 {
 	return Model.IsValid() ? Model->DiffPanelData.CurrentWidgetIndex : 0;
+}
+
+void SDiffHelperDiffPanel::OnModelUpdated()
+{
+	DiffList->RequestListRefresh();
+	DiffTree->RequestTreeRefresh();
 }
 
 void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)
