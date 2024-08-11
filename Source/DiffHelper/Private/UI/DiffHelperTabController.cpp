@@ -28,6 +28,7 @@ void UDiffHelperTabController::Init()
 		LoadCachedBranches();
 	}
 
+	BindDiffPanelCommands();
 	BindCommitPanelCommands();
 }
 
@@ -105,6 +106,7 @@ void UDiffHelperTabController::CollectDiff()
 	UDiffHelperUtils::SortDiffTree(Model->DiffPanelData.SortMode, Model->DiffPanelData.TreeDiff);
 
 	Model->DiffPanelData.SearchFilter = MakeShared<TTextFilter<const FDiffHelperDiffItem&>>(TTextFilter<const FDiffHelperDiffItem&>::FItemToStringArray::CreateUObject(this, &UDiffHelperTabController::PopulateFilterSearchString));
+	Model->DiffPanelData.SearchFilter->OnChanged().AddUObject(this, &UDiffHelperTabController::OnFilterChanged);
 }
 
 void UDiffHelperTabController::DiffAsset(const FString& InPath, const FDiffHelperCommit& InFirstRevision, const FDiffHelperCommit& InSecondRevision) const
@@ -194,6 +196,29 @@ void UDiffHelperTabController::SetSelectedCommits(const TArray<TSharedPtr<FDiffH
 	Model->CommitPanelData.SelectedCommits = InCommits;
 }
 
+void UDiffHelperTabController::BindDiffPanelCommands()
+{
+	const auto& Commands = FDiffHelperCommands::Get();
+	auto& DiffPanelCommands = Model->DiffPanelData.Commands = MakeShared<FUICommandList>();
+
+	DiffPanelCommands->MapAction(
+		Commands.GroupByDirectory,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ToggleGroupByDirectory)
+	);
+
+	DiffPanelCommands->MapAction(
+		Commands.ExpandAll,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ExpandAll),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
+	);
+
+	DiffPanelCommands->MapAction(
+		Commands.CollapseAll,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::CollapseAll),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
+	);
+}
+
 void UDiffHelperTabController::BindCommitPanelCommands()
 {
 	const auto& Commands = FDiffHelperCommands::Get();
@@ -239,6 +264,31 @@ void UDiffHelperTabController::BindCommitPanelCommands()
 FDiffHelperSimpleDelegate& UDiffHelperTabController::OnModelUpdated() const
 {
 	return Model->OnModelUpdated_Raw;
+}
+
+void UDiffHelperTabController::ToggleGroupByDirectory()
+{
+	auto& Data = Model->DiffPanelData;
+	Data.CurrentWidgetIndex = Data.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::ListWidgetIndex ? SDiffHelperDiffPanelConstants::TreeWidgetIndex : SDiffHelperDiffPanelConstants::ListWidgetIndex;
+
+	CallModelUpdated();
+}
+
+void UDiffHelperTabController::ExpandAll()
+{
+	UDiffHelperUtils::ExpandAll(Model->DiffPanelData.TreeDiff);
+	CallModelUpdated();
+}
+
+void UDiffHelperTabController::CollapseAll()
+{
+	UDiffHelperUtils::CollapseAll(Model->DiffPanelData.TreeDiff);
+	CallModelUpdated();
+}
+
+bool UDiffHelperTabController::IsTreeView()
+{
+	return Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::TreeWidgetIndex;
 }
 
 void UDiffHelperTabController::ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const
@@ -352,17 +402,13 @@ int32 UDiffHelperTabController::GetCommitIndex(const FDiffHelperCommit& InCommit
 	});
 }
 
-void UDiffHelperTabController::UpdateItemsData()
+void UDiffHelperTabController::OnFilterChanged()
 {
-	// TODO: Estimate performance of this method.
 	auto& Data = Model->DiffPanelData;
 	Data.FilteredDiff = Data.OriginalDiff;
 	
 	UDiffHelperUtils::FilterListItems(Data.SearchFilter, Data.FilteredDiff);
-
-	const auto OldTreeDiff = Data.TreeDiff;
 	Data.TreeDiff = UDiffHelperUtils::ConvertListToTree(Data.FilteredDiff);
-	UDiffHelperUtils::CopyExpandedState(OldTreeDiff, Data.TreeDiff);
 
 	UDiffHelperUtils::SortDiffList(Data.SortMode, Data.FilteredDiff);
 	UDiffHelperUtils::SortDiffTree(Data.SortMode, Data.TreeDiff);

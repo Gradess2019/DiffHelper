@@ -52,17 +52,22 @@ public:
 	void CallModelUpdated() const;
 
 public:
-	void UpdateItemsData();
-	
 	void SetSearchFilter(const FText& InText) const;
 	void SetSortingMode(const FName& InColumnId, EColumnSortMode::Type InSortMode) const;
 	void SetActiveWidgetIndex(const int32& InIndex) const;
 
 	void SetSelectedCommits(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits) const;
 
+	void BindDiffPanelCommands();
 	void BindCommitPanelCommands();
 
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
+
+	void ToggleGroupByDirectory();
+	void ExpandAll();
+	void CollapseAll();
+	
+	bool IsTreeView();
 
 	void ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const;
 	void DiffAgainstTarget();
@@ -80,5 +85,6 @@ public:
 	int32 GetCommitIndex(const FDiffHelperCommit& InCommit) const;
 
 private:
+	void OnFilterChanged();
 	void PopulateFilterSearchString(const FDiffHelperDiffItem& InItem, TArray<FString>& OutStrings) const;
 };

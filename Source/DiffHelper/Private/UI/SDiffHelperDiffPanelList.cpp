@@ -34,6 +34,8 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 			.OnSort(InArgs._OnSortModeChanged)
 		)
 	);
+
+	Model->DiffPanelData.SearchFilter->OnChanged().AddSP(this, &SListView::RequestListRefresh);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

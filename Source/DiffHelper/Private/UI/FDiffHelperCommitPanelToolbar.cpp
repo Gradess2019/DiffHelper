@@ -12,7 +12,7 @@ void FDiffHelperCommitPanelToolbar::RegisterMenu()
 	
 	UToolMenu* Menu = UToolMenus::Get()->RegisterMenu("DiffHelper.CommitPanel.Toolbar", NAME_None, EMultiBoxType::ToolBar);
 	Menu->SetStyleSet(&FDiffHelperStyle::Get());
-	Menu->StyleName = "CommitPanelToolbar";
+	Menu->StyleName = "CommonToolbar";
 	
 	FToolMenuSection& Section = Menu->AddSection("Content");
 
