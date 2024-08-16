@@ -110,7 +110,7 @@ TSharedPtr<FDiffHelperItemNode> UDiffHelperUtils::PopulateTree(const TArray<TSha
 
 		for (const auto& PathComponent : PathComponents)
 		{
-			CurrentPath = CurrentPath + "/" + PathComponent;
+			CurrentPath = FPaths::Combine(CurrentPath, PathComponent);
 
 			TSharedPtr<FDiffHelperItemNode> NodeChild;
 			for (const auto& ExistingNodeChild : CurrentNode->Children)
@@ -201,6 +201,49 @@ TMap<FString, TSharedPtr<FDiffHelperItemNode>> UDiffHelperUtils::GetDirectories(
 	}
 
 	return OutMap;
+}
+
+TSharedPtr<FDiffHelperItemNode> UDiffHelperUtils::FindItemInTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems, const TSharedPtr<FDiffHelperItemNode>& InItem)
+{
+	if (!InItem.IsValid())
+	{
+		return nullptr;
+	}
+	
+	return FindItemInTree(InItems, InItem->Path);
+}
+
+TSharedPtr<FDiffHelperItemNode> UDiffHelperUtils::FindItemInTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems, const FString& InPath)
+{
+	if (InPath.IsEmpty())
+	{
+		return nullptr;
+	}
+
+	TQueue<TSharedPtr<FDiffHelperItemNode>> Queue;
+
+	auto EnqueueArray = [&Queue](const TArray<TSharedPtr<FDiffHelperItemNode>>& InArray)
+	{
+		for (const auto& Node : InArray)
+		{
+			Queue.Enqueue(Node);
+		}
+	};
+	EnqueueArray(InItems);
+	
+	while (!Queue.IsEmpty())
+	{
+		TSharedPtr<FDiffHelperItemNode> Node;
+		Queue.Dequeue(Node);
+		if (Node->Path.Equals(InPath))
+		{
+			return Node;
+		}
+
+		EnqueueArray(Node->Children);
+	}
+
+	return nullptr;
 }
 
 void UDiffHelperUtils::CopyExpandedState(const TArray<TSharedPtr<FDiffHelperItemNode>>& InSource, TArray<TSharedPtr<FDiffHelperItemNode>>& InTarget)

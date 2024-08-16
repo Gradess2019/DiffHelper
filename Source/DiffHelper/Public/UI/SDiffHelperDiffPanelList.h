@@ -14,6 +14,9 @@ struct FDiffHelperItemNode;
 class DIFFHELPER_API SDiffHelperDiffPanelList : public SListView<TSharedPtr<FDiffHelperItemNode>>
 {
 public:
+	DECLARE_DELEGATE_RetVal_OneParam(bool, FCanBroadcastSelectionChanged, const TSharedPtr<SListView>&);
+	
+public:
 	SLATE_BEGIN_ARGS(SDiffHelperDiffPanelList)
 		: _Controller(nullptr)
 		{
@@ -27,6 +30,7 @@ public:
 		SLATE_EVENT(FOnGenerateRow, OnGenerateRow)
 		SLATE_EVENT(FOnSortModeChanged, OnSortModeChanged)
 		SLATE_EVENT(FOnContextMenuOpening, OnContextMenuOpening)
+		SLATE_EVENT(FCanBroadcastSelectionChanged, CanBroadcastSelectionChanged)
 
 	SLATE_END_ARGS()
 
@@ -34,10 +38,12 @@ private:
 	TWeakObjectPtr<UDiffHelperTabController> Controller;
 	TWeakObjectPtr<const UDiffHelperTabModel> Model;
 
+	FCanBroadcastSelectionChanged CanBroadcastSelectionChanged;
+
 	
 public:
 	void Construct(const FArguments& InArgs);
 
-private:
-	EColumnSortMode::Type GetSortMode() const;
+protected:
+	virtual void Private_SignalSelectionChanged(ESelectInfo::Type SelectInfo) override;
 };

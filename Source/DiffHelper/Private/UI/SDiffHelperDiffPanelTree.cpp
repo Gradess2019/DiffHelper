@@ -18,6 +18,8 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 {
 	Controller = InArgs._Controller;
 	if (!ensure(Controller.IsValid())) { return; }
+
+	CanBroadcastSelectionChanged = InArgs._CanBroadcastSelectionChanged;
 	
 	STreeView::Construct(
 		STreeView<TSharedPtr<FDiffHelperItemNode>>::FArguments()
@@ -62,6 +64,14 @@ void SDiffHelperDiffPanelTree::Tick(const FGeometry& AllottedGeometry, const dou
 		{
 			SetItemExpansion(NewDirectory.Value, NewDirectory.Value->bExpanded);
 		}
+	}
+}
+
+void SDiffHelperDiffPanelTree::Private_SignalSelectionChanged(ESelectInfo::Type SelectInfo)
+{
+	if (!CanBroadcastSelectionChanged.IsBound() || CanBroadcastSelectionChanged.Execute(SharedThis(this)))
+	{
+		STreeView::Private_SignalSelectionChanged(SelectInfo);
 	}
 }
 

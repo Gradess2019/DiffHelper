@@ -41,12 +41,13 @@ protected:
 	EColumnSortMode::Type GetSortMode() const;
 	int GetWidgetIndex() const;
 
-	void OnModelUpdated();
+	void SyncSelection();
+
 	void OnSearchTextChanged(const FText& InText);
 	void OnSortColumn(EColumnSortPriority::Type InPriority, const FName& InColumnId, EColumnSortMode::Type InSortMode);
 	void OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> InSelectedItem, ESelectInfo::Type InSelectType);
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FDiffHelperItemNode> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
-	void OnGroupingStateChanged(ECheckBoxState CheckBoxState);
 	TSharedPtr<SWidget> OnContextMenuOpening();
+	bool CanBroadcastSelectionChanged(const TSharedPtr<SListView<TSharedPtr<FDiffHelperItemNode>>>& ListView);
 	
 };
