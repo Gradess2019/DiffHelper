@@ -36,5 +36,5 @@ void UDiffHelperCacheManager::Cache()
 
 FString UDiffHelperCacheManager::GetConfigPath() const
 {
-	return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("DiffHelperCache.ini"));
+	return FConfigCacheIni::NormalizeConfigIniPath(FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("DiffHelperCache.ini")));
 }
