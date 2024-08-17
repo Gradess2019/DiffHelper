@@ -35,7 +35,12 @@ void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef
 	if (StatusInCommit)
 	{
 		const auto* Settings = GetDefault<UDiffHelperSettings>();
+
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 4
 		const auto& StatusColor = Settings->StatusColors.FindRef(StatusInCommit->Status, FLinearColor::White);
+#else
+		const auto& StatusColor = Settings->StatusColors.Contains(StatusInCommit->Status) ? Settings->StatusColors[StatusInCommit->Status] : FLinearColor::White;
+#endif
 		
 		SetForegroundColor(StatusColor);
 	}

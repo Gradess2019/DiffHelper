@@ -9,7 +9,7 @@
 #include "ISourceControlModule.h"
 #include "ISourceControlProvider.h"
 #include "SourceControlHelpers.h"
-#include "SourceControlOperations.h"
+#include "Algo/Accumulate.h"
 #include "RevisionControlStyle/RevisionControlStyle.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelperGitManager"
@@ -135,7 +135,12 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 	{
 		FDiffHelperDiffItem DiffItem;
 		DiffItem.Path = Pair.Key;
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 4
 		DiffItem.Status = Statuses.FindRef(DiffItem.Path, EDiffHelperFileStatus::None);
+#else
+		DiffItem.Status = Statuses.Contains(DiffItem.Path) ? Statuses.FindRef(DiffItem.Path) : EDiffHelperFileStatus::None;
+#endif
+		
 
 		if (DiffItem.Status == EDiffHelperFileStatus::None)
 		{
