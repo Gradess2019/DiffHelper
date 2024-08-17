@@ -129,10 +129,9 @@ void SDiffHelperDiffPanel::SyncSelection()
 			if (TreeNode.IsValid())
 			{
 				DiffTree->SetSelection(TreeNode);
-				DiffTree->SetItemExpansion(TreeNode, true);
+				DiffTree->SetExpansionRecursiveReverse(TreeNode, true);
 			}
 		}
-		
 	}
 }
 

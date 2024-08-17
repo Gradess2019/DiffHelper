@@ -44,8 +44,11 @@ private:
 
 public:
 	void Construct(const FArguments& InArgs);
+	
 	virtual void RequestListRefresh() override;
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
+	void SetExpansionRecursiveReverse(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand);
 
 
 protected:
