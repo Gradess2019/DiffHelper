@@ -4,6 +4,7 @@
 #include "DiffHelperGitManager.h"
 #include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
+#include "DiffHelperUtils.h"
 #include "EditorAssetLibrary.h"
 #include "ISourceControlModule.h"
 #include "ISourceControlProvider.h"
@@ -40,7 +41,7 @@ FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 
 	if (!ExecuteCommand(Command, {}, {}, Results, Errors))
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get current branch: %s"), *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get current branch: %s"), *Errors);
 		return {};
 	}
 
@@ -50,7 +51,7 @@ FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 	Command = TEXT("rev-parse --short HEAD");
 	if (!ExecuteCommand(Command, {}, {}, Results, Errors))
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get current branch revision: %s"), *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get current branch revision: %s"), *Errors);
 		return {};
 	}
 
@@ -66,7 +67,7 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 	const auto& RepositoryRoot = GetRepositoryDirectory();
 	if (!RepositoryRoot.IsSet())
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get repository root!"));
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get repository root!"));
 		return {};
 	}
 
@@ -80,7 +81,7 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 	const auto Result = ExecuteCommand(TEXT("branch"), Params, {}, Results, Errors);
 	if (!Result)
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get branches: %s"), *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get branches: %s"), *Errors);
 		return {};
 	}
 
@@ -145,7 +146,7 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 		if (FPaths::IsUnderDirectory(RelativePath, FPaths::ProjectContentDir()))
 		{
 			FString PackageName;
-			if (FPackageName::TryConvertFilenameToLongPackageName(RelativePath, PackageName))
+			if (FPackageName::TryConvertFilenameToLongPackageName(RelativePath, PackageName) && UDiffHelperUtils::IsUnrealAsset(PackageName))
 			{
 				const auto AssetData = UEditorAssetLibrary::FindAssetData(PackageName);
 				if (AssetData.IsValid())
@@ -179,7 +180,7 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FStrin
 
 	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get diff commits: %s"), *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get diff commits: %s"), *Errors);
 		return {};
 	}
 
@@ -205,7 +206,7 @@ FDiffHelperCommit UDiffHelperGitManager::GetLastCommitForFile(const FString& InF
 
 	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get last commit for file: %s. Error: %s"), *InFilePath, *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get last commit for file: %s. Error: %s"), *InFilePath, *Errors);
 		return {};
 	}
 
@@ -279,7 +280,7 @@ TMap<FString, FDiffHelperCommit> UDiffHelperGitManager::GetLastCommitForFiles(co
 
 	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get last commit for files: %s"), *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get last commit for files: %s"), *Errors);
 		return {};
 	}
 
@@ -349,7 +350,7 @@ TOptional<FString> UDiffHelperGitManager::GetForkPoint(const FDiffHelperBranch& 
 
 	if (!ExecuteCommand(Command, {}, {}, Result, Errors))
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get fork point: %s"), *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get fork point: %s"), *Errors);
 		return TOptional<FString>();
 	}
 
@@ -370,7 +371,7 @@ TMap<FString, EDiffHelperFileStatus> UDiffHelperGitManager::GetStatuses(const FS
 
 	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to get statuses: %s"), *Errors);
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to get statuses: %s"), *Errors);
 		return {};
 	}
 
@@ -602,24 +603,24 @@ bool UDiffHelperGitManager::ExtractFile(const FString& InParameter, const FStrin
 			// Save buffer into temp file
 			if(FFileHelper::SaveArrayToFile(BinaryFileContent, *InDumpFileName))
 			{
-				UE_LOG(LogSourceControl, Log, TEXT("Writed '%s' (%do)"), *InDumpFileName, BinaryFileContent.Num());
+				UE_LOG(LogDiffHelper, Log, TEXT("Writed '%s' (%do)"), *InDumpFileName, BinaryFileContent.Num());
 			}
 			else
 			{
-				UE_LOG(LogSourceControl, Error, TEXT("Could not write %s"), *InDumpFileName);
+				UE_LOG(LogDiffHelper, Error, TEXT("Could not write %s"), *InDumpFileName);
 				ReturnCode = -1;
 			}
 		}
 		else
 		{
-			UE_LOG(LogSourceControl, Error, TEXT("DumpToFile: ReturnCode=%d"), ReturnCode);
+			UE_LOG(LogDiffHelper, Error, TEXT("DumpToFile: ReturnCode=%d"), ReturnCode);
 		}
 
 		FPlatformProcess::CloseProc(ProcessHandle);
 	}
 	else
 	{
-		UE_LOG(LogSourceControl, Error, TEXT("Failed to launch 'git cat-file'"));
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to launch 'git cat-file'"));
 	}
 
 	FPlatformProcess::ClosePipe(PipeRead, PipeWrite);
