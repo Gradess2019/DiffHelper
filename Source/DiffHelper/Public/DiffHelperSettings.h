@@ -27,7 +27,7 @@ public:
 
 #pragma region Git
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
-	FString BranchParserPattern = TEXT("(?:\n*\\s\\s|(?:\\*\\s))(.+?)\\s+(\\w+)");
+	FString BranchParserPattern = TEXT("(?:\n*\\s\\s|(?:\\*\\s))\\(*(.+?)\\s+(?:detached at \\w+\\)\\s)*(\\w+)");
 
 	UPROPERTY(Config, EditAnywhere, Category = "Git")
 	int32 BranchNameGroup = 1;

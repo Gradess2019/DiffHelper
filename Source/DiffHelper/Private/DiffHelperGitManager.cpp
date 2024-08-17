@@ -80,11 +80,19 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 
 	auto Branches = ParseBranches(Results);
 
-	// Auxiliary branch for the current state
-	FDiffHelperBranch Local;
-	Local.Name = TEXT("HEAD");
-	Local.Revision = TEXT("HEAD");
-	Branches.Insert(Local, 0);
+	// Auxiliary branch for the current commited state
+	FDiffHelperBranch HeadBranch;
+	HeadBranch.Name = TEXT("HEAD");
+	HeadBranch.Revision = TEXT("HEAD");
+
+	if (Branches.Num() > 0 && Branches[0].Name.Equals(HeadBranch.Name))
+	{
+		Branches[0] = HeadBranch;
+	}
+	else
+	{
+		Branches.Insert(HeadBranch, 0);
+	}
 	
 	return Branches;
 }
