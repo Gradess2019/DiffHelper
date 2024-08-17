@@ -141,6 +141,7 @@ struct FDiffHelperDiffPanelData
 	GENERATED_BODY()
 
 	FDiffHelperSimpleDelegate OnPreWidgetIndexChanged;
+	FDiffHelperSimpleDelegate OnTreeDiffExpansionUpdated;
 
 	int32 CurrentWidgetIndex = 0;
 	

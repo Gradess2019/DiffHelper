@@ -75,6 +75,7 @@ public:
 
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
 	FDiffHelperSimpleDelegate& OnPreWidgetIndexChanged() const;
+	FDiffHelperSimpleDelegate& OnTreeDiffExpansionUpdated() const;
 
 private:
 	int32 GetCommitIndex(const FDiffHelperCommit& InCommit) const;
