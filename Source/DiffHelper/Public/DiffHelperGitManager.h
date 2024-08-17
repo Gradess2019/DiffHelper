@@ -40,12 +40,15 @@ public:
 	UFUNCTION()
 	virtual TArray<FDiffHelperCommit> GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const override;
 
+	// This is a slow operation, use it sparingly
 	UFUNCTION()
 	virtual FDiffHelperCommit GetLastCommitForFile(const FString& InFilePath, const FString& InBranch) const override;
 
 	virtual FSlateIcon GetStatusIcon(const EDiffHelperFileStatus InStatus) const override;
 	virtual TOptional<FString> GetFile(const FString& InFilename, const FString& InRevision) const override;
 #pragma endregion IDiffHelperManager
+
+	TMap<FString, FDiffHelperCommit> GetLastCommitForFiles(const TArray<FString>& InFilePaths, const FString& InBranch) const;
 
 protected:
 	UFUNCTION()

@@ -55,6 +55,12 @@ bool UDiffHelperUtils::IsDiffAvailable(const TArray<TSharedPtr<FDiffHelperCommit
 	return true;
 }
 
+bool UDiffHelperUtils::IsUnrealAsset(const FString& InPackageName)
+{
+	const auto PackageExtension = FPackagePath::ParseExtension(InPackageName);
+	return PackageExtension != EPackageExtension::Custom && PackageExtension != EPackageExtension::Unspecified;
+}
+
 int32 UDiffHelperUtils::GetItemNodeFilesCount(const TSharedPtr<FDiffHelperItemNode>& InItem)
 {
 	const auto& Children = InItem->Children;

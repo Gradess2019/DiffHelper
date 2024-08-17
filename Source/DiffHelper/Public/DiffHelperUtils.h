@@ -51,6 +51,7 @@ public:
 public:
 	static bool IsDiffAvailable(const TSharedPtr<FDiffHelperCommit>& InCommit, const FString& InPath);
 	static bool IsDiffAvailable(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath);
+	static bool IsUnrealAsset(const FString& InPackageName);
 
 	static int32 GetItemNodeFilesCount(const TSharedPtr<FDiffHelperItemNode>& InItem);
 	
