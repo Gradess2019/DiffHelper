@@ -15,6 +15,8 @@
 
 bool UDiffHelperGitManager::Init()
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_Init, FColor::Red);
+	
 	AddToRoot();
 	LoadGitBinaryPath();
 
@@ -28,6 +30,8 @@ void UDiffHelperGitManager::Deinit()
 
 FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetCurrentBranch, FColor::Red);
+	
 	FDiffHelperBranch CurrentBranch;
 
 	FString Command = TEXT("rev-parse --abbrev-ref HEAD");
@@ -57,6 +61,8 @@ FDiffHelperBranch UDiffHelperGitManager::GetCurrentBranch() const
 
 TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetBranches, FColor::Red);
+	
 	const auto& RepositoryRoot = GetRepositoryDirectory();
 	if (!RepositoryRoot.IsSet())
 	{
@@ -99,6 +105,8 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::GetBranches() const
 
 TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetDiff, FColor::Red);
+	
 	const auto Commits = GetDiffCommitsList(InSourceRevision, InTargetRevision);
 
 	TMap<FString, TArray<FDiffHelperCommit>> ChangedFiles;
@@ -116,7 +124,11 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 	}
 
 	const auto& Statuses = GetStatuses(InSourceRevision, InTargetRevision);
-	
+
+	TArray<FString> Files;
+	ChangedFiles.GetKeys(Files);
+	const auto LastCommits = GetLastCommitForFiles(Files, InTargetRevision);
+
 	TArray<FDiffHelperDiffItem> DiffItems;
 	for (const auto& Pair : ChangedFiles)
 	{
@@ -143,7 +155,7 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 			}
 		}
 
-		DiffItem.LastTargetCommit = GetLastCommitForFile(DiffItem.Path, InTargetRevision);
+		DiffItem.LastTargetCommit = LastCommits.FindRef(DiffItem.Path);
 		DiffItem.Commits = Pair.Value;
 		DiffItems.Add(DiffItem);
 	}
@@ -153,6 +165,8 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 
 TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const
 {
+	SCOPED_NAMED_EVENT(FDiffHelperGitManager_GetDiffCommitsList, FColor::Red);
+	
 	const FString Command = TEXT("log");
 	FString Result;
 	FString Errors;
@@ -175,6 +189,8 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::GetDiffCommitsList(const FStrin
 
 FDiffHelperCommit UDiffHelperGitManager::GetLastCommitForFile(const FString& InFilePath, const FString& InBranch) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetLastCommitForFile, FColor::Red);
+	
 	const FString Command = TEXT("log");
 	FString Result;
 	FString Errors;
@@ -213,6 +229,8 @@ FSlateIcon UDiffHelperGitManager::GetStatusIcon(const EDiffHelperFileStatus InSt
 
 TOptional<FString> UDiffHelperGitManager::GetFile(const FString& InFilename, const FString& InRevision) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetFile, FColor::Red);
+	
 	IFileManager::Get().MakeDirectory(*FPaths::DiffDir(), true);
 	const FString TempFileName = FString::Printf(TEXT("%stemp-%s-%s"), *FPaths::DiffDir(), *InRevision, *FPaths::GetCleanFilename(InFilename));
 	TOptional<FString> FilePath = FPaths::ConvertRelativePathToFull(TempFileName);
@@ -236,8 +254,57 @@ TOptional<FString> UDiffHelperGitManager::GetFile(const FString& InFilename, con
 	return bCommandSuccessful ? FilePath : TOptional<FString>();
 }
 
+TMap<FString, FDiffHelperCommit> UDiffHelperGitManager::GetLastCommitForFiles(const TArray<FString>& InFilePaths, const FString& InBranch) const
+{
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetLastCommitForFiles, FColor::Red);
+	
+	const FString Command = TEXT("log");
+	FString Result;
+	FString Errors;
+
+	TArray<FString> Params;
+	Params.Add(InBranch);
+	Params.Add(TEXT("--pretty=format:\"<Hash:%h> <Message:%s> <Author:%an> <Date:%ad>\""));
+	Params.Add(TEXT("--date=format-local:\"%d/%m/%Y %H:%M\""));
+	Params.Add(TEXT("--name-status"));
+
+	const auto FileList = Algo::Accumulate(InFilePaths, FString("-- "), [](FString Accumulator, const FString& FilePath)
+	{
+		Accumulator += FilePath;
+		Accumulator += TEXT(" ");
+		return Accumulator;
+	});
+
+	Params.Add(FileList);
+
+	if (!ExecuteCommand(Command, Params, {}, Result, Errors))
+	{
+		UE_LOG(LogSourceControl, Error, TEXT("Failed to get last commit for files: %s"), *Errors);
+		return {};
+	}
+
+	TMap<FString, FDiffHelperCommit> LastCommits;
+	TArray<FDiffHelperCommit> Commits = ParseCommits(Result);
+	for (const auto& Commit : Commits)
+	{
+		for (const auto& File : Commit.Files)
+		{
+			if (LastCommits.Contains(File.Path))
+			{
+				continue;
+			}
+
+			LastCommits.Add(File.Path, Commit);
+		}
+	}
+	
+	return LastCommits;
+}
+
 void UDiffHelperGitManager::LoadGitBinaryPath()
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_LoadGitBinaryPath, FColor::Red);
+	
 	FScopeLock ScopeLock(&CriticalSection);
 
 	static const FString SettingsSection = TEXT("GitSourceControl.GitSourceControlSettings");
@@ -254,6 +321,8 @@ TOptional<FString> UDiffHelperGitManager::GetRepositoryDirectory() const
 
 bool UDiffHelperGitManager::ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const
 {
+	SCOPED_NAMED_EVENT_F(TEXT("UDiffHelperGitManager_ExecuteCommand: %s"), FColor::Red, *InCommand);
+	
 	const auto RepositoryRoot = GetRepositoryDirectory().GetValue();
 
 	int32 ReturnCode = -1;
@@ -272,6 +341,8 @@ bool UDiffHelperGitManager::ExecuteCommand(const FString& InCommand, const TArra
 
 TOptional<FString> UDiffHelperGitManager::GetForkPoint(const FDiffHelperBranch& InSourceBranch, const FDiffHelperBranch& InTargetBranch) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetForkPoint, FColor::Red);
+	
 	const auto Command = FString::Printf(TEXT("rev-parse --short \"$(git rev-list %s ^%s | tail -n 1)^\""), *InSourceBranch.Name, *InTargetBranch.Name);
 	FString Result;
 	FString Errors;
@@ -287,6 +358,8 @@ TOptional<FString> UDiffHelperGitManager::GetForkPoint(const FDiffHelperBranch& 
 
 TMap<FString, EDiffHelperFileStatus> UDiffHelperGitManager::GetStatuses(const FString& InSourceRevision, const FString& InTargetRevision) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_GetStatuses, FColor::Red);
+	
 	const auto Command = TEXT("diff");
 	FString Result;
 	FString Errors;
@@ -319,6 +392,8 @@ TMap<FString, EDiffHelperFileStatus> UDiffHelperGitManager::GetStatuses(const FS
 
 TArray<FDiffHelperBranch> UDiffHelperGitManager::ParseBranches(const FString& InBranches) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_ParseBranches, FColor::Red);
+	
 	const auto* DiffHelperSettings = GetDefault<UDiffHelperSettings>();
 	const auto Pattern = FRegexPattern(DiffHelperSettings->BranchParserPattern);
 	auto Matcher = FRegexMatcher(Pattern, InBranches);
@@ -337,6 +412,8 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::ParseBranches(const FString& In
 
 TArray<FDiffHelperCommit> UDiffHelperGitManager::ParseCommits(const FString& InCommits) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_ParseCommits, FColor::Red);
+	
 	TArray<FDiffHelperCommit> Commits;
 
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
@@ -369,6 +446,8 @@ TArray<FDiffHelperCommit> UDiffHelperGitManager::ParseCommits(const FString& InC
 
 FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_ParseCommit, FColor::Red);
+	
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	const auto Pattern = FRegexPattern(Settings->CommitDataPattern);
 	auto Matcher = FRegexMatcher(Pattern, String);
@@ -390,6 +469,8 @@ FDiffHelperCommit UDiffHelperGitManager::ParseCommit(const FString& String) cons
 
 FDateTime UDiffHelperGitManager::ParseDate(const FString& InDate) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_ParseDate, FColor::Red);
+	
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	const auto Pattern = FRegexPattern(Settings->DatePattern);
 	auto Matcher = FRegexMatcher(Pattern, InDate);
@@ -410,6 +491,8 @@ FDateTime UDiffHelperGitManager::ParseDate(const FString& InDate) const
 
 TArray<FDiffHelperFileData> UDiffHelperGitManager::ParseChangedFiles(const FString& InFiles) const
 {
+	SCOPED_NAMED_EVENT(UDiffHelperGitManager_ParseChangedFiles, FColor::Red);
+	
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	const auto Pattern = FRegexPattern(Settings->ChangedFilePattern);
 	auto Matcher = FRegexMatcher(Pattern, InFiles);
@@ -443,6 +526,8 @@ EDiffHelperFileStatus UDiffHelperGitManager::ConvertFileStatus(const FString& In
 
 bool UDiffHelperGitManager::ExtractFile(const FString& InParameter, const FString& InDumpFileName) const
 {
+	SCOPED_NAMED_EVENT_F(TEXT("UDiffHelperGitManager_ExtractFile: %s"), FColor::Red, *InParameter);
+	
 	// Modified copy of GitSourceControlUtils::RunDumpToFile
 	// TODO: DIFF-24 - cleanup this method
 	int32 ReturnCode = -1;
