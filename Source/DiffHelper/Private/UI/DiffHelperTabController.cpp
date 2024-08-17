@@ -305,9 +305,14 @@ FDiffHelperSimpleDelegate& UDiffHelperTabController::OnPreWidgetIndexChanged() c
 	return Model->DiffPanelData.OnPreWidgetIndexChanged;
 }
 
+FDiffHelperSimpleDelegate& UDiffHelperTabController::OnTreeDiffExpansionUpdated() const
+{
+	return Model->DiffPanelData.OnTreeDiffExpansionUpdated;
+}
+
 void UDiffHelperTabController::ToggleGroupByDirectory()
 {
-	Model->DiffPanelData.OnPreWidgetIndexChanged.Broadcast();
+	OnPreWidgetIndexChanged().Broadcast();
 	
 	auto& Data = Model->DiffPanelData;
 	Data.CurrentWidgetIndex = Data.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::ListWidgetIndex ? SDiffHelperDiffPanelConstants::TreeWidgetIndex : SDiffHelperDiffPanelConstants::ListWidgetIndex;
@@ -318,13 +323,13 @@ void UDiffHelperTabController::ToggleGroupByDirectory()
 void UDiffHelperTabController::ExpandAll()
 {
 	UDiffHelperUtils::ExpandAll(Model->DiffPanelData.TreeDiff);
-	CallModelUpdated();
+	OnTreeDiffExpansionUpdated().Broadcast();
 }
 
 void UDiffHelperTabController::CollapseAll()
 {
 	UDiffHelperUtils::CollapseAll(Model->DiffPanelData.TreeDiff);
-	CallModelUpdated();
+	OnTreeDiffExpansionUpdated().Broadcast();
 }
 
 bool UDiffHelperTabController::IsTreeView()

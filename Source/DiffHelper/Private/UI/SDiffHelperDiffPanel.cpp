@@ -102,6 +102,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 	];
 
 	Controller->OnPreWidgetIndexChanged().AddRaw(this, &SDiffHelperDiffPanel::SyncSelection);
+	Controller->OnTreeDiffExpansionUpdated().AddSP(DiffTree.ToSharedRef(), &SDiffHelperDiffPanelTree::RequestTreeRefresh);
 }
 
 EColumnSortMode::Type SDiffHelperDiffPanel::GetSortMode() const
