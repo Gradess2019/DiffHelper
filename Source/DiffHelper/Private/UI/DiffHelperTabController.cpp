@@ -300,8 +300,15 @@ FDiffHelperSimpleDelegate& UDiffHelperTabController::OnModelUpdated() const
 	return Model->OnModelUpdated_Raw;
 }
 
+FDiffHelperSimpleDelegate& UDiffHelperTabController::OnPreWidgetIndexChanged() const
+{
+	return Model->DiffPanelData.OnPreWidgetIndexChanged;
+}
+
 void UDiffHelperTabController::ToggleGroupByDirectory()
 {
+	Model->DiffPanelData.OnPreWidgetIndexChanged.Broadcast();
+	
 	auto& Data = Model->DiffPanelData;
 	Data.CurrentWidgetIndex = Data.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::ListWidgetIndex ? SDiffHelperDiffPanelConstants::TreeWidgetIndex : SDiffHelperDiffPanelConstants::ListWidgetIndex;
 

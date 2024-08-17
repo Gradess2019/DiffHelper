@@ -8,8 +8,6 @@
 #include "DiffHelperUtils.h"
 #include "SlateOptMacros.h"
 
-#include "UI/SDiffHelperDiffItemContextMenu.h"
-
 #define LOCTEXT_NAMESPACE "DiffPanelTree"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -18,6 +16,8 @@ void SDiffHelperDiffPanelTree::Construct(const FArguments& InArgs)
 {
 	Controller = InArgs._Controller;
 	if (!ensure(Controller.IsValid())) { return; }
+
+	CanBroadcastSelectionChanged = InArgs._CanBroadcastSelectionChanged;
 	
 	STreeView::Construct(
 		STreeView<TSharedPtr<FDiffHelperItemNode>>::FArguments()
@@ -62,6 +62,44 @@ void SDiffHelperDiffPanelTree::Tick(const FGeometry& AllottedGeometry, const dou
 		{
 			SetItemExpansion(NewDirectory.Value, NewDirectory.Value->bExpanded);
 		}
+	}
+}
+
+void SDiffHelperDiffPanelTree::SetExpansionRecursiveReverse(TSharedPtr<FDiffHelperItemNode> InItem, bool bInExpand)
+{
+	SetItemExpansion(InItem, bInExpand);
+	// find all parents of InItem and expand them, using Directories map, where key - path to dir and value - dir node
+	const auto& Directories = UDiffHelperUtils::GetDirectories(GetRootItems());
+
+	const auto& ItemPath = InItem->Path;
+	TArray<FString> PathComponents;
+	ItemPath.ParseIntoArray(PathComponents, TEXT("/"), true);
+
+	for (int32 Id = 0; Id < PathComponents.Num(); Id++)
+	{
+		// ParentPath work like this:
+		// 1 iteration => ParentPath == PathComponents[0]
+		// 2 iteration => ParentPath == PathComponents[0] + "/" + PathComponents[1]
+		// 3 iteration => ParentPath == PathComponents[0] + "/" + PathComponents[1] + "/" + PathComponents[2]
+		FString ParentPath = PathComponents[0];
+		for (int32 SubdirId = 1; SubdirId < Id; SubdirId++)
+		{
+			ParentPath = FPaths::Combine(ParentPath, PathComponents[SubdirId]);
+		}
+
+		if (Directories.Contains(ParentPath))
+		{
+			SetItemExpansion(Directories[ParentPath], bInExpand);
+		}
+	}
+	
+}
+
+void SDiffHelperDiffPanelTree::Private_SignalSelectionChanged(ESelectInfo::Type SelectInfo)
+{
+	if (!CanBroadcastSelectionChanged.IsBound() || CanBroadcastSelectionChanged.Execute(SharedThis(this)))
+	{
+		STreeView::Private_SignalSelectionChanged(SelectInfo);
 	}
 }
 

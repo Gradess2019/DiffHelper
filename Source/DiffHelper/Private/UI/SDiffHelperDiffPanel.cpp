@@ -4,6 +4,7 @@
 #include "UI/SDiffHelperDiffPanel.h"
 #include "DiffHelperStyle.h"
 #include "DiffHelperTypes.h"
+#include "DiffHelperUtils.h"
 #include "UI/DiffHelperTabController.h"
 #include "UI/DiffHelperTabModel.h"
 #include "UI/SDiffHelperDiffPanelList.h"
@@ -36,7 +37,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 		.SortMode(this, &SDiffHelperDiffPanel::GetSortMode)
 		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn)
-		.OnContextMenuOpening(this, &SDiffHelperDiffPanel::OnContextMenuOpening);
+		.OnContextMenuOpening(this, &SDiffHelperDiffPanel::OnContextMenuOpening)
+		.CanBroadcastSelectionChanged(this, &SDiffHelperDiffPanel::CanBroadcastSelectionChanged);
 
 	DiffTree = SNew(SDiffHelperDiffPanelTree)
 		.Controller(Controller)
@@ -44,7 +46,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		.OnGenerateRow(this, &SDiffHelperDiffPanel::OnGenerateRow)
 		.SortMode(this, &SDiffHelperDiffPanel::GetSortMode)
 		.OnSortModeChanged(this, &SDiffHelperDiffPanel::OnSortColumn)
-		.OnContextMenuOpening(this, &SDiffHelperDiffPanel::OnContextMenuOpening);
+		.OnContextMenuOpening(this, &SDiffHelperDiffPanel::OnContextMenuOpening)
+		.CanBroadcastSelectionChanged(this, &SDiffHelperDiffPanel::CanBroadcastSelectionChanged);
 
 	FToolMenuContext MenuContext(Controller->GetDiffPanelCommands());
 
@@ -98,7 +101,7 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 		]
 	];
 
-	Controller->OnModelUpdated().AddRaw(this, &SDiffHelperDiffPanel::OnModelUpdated);
+	Controller->OnPreWidgetIndexChanged().AddRaw(this, &SDiffHelperDiffPanel::SyncSelection);
 }
 
 EColumnSortMode::Type SDiffHelperDiffPanel::GetSortMode() const
@@ -111,10 +114,42 @@ int SDiffHelperDiffPanel::GetWidgetIndex() const
 	return Model.IsValid() ? Model->DiffPanelData.CurrentWidgetIndex : 0;
 }
 
-void SDiffHelperDiffPanel::OnModelUpdated()
+void SDiffHelperDiffPanel::SyncSelection()
 {
-	DiffList->RequestListRefresh();
-	DiffTree->RequestTreeRefresh();
+	if (!Model->SelectedDiffItem.IsValid())
+	{
+		return;
+	}
+
+	if (Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::ListWidgetIndex)
+	{
+		const auto& SelectedItems = DiffList->GetSelectedItems();
+		if (ensure(SelectedItems.Num() > 0))
+		{
+			const auto& TreeNode = UDiffHelperUtils::FindItemInTree(Model->DiffPanelData.TreeDiff, SelectedItems[0]);
+			if (TreeNode.IsValid())
+			{
+				DiffTree->SetSelection(TreeNode);
+				DiffTree->SetExpansionRecursiveReverse(TreeNode, true);
+			}
+		}
+	}
+	else if (Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::TreeWidgetIndex)
+	{
+		const auto& SelectedItems = DiffTree->GetSelectedItems();
+		if (ensure(SelectedItems.Num() > 0))
+		{
+			const auto& ListItem = UDiffHelperUtils::FindItemInTree(Model->DiffPanelData.FilteredDiff, SelectedItems[0]);
+			if (ListItem.IsValid())
+			{
+				DiffList->SetSelection(ListItem);
+			}
+		}
+	}
+	else
+	{
+		checkNoEntry();
+	}
 }
 
 void SDiffHelperDiffPanel::OnSearchTextChanged(const FText& InText)
@@ -172,15 +207,30 @@ TSharedRef<ITableRow> SDiffHelperDiffPanel::OnGenerateRow(TSharedPtr<FDiffHelper
 	return NewRow;
 }
 
-void SDiffHelperDiffPanel::OnGroupingStateChanged(ECheckBoxState CheckBoxState)
-{
-	Controller->SetActiveWidgetIndex(CheckBoxState == ECheckBoxState::Checked ? 1 : 0);
-}
-
 TSharedPtr<SWidget> SDiffHelperDiffPanel::OnContextMenuOpening()
 {
 	return SNew(SDiffHelperDiffItemContextMenu)
 		.Controller(Controller);
+}
+
+bool SDiffHelperDiffPanel::CanBroadcastSelectionChanged(const TSharedPtr<SListView<TSharedPtr<FDiffHelperItemNode>>>& ListView)
+{
+	if (!ListView.IsValid())
+	{
+		return false;
+	}
+
+	const auto& CurrentWidgetId = Model->DiffPanelData.CurrentWidgetIndex;
+	if (ListView == DiffList && CurrentWidgetId == SDiffHelperDiffPanelConstants::ListWidgetIndex)
+	{
+		return true;
+	}
+	else if (ListView == DiffTree && CurrentWidgetId == SDiffHelperDiffPanelConstants::TreeWidgetIndex)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

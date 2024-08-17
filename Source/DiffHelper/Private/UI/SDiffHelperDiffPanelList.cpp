@@ -18,6 +18,8 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 	Model = Controller->GetModel();
 	if (!ensure(Model.IsValid())) { return; }
 
+	CanBroadcastSelectionChanged = InArgs._CanBroadcastSelectionChanged;
+
 	SListView::Construct(
 		SListView::FArguments()
 		.ListItemsSource(&Model->DiffPanelData.FilteredDiff)
@@ -35,6 +37,14 @@ void SDiffHelperDiffPanelList::Construct(const FArguments& InArgs)
 			.OnSort(InArgs._OnSortModeChanged)
 		)
 	);
+}
+
+void SDiffHelperDiffPanelList::Private_SignalSelectionChanged(ESelectInfo::Type SelectInfo)
+{
+	if (!CanBroadcastSelectionChanged.IsBound() || CanBroadcastSelectionChanged.Execute(SharedThis(this)))
+	{
+		SListView::Private_SignalSelectionChanged(SelectInfo);
+	}
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

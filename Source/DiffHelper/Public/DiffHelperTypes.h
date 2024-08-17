@@ -140,6 +140,8 @@ struct FDiffHelperDiffPanelData
 {
 	GENERATED_BODY()
 
+	FDiffHelperSimpleDelegate OnPreWidgetIndexChanged;
+
 	int32 CurrentWidgetIndex = 0;
 	
 	TSharedPtr<TTextFilter<const FDiffHelperDiffItem&>> SearchFilter = nullptr;

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "DiffHelperTypes.h"
-
 #include "UObject/Object.h"
 #include "Misc/IFilter.h"
 #include "DiffHelperUtils.generated.h"
@@ -66,6 +65,9 @@ public:
 
 	static TMap<FString, TSharedPtr<FDiffHelperItemNode>> GetDirectories(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems);
 	static TMap<FString, TSharedPtr<FDiffHelperItemNode>> GetDirectories(const TArrayView<const TSharedPtr<FDiffHelperItemNode>>& InItems);
+
+	static TSharedPtr<FDiffHelperItemNode> FindItemInTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems, const TSharedPtr<FDiffHelperItemNode>& InItem);
+	static TSharedPtr<FDiffHelperItemNode> FindItemInTree(const TArray<TSharedPtr<FDiffHelperItemNode>>& InItems, const FString& InPath);
 
 	static void SortDiffList(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
 	static void SortDiffTree(const EColumnSortMode::Type InSortMode, TArray<TSharedPtr<FDiffHelperItemNode>>& OutArray);
