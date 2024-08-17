@@ -74,6 +74,7 @@ public:
 	void SetSelectedCommits(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits) const;
 
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
+	FDiffHelperSimpleDelegate& OnPreWidgetIndexChanged() const;
 
 private:
 	int32 GetCommitIndex(const FDiffHelperCommit& InCommit) const;

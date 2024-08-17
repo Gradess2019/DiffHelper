@@ -100,6 +100,8 @@ void SDiffHelperDiffPanel::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	Controller->OnPreWidgetIndexChanged().AddRaw(this, &SDiffHelperDiffPanel::SyncSelection);
 }
 
 EColumnSortMode::Type SDiffHelperDiffPanel::GetSortMode() const
@@ -119,8 +121,7 @@ void SDiffHelperDiffPanel::SyncSelection()
 		return;
 	}
 
-	const auto bListSelected = Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::ListWidgetIndex;
-	if (bListSelected)
+	if (Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::ListWidgetIndex)
 	{
 		const auto& SelectedItems = DiffList->GetSelectedItems();
 		if (ensure(SelectedItems.Num() > 0))
@@ -132,6 +133,22 @@ void SDiffHelperDiffPanel::SyncSelection()
 				DiffTree->SetExpansionRecursiveReverse(TreeNode, true);
 			}
 		}
+	}
+	else if (Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::TreeWidgetIndex)
+	{
+		const auto& SelectedItems = DiffTree->GetSelectedItems();
+		if (ensure(SelectedItems.Num() > 0))
+		{
+			const auto& ListItem = UDiffHelperUtils::FindItemInTree(Model->DiffPanelData.FilteredDiff, SelectedItems[0]);
+			if (ListItem.IsValid())
+			{
+				DiffList->SetSelection(ListItem);
+			}
+		}
+	}
+	else
+	{
+		checkNoEntry();
 	}
 }
 
@@ -173,7 +190,6 @@ void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> In
 		Controller->SelectDiffItem(FDiffHelperDiffItem());
 	}
 
-	SyncSelection();
 	Controller->CallModelUpdated();
 }
 
