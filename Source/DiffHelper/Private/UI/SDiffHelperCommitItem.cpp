@@ -22,7 +22,7 @@ void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef
 
 	FSuperRowType::Construct(
 		FSuperRowType::FArguments()
-		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("PropertyTable.TableRow")),
+		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("SceneOutliner.TableViewRow")),
 		InOwnerTable
 	);
 

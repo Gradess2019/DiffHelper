@@ -7,6 +7,7 @@
 
 #include "DiffHelperTypes.h"
 
+// TODO: Delete this class
 class DIFFHELPER_API SDiffHelperDiffFileItem : public SMultiColumnTableRow<TSharedPtr<FDiffHelperDiffItem>>
 {
 public:

@@ -12,6 +12,11 @@
 #include "Algo/Accumulate.h"
 #include "RevisionControlStyle/RevisionControlStyle.h"
 
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION <= 2
+#include "Internationalization/Regex.h"
+#include "Misc/FileHelper.h"
+#endif
+
 #define LOCTEXT_NAMESPACE "DiffHelperGitManager"
 
 bool UDiffHelperGitManager::Init()
@@ -320,9 +325,14 @@ void UDiffHelperGitManager::LoadGitBinaryPath()
 
 TOptional<FString> UDiffHelperGitManager::GetRepositoryDirectory() const
 {
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 	const auto& Provider = ISourceControlModule::Get().GetProvider();
 	const auto Status = Provider.GetStatus();
 	return Status.Contains(ISourceControlProvider::EStatus::Repository) ? TOptional<FString>(Status[ISourceControlProvider::EStatus::Repository]) : TOptional<FString>();
+#else
+	// Repository root is inaccessible in 5.2 and below
+	return TOptional<FString>(FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()));
+#endif
 }
 
 bool UDiffHelperGitManager::ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const
@@ -410,7 +420,14 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::ParseBranches(const FString& In
 		const auto BranchName = Matcher.GetCaptureGroup(DiffHelperSettings->BranchNameGroup);
 		const auto BranchRevision = Matcher.GetCaptureGroup(DiffHelperSettings->BranchRevisionGroup);
 
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 		Branches.Emplace(BranchName, BranchRevision);
+#else
+		FDiffHelperBranch Branch;
+		Branch.Name = BranchName;
+		Branch.Revision = BranchRevision;
+		Branches.Emplace(Branch);
+#endif
 	}
 
 	return Branches;

@@ -69,7 +69,11 @@ void UDiffHelperTabController::CollectDiff()
 	auto Diff = Manager->GetDiff(Model->SourceBranch, Model->TargetBranch);
 	Diff.Sort([](const FDiffHelperDiffItem& A, const FDiffHelperDiffItem& B)
 	{
+#if ENGINE_MAJOR_VERSION > 5 && ENGINE_MINOR_VERSION >= 3
 		return UE::ComparisonUtility::CompareNaturalOrder(A.Path, B.Path) < 0;
+#else
+		return A.Path.Compare(B.Path, ESearchCase::IgnoreCase) < 0;
+#endif
 	});
 
 	Model->Diff = Diff;
@@ -112,9 +116,21 @@ void UDiffHelperTabController::DiffAsset(const FString& InPath, const FDiffHelpe
 	const auto LeftPackagePath = FPackagePath::FromLocalPath(LeftTempFilename.GetValue());
 	const auto RightPackagePath = FPackagePath::FromLocalPath(RightTempFilename.GetValue());
 	const auto OriginalPackagePath = FPackagePath::FromLocalPath(InPath);
-	
+
+#if ENGINE_MAJOR_VERSION > 5 && ENGINE_MINOR_VERSION >= 3
 	const auto LeftDiffPackage = DiffUtils::LoadPackageForDiff(LeftPackagePath, OriginalPackagePath);
 	const auto RightDiffPackage = DiffUtils::LoadPackageForDiff(RightPackagePath, OriginalPackagePath);
+#else
+	UPackage* LeftDiffPackage = LoadPackage(NULL, LeftPackagePath, LOAD_ForDiff | LOAD_DisableCompileOnLoad);
+	UPackage* RightDiffPackage = LoadPackage(NULL, RightPackagePath, LOAD_ForDiff | LOAD_DisableCompileOnLoad);
+
+	if (!LeftDiffPackage || !RightDiffPackage)
+	{
+		UE_LOG(LogDiffHelper, Error, TEXT("Failed to load diff package for %s"), *InPath);
+		return;
+	}
+#endif
+	
 
 	FString AssetName = FPaths::GetBaseFilename(InPath);
 	LeftDiffAsset = FindObject<UObject>(LeftDiffPackage, *AssetName);

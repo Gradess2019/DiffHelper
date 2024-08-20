@@ -56,8 +56,13 @@ void SDiffHelperDiffPanelTree::Tick(const FGeometry& AllottedGeometry, const dou
 	if (!IsPendingRefresh() && NeedRestoreExpansion)
 	{
 		NeedRestoreExpansion = false;
-		
+
+#if ENGINE_MAJOR_VERSION > 5 && ENGINE_MINOR_VERSION >= 3
 		auto NewDirectories = UDiffHelperUtils::GetDirectories(GetRootItems());
+#else
+		auto NewDirectories = UDiffHelperUtils::GetDirectories(GetItems());
+#endif
+		
 		for (const auto& NewDirectory : NewDirectories)
 		{
 			SetItemExpansion(NewDirectory.Value, NewDirectory.Value->bExpanded);
@@ -69,7 +74,11 @@ void SDiffHelperDiffPanelTree::SetExpansionRecursiveReverse(TSharedPtr<FDiffHelp
 {
 	SetItemExpansion(InItem, bInExpand);
 	// find all parents of InItem and expand them, using Directories map, where key - path to dir and value - dir node
+#if ENGINE_MAJOR_VERSION > 5 && ENGINE_MINOR_VERSION >= 3
 	const auto& Directories = UDiffHelperUtils::GetDirectories(GetRootItems());
+#else
+	const auto& Directories = UDiffHelperUtils::GetDirectories(GetItems());
+#endif
 
 	const auto& ItemPath = InItem->Path;
 	TArray<FString> PathComponents;

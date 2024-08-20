@@ -130,7 +130,8 @@ TSharedPtr<FDiffHelperItemNode> UDiffHelperUtils::PopulateTree(const TArray<TSha
 
 			if (!NodeChild.IsValid())
 			{
-				NodeChild = MakeShared<FDiffHelperItemNode>(CurrentPath);
+				NodeChild = MakeShared<FDiffHelperItemNode>();
+				NodeChild->Path = CurrentPath;
 				NodeChild->Name = PathComponent;
 				CurrentNode->Children.Add(NodeChild);
 			}
@@ -277,7 +278,11 @@ void UDiffHelperUtils::SortDiffList(const EColumnSortMode::Type InSortMode, TArr
 {
 	auto SorterByName = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
 	{
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 		return UE::ComparisonUtility::CompareNaturalOrder(A->Name, B->Name) < 0;
+#else
+		return A->Name.Compare(B->Name) < 0;
+#endif
 	};
 
 	// verify array that it has valid data
@@ -293,7 +298,11 @@ void UDiffHelperUtils::SortDiffTree(const EColumnSortMode::Type InSortMode, TArr
 {
 	auto SorterByPath = [](const TSharedPtr<FDiffHelperItemNode>& A, const TSharedPtr<FDiffHelperItemNode>& B)
 	{
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 		return UE::ComparisonUtility::CompareNaturalOrder(A->Path, B->Path) < 0;
+#else
+		return A->Path.Compare(B->Path) < 0;
+#endif
 	};
 
 	Sort(InSortMode, SorterByPath, OutArray);
@@ -356,7 +365,9 @@ void UDiffHelperUtils::ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHe
 		if (!IsDiffAvailable(Commit, InPath))
 		{
 			FMessageDialog::Open(
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 				EAppMsgCategory::Error,
+#endif
 				EAppMsgType::Ok,
 				FText::Format(
 					NSLOCTEXT("DiffHelper", "DiffUnavailable", "Diff is not available for path: {0}\nCommit: {1}\nFile Status: {2}"),

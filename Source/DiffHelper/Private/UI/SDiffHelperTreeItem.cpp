@@ -10,6 +10,10 @@
 #include "SlateOptMacros.h"
 #include "UI/DiffHelperTabModel.h"
 
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION <= 2
+#include "Styling/StyleColors.h"
+#endif
+
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 
