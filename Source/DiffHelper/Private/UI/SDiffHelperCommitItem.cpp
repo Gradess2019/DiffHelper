@@ -20,9 +20,16 @@ void SDiffHelperCommitItem::Construct(const FArguments& InArgs, const TSharedRef
 	Controller = InArgs._Controller;
 	Item = InArgs._Item;
 
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
+	static FName StyleName = "PropertyTable.TableRow";
+#else
+	static FName StyleName = "SceneOutliner.TableViewRow";
+#endif
+	
+
 	FSuperRowType::Construct(
 		FSuperRowType::FArguments()
-		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("SceneOutliner.TableViewRow")),
+		.Style(&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>(StyleName)),
 		InOwnerTable
 	);
 

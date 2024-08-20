@@ -10,11 +10,14 @@
 #include "ISourceControlProvider.h"
 #include "SourceControlHelpers.h"
 #include "Algo/Accumulate.h"
-#include "RevisionControlStyle/RevisionControlStyle.h"
 
 #if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION <= 2
 #include "Internationalization/Regex.h"
 #include "Misc/FileHelper.h"
+#endif
+
+#if ENGINE_MAJOR_VERSION >=5 && ENGINE_MINOR_VERSION >= 2
+#include "RevisionControlStyle/RevisionControlStyle.h"
 #endif
 
 #define LOCTEXT_NAMESPACE "DiffHelperGitManager"
@@ -228,12 +231,21 @@ FSlateIcon UDiffHelperGitManager::GetStatusIcon(const EDiffHelperFileStatus InSt
 {
 	switch (InStatus)
 	{
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 2
 	case EDiffHelperFileStatus::Added: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.OpenForAdd");
 	case EDiffHelperFileStatus::Modified: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.CheckedOut");
 	case EDiffHelperFileStatus::Deleted: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.MarkedForDelete");
 	case EDiffHelperFileStatus::Renamed:
 	case EDiffHelperFileStatus::Copied: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Branched");
 	case EDiffHelperFileStatus::Unmerged: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Conflicted");
+#else
+	case EDiffHelperFileStatus::Added: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Add");
+	case EDiffHelperFileStatus::Modified: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Edit");
+	case EDiffHelperFileStatus::Deleted: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Delete");
+	case EDiffHelperFileStatus::Renamed:
+	case EDiffHelperFileStatus::Copied: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Branch");
+	case EDiffHelperFileStatus::Unmerged: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Integrate");
+#endif
 	default: return FSlateIcon();
 	}
 }
