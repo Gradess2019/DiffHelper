@@ -77,7 +77,7 @@ void SDiffHelperDiffPanelTree::SetExpansionRecursiveReverse(TSharedPtr<FDiffHelp
 {
 	SetItemExpansion(InItem, bInExpand);
 	// find all parents of InItem and expand them, using Directories map, where key - path to dir and value - dir node
-#if ENGINE_MAJOR_VERSION > 5 && ENGINE_MINOR_VERSION >= 3
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 	const auto& Directories = UDiffHelperUtils::GetDirectories(GetRootItems());
 #elif ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 2
 	const auto& Directories = UDiffHelperUtils::GetDirectories(GetItems());

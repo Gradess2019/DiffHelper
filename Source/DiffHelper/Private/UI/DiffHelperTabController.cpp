@@ -69,7 +69,7 @@ void UDiffHelperTabController::CollectDiff()
 	auto Diff = Manager->GetDiff(Model->SourceBranch, Model->TargetBranch);
 	Diff.Sort([](const FDiffHelperDiffItem& A, const FDiffHelperDiffItem& B)
 	{
-#if ENGINE_MAJOR_VERSION > 5 && ENGINE_MINOR_VERSION >= 3
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 		return UE::ComparisonUtility::CompareNaturalOrder(A.Path, B.Path) < 0;
 #else
 		return A.Path.Compare(B.Path, ESearchCase::IgnoreCase) < 0;
@@ -117,7 +117,7 @@ void UDiffHelperTabController::DiffAsset(const FString& InPath, const FDiffHelpe
 	const auto RightPackagePath = FPackagePath::FromLocalPath(RightTempFilename.GetValue());
 	const auto OriginalPackagePath = FPackagePath::FromLocalPath(InPath);
 
-#if ENGINE_MAJOR_VERSION > 5 && ENGINE_MINOR_VERSION >= 3
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 	const auto LeftDiffPackage = DiffUtils::LoadPackageForDiff(LeftPackagePath, OriginalPackagePath);
 	const auto RightDiffPackage = DiffUtils::LoadPackageForDiff(RightPackagePath, OriginalPackagePath);
 #else
