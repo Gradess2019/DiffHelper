@@ -14,7 +14,7 @@ class FMenuBuilder;
 class FDiffHelperModule : public IModuleInterface
 {
 protected:
-	IDiffHelperManager* DiffHelperManager = nullptr;
+	TWeakInterfacePtr<IDiffHelperManager> DiffHelperManager = nullptr;
 	TStrongObjectPtr<UDiffHelperCacheManager> CacheManager;
 	TSharedPtr<SDiffHelperWindow> DiffHelperWindow;
 	
@@ -29,7 +29,7 @@ public:
 
 	static FDiffHelperModule& Get();
 
-	const IDiffHelperManager* GetManager() const { return DiffHelperManager; }
+	TWeakInterfacePtr<IDiffHelperManager> GetManager() const { return DiffHelperManager; }
 	UDiffHelperCacheManager* GetCacheManager() const { return CacheManager.Get(); }
 	
 private:
