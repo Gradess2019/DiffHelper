@@ -10,6 +10,10 @@
 #include "SlateOptMacros.h"
 #include "UI/DiffHelperTabModel.h"
 
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION <= 2
+#include "Styling/StyleColors.h"
+#endif
+
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 
@@ -94,7 +98,13 @@ FSlateColor SDiffHelperTreeItem::GetTextColor() const
 	if (!Item->DiffItem.IsValid()) { return FStyleColors::Foreground; }
 	
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
+
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 4
 	const auto& StatusColor = Settings->StatusColors.FindRef(Item->DiffItem->Status, FLinearColor::White);
+#else
+	const auto& StatusColor = Settings->StatusColors.Contains(Item->DiffItem->Status) ? Settings->StatusColors[Item->DiffItem->Status] : FLinearColor::White;
+#endif
+	
 	return StatusColor;
 }
 

@@ -30,7 +30,11 @@ void SDiffHelperWindow::Construct(const FArguments& InArgs)
 	SWindow::Construct(
 		SWindow::FArguments()
 		.Title(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"))
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 2
 		.ClientSize(FVector2f(800, 600))
+#else
+		.ClientSize(FVector2D(800, 600))
+#endif
 		.MinWidth(300)
 		.MinHeight(200)
 		[

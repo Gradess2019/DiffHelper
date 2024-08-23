@@ -9,8 +9,16 @@
 #include "ISourceControlModule.h"
 #include "ISourceControlProvider.h"
 #include "SourceControlHelpers.h"
-#include "SourceControlOperations.h"
+#include "Algo/Accumulate.h"
+
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION <= 2
+#include "Internationalization/Regex.h"
+#include "Misc/FileHelper.h"
+#endif
+
+#if ENGINE_MAJOR_VERSION >=5 && ENGINE_MINOR_VERSION >= 2
 #include "RevisionControlStyle/RevisionControlStyle.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "DiffHelperGitManager"
 
@@ -135,7 +143,12 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 	{
 		FDiffHelperDiffItem DiffItem;
 		DiffItem.Path = Pair.Key;
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 4
 		DiffItem.Status = Statuses.FindRef(DiffItem.Path, EDiffHelperFileStatus::None);
+#else
+		DiffItem.Status = Statuses.Contains(DiffItem.Path) ? Statuses.FindRef(DiffItem.Path) : EDiffHelperFileStatus::None;
+#endif
+		
 
 		if (DiffItem.Status == EDiffHelperFileStatus::None)
 		{
@@ -218,12 +231,21 @@ FSlateIcon UDiffHelperGitManager::GetStatusIcon(const EDiffHelperFileStatus InSt
 {
 	switch (InStatus)
 	{
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 2
 	case EDiffHelperFileStatus::Added: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.OpenForAdd");
 	case EDiffHelperFileStatus::Modified: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.CheckedOut");
 	case EDiffHelperFileStatus::Deleted: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.MarkedForDelete");
 	case EDiffHelperFileStatus::Renamed:
 	case EDiffHelperFileStatus::Copied: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Branched");
 	case EDiffHelperFileStatus::Unmerged: return FSlateIcon(FRevisionControlStyleManager::GetStyleSetName(), "RevisionControl.Conflicted");
+#else
+	case EDiffHelperFileStatus::Added: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Add");
+	case EDiffHelperFileStatus::Modified: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Edit");
+	case EDiffHelperFileStatus::Deleted: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Delete");
+	case EDiffHelperFileStatus::Renamed:
+	case EDiffHelperFileStatus::Copied: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Branch");
+	case EDiffHelperFileStatus::Unmerged: return FSlateIcon(FAppStyle::GetAppStyleSetName(), "SourceControl.Integrate");
+#endif
 	default: return FSlateIcon();
 	}
 }
@@ -315,9 +337,14 @@ void UDiffHelperGitManager::LoadGitBinaryPath()
 
 TOptional<FString> UDiffHelperGitManager::GetRepositoryDirectory() const
 {
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 	const auto& Provider = ISourceControlModule::Get().GetProvider();
 	const auto Status = Provider.GetStatus();
 	return Status.Contains(ISourceControlProvider::EStatus::Repository) ? TOptional<FString>(Status[ISourceControlProvider::EStatus::Repository]) : TOptional<FString>();
+#else
+	// Repository root is inaccessible in 5.2 and below
+	return TOptional<FString>(FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()));
+#endif
 }
 
 bool UDiffHelperGitManager::ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const
@@ -405,7 +432,14 @@ TArray<FDiffHelperBranch> UDiffHelperGitManager::ParseBranches(const FString& In
 		const auto BranchName = Matcher.GetCaptureGroup(DiffHelperSettings->BranchNameGroup);
 		const auto BranchRevision = Matcher.GetCaptureGroup(DiffHelperSettings->BranchRevisionGroup);
 
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 		Branches.Emplace(BranchName, BranchRevision);
+#else
+		FDiffHelperBranch Branch;
+		Branch.Name = BranchName;
+		Branch.Revision = BranchRevision;
+		Branches.Emplace(Branch);
+#endif
 	}
 
 	return Branches;
