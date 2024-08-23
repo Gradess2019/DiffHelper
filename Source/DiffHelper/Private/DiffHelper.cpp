@@ -21,12 +21,10 @@ static const FName DiffHelperTabName("DiffHelper");
 
 void FDiffHelperModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-
 	FDiffHelperStyle::Initialize();
 	FDiffHelperStyle::ReloadTextures();
 
-	DiffHelperManager = NewObject<UDiffHelperGitManager>();
+	DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
 	DiffHelperManager->Init();
 
 	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
@@ -57,18 +55,14 @@ void FDiffHelperModule::StartupModule()
 
 void FDiffHelperModule::ShutdownModule()
 {
-	// TODO: crash on shutdown
-	if (DiffHelperManager)
+	if (DiffHelperManager.IsValid())
 	{
 		DiffHelperManager->Deinit();
 	}
 
 	UToolMenus::UnRegisterStartupCallback(this);
-
 	UToolMenus::UnregisterOwner(this);
-
 	FDiffHelperStyle::Shutdown();
-
 	FDiffHelperCommands::Unregister();
 }
 

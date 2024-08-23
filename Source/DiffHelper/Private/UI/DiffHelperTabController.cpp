@@ -65,7 +65,7 @@ void UDiffHelperTabController::SelectDiffItem(const FDiffHelperDiffItem& InDiffI
 
 void UDiffHelperTabController::CollectDiff()
 {
-	const auto* Manager = FDiffHelperModule::Get().GetManager();
+	const auto Manager = FDiffHelperModule::Get().GetManager();
 	auto Diff = Manager->GetDiff(Model->SourceBranch, Model->TargetBranch);
 	Diff.Sort([](const FDiffHelperDiffItem& A, const FDiffHelperDiffItem& B)
 	{
@@ -103,7 +103,7 @@ void UDiffHelperTabController::DiffAsset(const FString& InPath, const FDiffHelpe
 	RightVersionInfo.Revision = InSecondRevision.Revision;
 	RightVersionInfo.Date = InSecondRevision.Date;
 
-	const auto* Manager = FDiffHelperModule::Get().GetManager();
+	const auto Manager = FDiffHelperModule::Get().GetManager();
 	const auto LeftTempFilename = Manager->GetFile(InPath, InFirstRevision.Revision);
 	const auto RightTempFilename = Manager->GetFile(InPath, InSecondRevision.Revision);
 
@@ -201,7 +201,7 @@ void UDiffHelperTabController::InitModel()
 	Model = NewObject<UDiffHelperTabModel>(this);
 	Model->OnModelUpdated_Raw.AddWeakLambda(this, [this]() { Model->OnModelUpdated.Broadcast(); });
 
-	const auto* Manager = FDiffHelperModule::Get().GetManager();
+	const auto Manager = FDiffHelperModule::Get().GetManager();
 	Model->Branches = Manager->GetBranches();
 
 	if (UDiffHelperSettings::IsCachingEnabled())
