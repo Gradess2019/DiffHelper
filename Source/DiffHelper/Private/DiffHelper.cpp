@@ -27,9 +27,6 @@ void FDiffHelperModule::StartupModule()
 	FDiffHelperStyle::Initialize();
 	FDiffHelperStyle::ReloadTextures();
 
-	DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
-	DiffHelperManager->Init();
-
 	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
 	CacheManager->Init();
 	
@@ -80,6 +77,13 @@ void FDiffHelperModule::PluginButtonClicked()
 		);
 		
 		return;
+	}
+
+	// TODO: Check revision control was set up properly, if it changed, then manager should be changed as well
+	if (!DiffHelperManager.IsValid())
+	{
+		DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
+		DiffHelperManager->Init();
 	}
 	
 	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
