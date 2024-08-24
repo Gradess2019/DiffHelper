@@ -102,6 +102,15 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
 	FLinearColor ItemHintColor = FLinearColor(0.380, 0.427, 0.443, 0.5);
 
+	UPROPERTY(Config, EditAnywhere, Category = "Notification")
+	bool bUseSuccessFailIcons = true;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Notification")
+	float ErrorExpireDuration = 2.f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Misc")
+	FString UnrealDocURL = TEXT("https://dev.epicgames.com/documentation/en-us/unreal-engine/collaboration-and-version-control-in-unreal-engine");
+
 public:
 	static bool IsCachingEnabled() { return GetDefault<UDiffHelperSettings>()->bEnableCaching; }
 };

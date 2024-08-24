@@ -5,8 +5,11 @@
 #include "DiffHelperStyle.h"
 #include "DiffHelperCommands.h"
 #include "DiffHelperGitManager.h"
+#include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
+#include "DiffHelperUtils.h"
 #include "ILiveCodingModule.h"
+#include "ISourceControlModule.h"
 #include "ToolMenus.h"
 
 #include "UI/FDiffHelperCommitPanelToolbar.h"
@@ -68,6 +71,17 @@ void FDiffHelperModule::ShutdownModule()
 
 void FDiffHelperModule::PluginButtonClicked()
 {
+	if (!ISourceControlModule::Get().IsEnabled())
+	{
+		UDiffHelperUtils::AddErrorNotificationWithLink(
+			LOCTEXT("RevisionControlDisabled", "Revision control is disabled."),
+			LOCTEXT("RevisionControlDisabled_HyperLink", "Open Unreal Documentation"),
+			FSimpleDelegate::CreateLambda([]() { FPlatformProcess::LaunchURL(*GetDefault<UDiffHelperSettings>()->UnrealDocURL, nullptr, nullptr); })
+		);
+		
+		return;
+	}
+	
 	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
 	DiffHelperWindow->GetOnWindowClosedEvent().AddLambda([this](const TSharedRef<SWindow>& Window)
 	{
