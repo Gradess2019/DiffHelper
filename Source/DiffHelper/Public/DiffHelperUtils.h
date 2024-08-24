@@ -84,4 +84,7 @@ public:
 	static void CollapseAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray);
 
 	static void ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath);
+	static TSharedPtr<SNotificationItem> AddErrorNotification(const FText& InText);
+	static TSharedPtr<SNotificationItem> AddErrorNotificationWithLink(const FText& InText, const FText& InHyperLinkText, const FSimpleDelegate& InHyperLink);
+	static FNotificationInfo GetBaseErrorNotificationInfo();
 };

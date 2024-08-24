@@ -4,7 +4,12 @@
 #include "DiffHelperUtils.h"
 #include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
+
+#include "Framework/Notifications/NotificationManager.h"
+
 #include "Misc/ComparisonUtility.h"
+
+#include "Widgets/Notifications/SNotificationList.h"
 
 TArray<FString> UDiffHelperUtils::ConvertBranchesToStringArray(const TArray<FDiffHelperBranch>& InBranches)
 {
@@ -378,6 +383,47 @@ void UDiffHelperUtils::ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHe
 			);
 		}
 	}
+}
+
+TSharedPtr<SNotificationItem> UDiffHelperUtils::AddErrorNotification(const FText& InText)
+{
+	auto Info = GetBaseErrorNotificationInfo();
+	Info.Text = InText;
+	
+	const auto NotificationItem = FSlateNotificationManager::Get().AddNotification(Info);
+	if (NotificationItem.IsValid())
+	{
+		NotificationItem->SetCompletionState(SNotificationItem::CS_Fail);
+	}
+
+	return NotificationItem;
+}
+
+TSharedPtr<SNotificationItem> UDiffHelperUtils::AddErrorNotificationWithLink(const FText& InText, const FText& InHyperLinkText, const FSimpleDelegate& InHyperLink)
+{
+	auto Info = GetBaseErrorNotificationInfo();
+	Info.Text = InText;
+	Info.HyperlinkText = InHyperLinkText;
+	Info.Hyperlink = InHyperLink;
+
+	const auto NotificationItem = FSlateNotificationManager::Get().AddNotification(Info);
+	if (NotificationItem.IsValid())
+	{
+		NotificationItem->SetCompletionState(SNotificationItem::CS_Fail);
+	}
+
+	return NotificationItem;
+}
+
+FNotificationInfo UDiffHelperUtils::GetBaseErrorNotificationInfo()
+{
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	
+	FNotificationInfo Info(FText::GetEmpty());
+	Info.ExpireDuration = Settings->ErrorExpireDuration;
+	Info.bUseSuccessFailIcons = Settings->bUseSuccessFailIcons;
+
+	return Info;
 }
 
 void UDiffHelperUtils::SetExpansionState(TArray<TSharedPtr<FDiffHelperItemNode>>& InArray, const bool bInExpanded)
