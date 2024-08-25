@@ -11,4 +11,5 @@ class DIFFHELPER_API SDiffHelperCommitContextMenu : public SDiffHelperBaseCommit
 {
 protected:
 	virtual void BuildMenu(FMenuBuilder& InMenuBuilder) override;
+	virtual TSharedPtr<FUICommandList> GetCommandList(const TWeakObjectPtr<UDiffHelperTabController>& InController) override;
 };

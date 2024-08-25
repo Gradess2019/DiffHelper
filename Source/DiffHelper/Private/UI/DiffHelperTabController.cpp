@@ -14,6 +14,8 @@
 #include "DiffUtils.h"
 #include "UI/DiffHelperTabModel.h"
 
+#define LOCTEXT_NAMESPACE "DiffHelperTabController"
+
 void UDiffHelperTabController::Init()
 {
 	AddToRoot();
@@ -187,6 +189,11 @@ void UDiffHelperTabController::SetSelectedCommits(const TArray<TSharedPtr<FDiffH
 	Model->CommitPanelData.SelectedCommits = InCommits;
 }
 
+void UDiffHelperTabController::SelectNode(const TSharedPtr<FDiffHelperItemNode>& InNode) const
+{
+	Model->DiffPanelData.SelectedNode = InNode;
+}
+
 int32 UDiffHelperTabController::GetCommitIndex(const FDiffHelperCommit& InCommit) const
 {
 	const auto& Commits = Model->SelectedDiffItem.Commits;
@@ -266,6 +273,18 @@ void UDiffHelperTabController::BindDiffPanelCommands()
 		Commands.CollapseAll,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::CollapseAll),
 		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
+	);
+
+	DiffPanelCommands->MapAction(
+		Commands.OpenLocation,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::OpenLocation),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanOpenLocation)
+	);
+
+	DiffPanelCommands->MapAction(
+		Commands.DiffAgainstTarget,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffAgainstTarget),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffAgainstTarget)
 	);
 }
 
@@ -348,9 +367,33 @@ void UDiffHelperTabController::CollapseAll()
 	OnTreeDiffExpansionUpdated().Broadcast();
 }
 
+void UDiffHelperTabController::OpenLocation()
+{
+	const auto& Item = Model->DiffPanelData.SelectedNode;
+	if (!ensure(Item.IsValid()) || !ensure(Item->IsValid()))
+	{
+		return;
+	}
+
+	const auto Path = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*FPaths::Combine(FPaths::ProjectDir(), Item->Path));
+
+	if (!FPaths::DirectoryExists(Path) && !FPaths::FileExists(Path))
+	{
+		UDiffHelperUtils::AddErrorNotification(FText::Format(LOCTEXT("PathNotFound", "Path {0} does not exist on disk"), FText::FromString(Path)));
+		return;
+	}
+	
+	FPlatformProcess::ExploreFolder(*Path);
+}
+
 bool UDiffHelperTabController::IsTreeView()
 {
 	return Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::TreeWidgetIndex;
+}
+
+bool UDiffHelperTabController::CanOpenLocation()
+{
+	return Model->DiffPanelData.SelectedNode.IsValid() && Model->DiffPanelData.SelectedNode->IsValid();
 }
 
 void UDiffHelperTabController::ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const
@@ -478,3 +521,5 @@ void UDiffHelperTabController::PopulateFilterSearchString(const FDiffHelperDiffI
 {
 	OutStrings.Add(InItem.Path);
 }
+
+#undef LOCTEXT_NAMESPACE

@@ -182,13 +182,24 @@ void SDiffHelperDiffPanel::OnSortColumn(EColumnSortPriority::Type InPriority, co
 
 void SDiffHelperDiffPanel::OnSelectionChanged(TSharedPtr<FDiffHelperItemNode> InSelectedItem, ESelectInfo::Type InSelectType)
 {
-	if (InSelectedItem.IsValid() && InSelectedItem->DiffItem.IsValid())
+	// TODO: Use select node instead of select diff item, because it is more flexible and we can use it for both list and tree
+	if (InSelectedItem.IsValid())
 	{
-		Controller->SelectDiffItem(*InSelectedItem->DiffItem);
+		if (InSelectedItem->DiffItem.IsValid())
+		{
+			Controller->SelectDiffItem(*InSelectedItem->DiffItem);
+			Controller->SelectNode(InSelectedItem);
+		}
+		else
+		{
+			Controller->SelectDiffItem(FDiffHelperDiffItem());
+			Controller->SelectNode(InSelectedItem);
+		}
 	}
 	else
 	{
 		Controller->SelectDiffItem(FDiffHelperDiffItem());
+		Controller->SelectNode(nullptr);
 	}
 
 	Controller->CallModelUpdated();

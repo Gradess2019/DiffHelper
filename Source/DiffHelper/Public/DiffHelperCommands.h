@@ -25,6 +25,7 @@ public:
 	TSharedPtr<FUICommandInfo> GroupByDirectory;
 	TSharedPtr<FUICommandInfo> ExpandAll;
 	TSharedPtr<FUICommandInfo> CollapseAll;
+	TSharedPtr<FUICommandInfo> OpenLocation;
 
 	// Commit panel commands
 	TSharedPtr<FUICommandInfo> DiffAgainstTarget;
