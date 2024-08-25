@@ -117,8 +117,10 @@ int SDiffHelperDiffPanel::GetWidgetIndex() const
 
 void SDiffHelperDiffPanel::SyncSelection()
 {
-	if (!Model->SelectedDiffItem.IsValid())
+	if (!Model->DiffPanelData.SelectedNode.IsValid())
 	{
+		DiffList->ClearSelection();
+		DiffTree->ClearSelection();
 		return;
 	}
 
@@ -137,6 +139,13 @@ void SDiffHelperDiffPanel::SyncSelection()
 	}
 	else if (Model->DiffPanelData.CurrentWidgetIndex == SDiffHelperDiffPanelConstants::TreeWidgetIndex)
 	{
+		if (!Model->SelectedDiffItem.IsValid())
+		{
+			DiffList->ClearSelection();
+			Controller->SelectNode(nullptr);
+			return;
+		}
+		
 		const auto& SelectedItems = DiffTree->GetSelectedItems();
 		if (ensure(SelectedItems.Num() > 0))
 		{
