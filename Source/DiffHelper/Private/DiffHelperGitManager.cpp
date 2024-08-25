@@ -334,7 +334,7 @@ void UDiffHelperGitManager::LoadGitBinaryPath()
 	const auto& IniFile = SourceControlHelpers::GetSettingsIni();
 	const auto Result = GConfig->GetString(*SettingsSection, TEXT("BinaryPath"), GitBinaryPath, IniFile);
 	
-	if (Result)
+	if (!Result)
 	{
 		UDiffHelperUtils::AddErrorNotification(LOCTEXT("GitBinaryPathError", "Couldn't obtain git binary path! Check your Revision Control settings!"));
 	}

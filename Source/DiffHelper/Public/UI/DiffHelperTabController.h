@@ -72,6 +72,7 @@ public:
 	void SetActiveWidgetIndex(const int32& InIndex) const;
 
 	void SetSelectedCommits(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits) const;
+	void SelectNode(const TSharedPtr<FDiffHelperItemNode>& InNode) const;
 
 	FDiffHelperSimpleDelegate& OnModelUpdated() const;
 	FDiffHelperSimpleDelegate& OnPreWidgetIndexChanged() const;
@@ -90,8 +91,10 @@ private:
 	void ToggleGroupByDirectory();
 	void ExpandAll();
 	void CollapseAll();
+	void OpenLocation();
 	
 	bool IsTreeView();
+	bool CanOpenLocation();
 
 	void ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const;
 	void DiffAgainstTarget();

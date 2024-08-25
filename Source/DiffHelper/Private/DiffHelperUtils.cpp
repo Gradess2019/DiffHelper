@@ -396,6 +396,8 @@ TSharedPtr<SNotificationItem> UDiffHelperUtils::AddErrorNotification(const FText
 		NotificationItem->SetCompletionState(SNotificationItem::CS_Fail);
 	}
 
+	UE_LOG(LogDiffHelper, Error, TEXT("%s"), *InText.ToString());
+
 	return NotificationItem;
 }
 
@@ -411,6 +413,8 @@ TSharedPtr<SNotificationItem> UDiffHelperUtils::AddErrorNotificationWithLink(con
 	{
 		NotificationItem->SetCompletionState(SNotificationItem::CS_Fail);
 	}
+
+	UE_LOG(LogDiffHelper, Error, TEXT("%s"), *InText.ToString());
 
 	return NotificationItem;
 }

@@ -25,4 +25,5 @@ public:
 
 protected:
 	virtual void BuildMenu(FMenuBuilder& InMenuBuilder) = 0;
+	virtual TSharedPtr<FUICommandList> GetCommandList(const TWeakObjectPtr<UDiffHelperTabController>& InController) = 0;
 };

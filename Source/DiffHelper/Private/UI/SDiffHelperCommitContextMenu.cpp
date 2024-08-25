@@ -2,6 +2,7 @@
 
 
 #include "UI/SDiffHelperCommitContextMenu.h"
+#include "UI/DiffHelperTabController.h"
 #include "DiffHelperCommands.h"
 #include "SlateOptMacros.h"
 
@@ -17,6 +18,11 @@ void SDiffHelperCommitContextMenu::BuildMenu(FMenuBuilder& InMenuBuilder)
 	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstNewest);
 	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffSelectedCommitAgainstOldest);
 	InMenuBuilder.EndSection();
+}
+
+TSharedPtr<FUICommandList> SDiffHelperCommitContextMenu::GetCommandList(const TWeakObjectPtr<UDiffHelperTabController>& InController)
+{
+	return InController.IsValid() ? InController->GetCommitPanelCommands() : nullptr;
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

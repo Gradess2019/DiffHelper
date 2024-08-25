@@ -133,6 +133,8 @@ struct FDiffHelperItemNode
 
 	TSharedPtr<FDiffHelperDiffItem> DiffItem;
 	TArray<TSharedPtr<FDiffHelperItemNode>> Children;
+
+	FORCEINLINE bool IsValid() const { return !Path.IsEmpty(); }
 };
 
 USTRUCT()
@@ -149,8 +151,8 @@ struct FDiffHelperDiffPanelData
 	
 	TArray<TSharedPtr<FDiffHelperItemNode>> OriginalDiff;
 	TArray<TSharedPtr<FDiffHelperItemNode>> FilteredDiff;
-	
 	TArray<TSharedPtr<FDiffHelperItemNode>> TreeDiff;
+	TSharedPtr<FDiffHelperItemNode> SelectedNode;
 
 	EColumnSortMode::Type SortMode = EColumnSortMode::Ascending;
 };
