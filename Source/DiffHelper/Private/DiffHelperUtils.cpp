@@ -468,11 +468,26 @@ void UDiffHelperUtils::DiffFileExternal(const FString& InPath, const FDiffHelper
 	const auto Command = TEXT(" /c ") + FString::Format(*ExternalDiffCommand, {RightFilename.GetValue(), LeftFilename.GetValue(), InLeftRevision.Revision, InRightRevision.Revision});
 
 	int32 Result;
-	FPlatformProcess::ExecProcess(TEXT("cmd.exe"), *Command, &Result, nullptr, nullptr);
+	FString StdError;
+	FPlatformProcess::ExecProcess(TEXT("cmd.exe"), *Command, &Result, nullptr, &StdError);
 	
 	if (Result != 0)
 	{
 		AddErrorNotification(FText::Format(LOCTEXT("DiffFileExternalError", "Failed to execute external diff command: {0}"), FText::FromString(Command)));
+		UE_LOG(LogDiffHelper, Error, TEXT("StdError: %s"), *StdError);
+
+		const auto InvalidFunctionCode = 1;
+		const auto InvalidPathCode = 2;
+		if (Result == InvalidFunctionCode || Result == InvalidPathCode)
+		{
+			FMessageDialog::Open(
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
+				EAppMsgCategory::Error,
+#endif
+				EAppMsgType::Ok,
+				FText::FromString(TEXT("It seems you didn't set up the external diff tool correctly.\nPlease check \"Edit -> Editor Preferences -> Diff Helper -> External Diff Command\" setting."))
+			);
+		}
 	}
 }
 
