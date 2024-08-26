@@ -89,4 +89,5 @@ public:
 	static FNotificationInfo GetBaseErrorNotificationInfo();
 
 	static void DiffFileExternal(const FString& InPath, const FDiffHelperCommit& InLeftRevision, const FDiffHelperCommit& InRightRevision);
+	static bool IsValidForDiff(const FString& InPath);
 };

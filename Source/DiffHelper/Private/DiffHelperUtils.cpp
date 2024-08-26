@@ -491,4 +491,9 @@ void UDiffHelperUtils::DiffFileExternal(const FString& InPath, const FDiffHelper
 	}
 }
 
+bool UDiffHelperUtils::IsValidForDiff(const FString& InPath)
+{
+	return IsUnrealAsset(InPath) || GetDefault<UDiffHelperSettings>()->bEnableExternalDiff;
+}
+
 #undef LOCTEXT_NAMESPACE
