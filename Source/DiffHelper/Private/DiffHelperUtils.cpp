@@ -2,14 +2,16 @@
 
 
 #include "DiffHelperUtils.h"
+#include "DiffHelper.h"
+#include "DiffHelperManager.h"
 #include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
 
 #include "Framework/Notifications/NotificationManager.h"
-
 #include "Misc/ComparisonUtility.h"
-
 #include "Widgets/Notifications/SNotificationList.h"
+
+#define LOCTEXT_NAMESPACE "DiffHelper"
 
 TArray<FString> UDiffHelperUtils::ConvertBranchesToStringArray(const TArray<FDiffHelperBranch>& InBranches)
 {
@@ -448,3 +450,30 @@ void UDiffHelperUtils::CollapseAll(TArray<TSharedPtr<FDiffHelperItemNode>>& InAr
 {
 	SetExpansionState(InArray, false);
 }
+
+void UDiffHelperUtils::DiffFileExternal(const FString& InPath, const FDiffHelperCommit& InLeftRevision, const FDiffHelperCommit& InRightRevision)
+{
+	// TODO: Works only for Win platform. We need to find better solution to be cross-platform.
+	const auto Manager = FDiffHelperModule::Get().GetManager();
+	const auto RightFilename = Manager->GetFile(InPath, InLeftRevision.Revision);
+	const auto LeftFilename = Manager->GetFile(InPath, InRightRevision.Revision);
+
+	if (!RightFilename.IsSet() || !LeftFilename.IsSet())
+	{
+		AddErrorNotification(FText::Format(LOCTEXT("DiffFileExternalError", "Failed to get diff files for path: {0}"), FText::FromString(InPath)));
+		return;
+	}
+
+	const auto& ExternalDiffCommand = GetDefault<UDiffHelperSettings>()->ExternalDiffCommand;
+	const auto Command = TEXT(" /c ") + FString::Format(*ExternalDiffCommand, {RightFilename.GetValue(), LeftFilename.GetValue(), InLeftRevision.Revision, InRightRevision.Revision});
+
+	int32 Result;
+	FPlatformProcess::ExecProcess(TEXT("cmd.exe"), *Command, &Result, nullptr, nullptr);
+	
+	if (Result != 0)
+	{
+		AddErrorNotification(FText::Format(LOCTEXT("DiffFileExternalError", "Failed to execute external diff command: {0}"), FText::FromString(Command)));
+	}
+}
+
+#undef LOCTEXT_NAMESPACE

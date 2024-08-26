@@ -87,4 +87,6 @@ public:
 	static TSharedPtr<SNotificationItem> AddErrorNotification(const FText& InText);
 	static TSharedPtr<SNotificationItem> AddErrorNotificationWithLink(const FText& InText, const FText& InHyperLinkText, const FSimpleDelegate& InHyperLink);
 	static FNotificationInfo GetBaseErrorNotificationInfo();
+
+	static void DiffFileExternal(const FString& InPath, const FDiffHelperCommit& InLeftRevision, const FDiffHelperCommit& InRightRevision);
 };

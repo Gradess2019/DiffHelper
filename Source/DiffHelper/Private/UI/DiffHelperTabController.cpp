@@ -400,7 +400,14 @@ void UDiffHelperTabController::ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCo
 {
 	if (UDiffHelperUtils::IsDiffAvailable(InCommits, InPath))
 	{
-		DiffAsset(InPath, *InCommits[0], *InCommits[1]);
+		if (UDiffHelperUtils::IsUnrealAsset(InPath))
+		{
+			DiffAsset(InPath, *InCommits[0], *InCommits[1]);
+		}
+		else
+		{
+			UDiffHelperUtils::DiffFileExternal(InPath, *InCommits[0], *InCommits[1]);
+		}
 	}
 	else
 	{

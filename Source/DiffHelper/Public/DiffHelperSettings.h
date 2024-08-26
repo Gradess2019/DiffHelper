@@ -21,6 +21,15 @@ public:
 		EDiffHelperFileStatus::Unmerged,
 	};
 
+	/** Command that will be used to open diff in external editor for non-assets
+	 * {0} - source file path
+	 * {1} - target file path
+	 * {2} - source file revision
+	 * {3} - target file revision
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "General")
+	FString ExternalDiffCommand = TEXT("code --diff {0} {1}");
+
 	/** if true the plugin will cache source and target branches and will put them into selectors on a first Diff Helper view */
 	UPROPERTY(Config, EditAnywhere, Category = "Caching")
 	bool bEnableCaching = true;
