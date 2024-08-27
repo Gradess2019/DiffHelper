@@ -400,7 +400,14 @@ void UDiffHelperTabController::ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCo
 {
 	if (UDiffHelperUtils::IsDiffAvailable(InCommits, InPath))
 	{
-		DiffAsset(InPath, *InCommits[0], *InCommits[1]);
+		if (UDiffHelperUtils::IsUnrealAsset(InPath))
+		{
+			DiffAsset(InPath, *InCommits[0], *InCommits[1]);
+		}
+		else
+		{
+			UDiffHelperUtils::DiffFileExternal(InPath, *InCommits[0], *InCommits[1]);
+		}
 	}
 	else
 	{
@@ -471,31 +478,48 @@ bool UDiffHelperTabController::CanDiffAgainstTarget()
 	const auto& DiffItem = Model->SelectedDiffItem;
 	if (!DiffItem.IsValid()) { return false; }
 
-	return DiffItem.LastTargetCommit.IsValid();
+	const auto bLastTargetCommitValid = DiffItem.LastTargetCommit.IsValid();
+	const auto bHasChanges = DiffItem.Commits.Num() > 0;
+	const auto bValidForDiff = UDiffHelperUtils::IsValidForDiff(DiffItem.Path);
+	return bLastTargetCommitValid && bHasChanges && bValidForDiff; 
 }
 
 bool UDiffHelperTabController::CanDiffSelectedCommits()
 {
+	const auto& DiffItem = Model->SelectedDiffItem;
+	if (!DiffItem.IsValid()) { return false; }
+	
 	const auto& Data = Model->CommitPanelData;
-	return Data.SelectedCommits.Num() == 2;
+
+	const auto bOnlyTwoSelected = Data.SelectedCommits.Num() == 2;
+	const auto bValidForDiff = UDiffHelperUtils::IsValidForDiff(DiffItem.Path);
+	return bOnlyTwoSelected && bValidForDiff;
 }
 
 bool UDiffHelperTabController::CanDiffSelectedCommitAgainstNext()
 {
+	const auto& DiffItem = Model->SelectedDiffItem;
+	if (!DiffItem.IsValid()) { return false; }
+	
 	const auto& Data = Model->CommitPanelData;
 	if (Data.SelectedCommits.Num() != 1) { return false; }
 
 	const auto Index = GetCommitIndex(*Data.SelectedCommits[0]);
-	return Index > 0;
+	const auto bValidForDiff = UDiffHelperUtils::IsValidForDiff(DiffItem.Path);
+	return Index > 0 && bValidForDiff;
 }
 
 bool UDiffHelperTabController::CanDiffSelectedCommitAgainstPrevious()
 {
+	const auto& DiffItem = Model->SelectedDiffItem;
+	if (!DiffItem.IsValid()) { return false; }
+	
 	const auto& Data = Model->CommitPanelData;
 	if (Data.SelectedCommits.Num() != 1) { return false; }
 
 	const auto Index = GetCommitIndex(*Data.SelectedCommits[0]);
-	return Index < Model->SelectedDiffItem.Commits.Num() - 1;
+	const auto bValidForDiff = UDiffHelperUtils::IsValidForDiff(DiffItem.Path);
+	return Index < (Model->SelectedDiffItem.Commits.Num() - 1) && bValidForDiff;
 }
 
 void UDiffHelperTabController::UpdateItemsData()

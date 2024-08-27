@@ -21,6 +21,19 @@ public:
 		EDiffHelperFileStatus::Unmerged,
 	};
 
+	/** Enables opening external diff for non-assets */
+	UPROPERTY(Config, EditAnywhere, Category = "Diff")
+	bool bEnableExternalDiff = false;
+
+	/** Command that will be used to open diff in external editor for non-assets. By default, it's set to Visual Studio Code
+	 * {0} - source file path
+	 * {1} - target file path
+	 * {2} - source file revision
+	 * {3} - target file revision
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "Diff", meta = (EditCondition = "bEnableExternalDiff"))
+	FString ExternalDiffCommand = TEXT("code --diff {0} {1}");
+
 	/** if true the plugin will cache source and target branches and will put them into selectors on a first Diff Helper view */
 	UPROPERTY(Config, EditAnywhere, Category = "Caching")
 	bool bEnableCaching = true;
