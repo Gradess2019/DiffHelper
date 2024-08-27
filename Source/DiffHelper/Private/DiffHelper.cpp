@@ -11,14 +11,13 @@
 #include "ILiveCodingModule.h"
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
+#include "Interfaces/IPluginManager.h"
 
 #include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/FDiffHelperDiffPanelToolbar.h"
 #include "UI/SDiffHelperWindow.h"
 
 #include "Widgets/Testing/SStarshipSuite.h"
-
-static const FName DiffHelperTabName("DiffHelper");
 
 #define LOCTEXT_NAMESPACE "FDiffHelperModule"
 
@@ -40,16 +39,10 @@ void FDiffHelperModule::StartupModule()
 		FCanExecuteAction());
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FDiffHelperModule::RegisterMenus));
-
-	// Reload slate style
-	if (FModuleManager::Get().IsModuleLoaded("LiveCoding"))
+	
+	if (ShouldBindLiveCodingUpdate())
 	{
-		auto& LiveCodingModule = FModuleManager::GetModuleChecked<ILiveCodingModule>("LiveCoding");
-		LiveCodingModule.GetOnPatchCompleteDelegate().AddLambda([]
-		{
-			FDiffHelperStyle::ReloadStyles();
-			FDiffHelperStyle::ReloadTextures();
-		});
+		BindLiveCodingUpdate();
 	}
 }
 
@@ -100,6 +93,12 @@ FDiffHelperModule& FDiffHelperModule::Get()
 	return FModuleManager::LoadModuleChecked<FDiffHelperModule>("DiffHelper");
 }
 
+bool FDiffHelperModule::ShouldBindLiveCodingUpdate() const
+{
+	const auto Plugin = IPluginManager::Get().FindEnabledPlugin("DiffHelper");
+	return ensure(Plugin.IsValid()) && !Plugin->GetDescriptor().bInstalled;
+}
+
 void FDiffHelperModule::RegisterMenus()
 {
 	// TODO: Move this auto-generated code to a different place
@@ -145,6 +144,21 @@ void FDiffHelperModule::RegisterMenus()
 
 	FDiffHelperDiffPanelToolbar::RegisterMenu();
 	FDiffHelperCommitPanelToolbar::RegisterMenu();
+}
+
+void FDiffHelperModule::BindLiveCodingUpdate()
+{
+	if (FModuleManager::Get().IsModuleLoaded("LiveCoding"))
+	{
+		auto& LiveCodingModule = FModuleManager::GetModuleChecked<ILiveCodingModule>("LiveCoding");
+		LiveCodingModule.GetOnPatchCompleteDelegate().AddRaw(this, &FDiffHelperModule::UpdateSlateStyle);
+	}
+}
+
+void FDiffHelperModule::UpdateSlateStyle()
+{
+	FDiffHelperStyle::ReloadStyles();
+	FDiffHelperStyle::ReloadTextures();
 }
 
 #undef LOCTEXT_NAMESPACE

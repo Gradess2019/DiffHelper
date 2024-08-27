@@ -33,7 +33,11 @@ public:
 	UDiffHelperCacheManager* GetCacheManager() const { return CacheManager.Get(); }
 	
 private:
+	bool ShouldBindLiveCodingUpdate() const;
+	
 	void RegisterMenus();
+	void BindLiveCodingUpdate();
+	void UpdateSlateStyle();
 
 
 private:
