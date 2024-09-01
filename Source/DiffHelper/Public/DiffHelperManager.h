@@ -7,6 +7,8 @@
 #include "DiffHelperManager.generated.h"
 
 struct FDiffHelperBranch;
+struct FDiffHelperDiffItem;
+struct FDiffHelperCommit;
 enum class EDiffHelperFileStatus : uint8;
 
 UINTERFACE(NotBlueprintable)

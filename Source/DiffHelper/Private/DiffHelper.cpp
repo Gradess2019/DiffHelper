@@ -12,7 +12,7 @@
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
 #include "Interfaces/IPluginManager.h"
-
+#include "Managers/DiffHelperPerforceManager.h"
 #include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/FDiffHelperDiffPanelToolbar.h"
 #include "UI/SDiffHelperWindow.h"
@@ -75,7 +75,7 @@ void FDiffHelperModule::PluginButtonClicked()
 	// TODO: Check revision control was set up properly, if it changed, then manager should be changed as well
 	if (!DiffHelperManager.IsValid())
 	{
-		DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
+		DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperPerforceManager>());
 		DiffHelperManager->Init();
 	}
 	

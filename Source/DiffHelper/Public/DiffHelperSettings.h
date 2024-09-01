@@ -100,6 +100,9 @@ public:
 	int32 ChangedFilePathGroup = 2;
 #pragma endregion Git
 
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString ChangePattern = TEXT("(?:^|\\s+)Change\\s+(\\d+)");
+
 	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
 	TMap<EDiffHelperFileStatus, FLinearColor> StatusColors = {
 		{EDiffHelperFileStatus::None, FLinearColor(1.f, 1.f, 1.f)},
