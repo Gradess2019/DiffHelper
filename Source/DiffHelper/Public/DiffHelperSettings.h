@@ -103,6 +103,39 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
 	FString ChangePattern = TEXT("(?:^|\\s+)Change\\s+(\\d+)");
 
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString DescribeHeaderPattern = TEXT("change\\s+(\\d+)[\\s\\S]*user\\s+(\\w+)[\\s\\S]*time\\s+(\\d+)[\\s\\S]*desc\\s+(.+?)(?:\\r|\\n|\\r\\n)");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 DescribeHeaderChangeGroup = 1;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 DescribeHeaderUserGroup = 2;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 DescribeHeaderTimeGroup = 3;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 DescribeHeaderMessageGroup = 4;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString DescribeBodyPattern = TEXT("depotFile\\d*\\s(.+)[\\s\\S]*?action\\d*\\s(.+)");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 DescribeBodyFileGroup = 1;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 DescribeBodyStatusGroup = 2;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString WherePattern = TEXT("depotFile (.+)[\\s\\S]*?path (.+)");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 WhereDepotFileGroup = 1;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 WherePathGroup = 2;
+
 	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
 	TMap<EDiffHelperFileStatus, FLinearColor> StatusColors = {
 		{EDiffHelperFileStatus::None, FLinearColor(1.f, 1.f, 1.f)},
