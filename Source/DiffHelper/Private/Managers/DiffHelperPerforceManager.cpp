@@ -5,6 +5,10 @@
 
 #include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
+#include "DiffHelperUtils.h"
+#include "EditorAssetLibrary.h"
+
+#include "Algo/ForEach.h"
 
 bool UDiffHelperPerforceManager::Init()
 {
@@ -40,8 +44,156 @@ TArray<FDiffHelperBranch> UDiffHelperPerforceManager::GetBranches() const
 
 TArray<FDiffHelperDiffItem> UDiffHelperPerforceManager::GetDiff(const FString& InSourceRevision, const FString& InTargetRevision) const
 {
-	return {};
+	// ===========================
+	// TODO: REFACTOR THIS METHOD. Also we got crush we are trying to diff asset.
+	// ===========================
+	
+	TSet<FString> DepotFiles;
+	TMap<FString, TArray<FDiffHelperCommit>> FileCommits;
+	TMap<FString, EDiffHelperFileStatus> FileStatuses;
+	TArray<FDiffHelperDiffItem> DiffItems;
+	TMap<FString, FString> OnDiskLocations;
 
+
+	// Step 1: Obtaining diff file list
+	// p4 -ztag diff2 -q ...@4 ...@7
+	{
+		const FString Command = TEXT("-ztag -F \"Depot1=%depotFile%;Depot2=%depotFile2%;Status='%status%'\" diff2");
+		FString Result;
+		FString Errors;
+
+		TArray<FString> Params;
+		Params.Add("-q");
+		Params.Add(FString::Printf(TEXT("...@%s ...@%s"), *InTargetRevision, *InSourceRevision));
+
+		if (!ExecuteCommand(Command, Params, {}, Result, Errors))
+		{
+			return {};
+		}
+
+		const auto* DiffHelperSettings = GetDefault<UDiffHelperSettings>();
+		const auto Pattern = FRegexPattern(DiffHelperSettings->ChangelistDiffPattern);
+		auto Matcher = FRegexMatcher(Pattern, Result);
+
+		while (Matcher.FindNext())
+		{
+			const auto Depot1 = Matcher.GetCaptureGroup(DiffHelperSettings->ChangelistDiffDepot1Group);
+			const auto Depot2 = Matcher.GetCaptureGroup(DiffHelperSettings->ChangelistDiffDepot2Group);
+			const auto Status = Matcher.GetCaptureGroup(DiffHelperSettings->ChangelistDiffStatusGroup);
+
+			if (!Depot1.IsEmpty())
+			{
+				DepotFiles.Add(Depot1);
+				FileStatuses.Add(Depot1, ConvertDiffFileStatus(Status));
+			}
+			else
+			{
+				DepotFiles.Add(Depot2);
+				FileStatuses.Add(Depot2, ConvertDiffFileStatus(Status));
+			}
+		}
+
+		OnDiskLocations = GetFileLocations(DepotFiles);
+	}
+
+	// Step 2: Obtaining file commits
+	{
+		// call p4 filelog with for all depot files
+		const FString Command = TEXT("filelog");
+		FString Result;
+		FString Errors;
+
+		if (!ExecuteCommand(Command, DepotFiles.Array(), {}, Result, Errors))
+		{
+			return {};
+		}
+
+		const auto* DiffHelperSettings = GetDefault<UDiffHelperSettings>();
+		const auto FileBlockPattern = FRegexPattern(DiffHelperSettings->FilelogBlockPattern);
+		auto FileBlockMatcher = FRegexMatcher(FileBlockPattern, Result);
+
+		const auto FilenamePattern = FRegexPattern(DiffHelperSettings->FilelogFilePattern);
+		const auto ChangePattern = FRegexPattern(DiffHelperSettings->FilelogChangePattern);
+
+		while (FileBlockMatcher.FindNext())
+		{
+			auto FileBlock = FileBlockMatcher.GetCaptureGroup(0);
+			auto FilenameMatcher = FRegexMatcher(FilenamePattern, FileBlock);
+
+			if (FilenameMatcher.FindNext())
+			{
+				const auto Filename = FilenameMatcher.GetCaptureGroup(DiffHelperSettings->FilelogFileGroup);
+				auto ChangeMatcher = FRegexMatcher(ChangePattern, FileBlock);
+
+				while (ChangeMatcher.FindNext())
+				{
+					const auto Change = ChangeMatcher.GetCaptureGroup(DiffHelperSettings->FilelogChangeGroup);
+					const auto Author = ChangeMatcher.GetCaptureGroup(DiffHelperSettings->FilelogUserGroup);
+					const auto Date = ChangeMatcher.GetCaptureGroup(DiffHelperSettings->FilelogDateGroup);
+					const auto Message = ChangeMatcher.GetCaptureGroup(DiffHelperSettings->FilelogDescriptionGroup);
+
+					FDiffHelperCommit Commit;
+					Commit.Revision = Change;
+					Commit.Author = Author;
+					Commit.Date = FDateTime::FromUnixTimestamp(FCString::Atoi(*Date));
+					Commit.Message = Message;
+					
+					if (!FileCommits.Contains(Filename))
+					{
+						FileCommits.Add(Filename, TArray<FDiffHelperCommit>());
+					}
+
+					FileCommits[Filename].Add(Commit);
+				}
+			}
+		}
+	}
+
+	// Step 3: Creating diff items
+	{
+		// for each file in DepotFiles
+		for (const auto& DepotFile : DepotFiles)
+		{
+			FDiffHelperDiffItem NewDiffItem;
+			NewDiffItem.Path = OnDiskLocations[DepotFile];
+			NewDiffItem.Status = FileStatuses[DepotFile];
+			NewDiffItem.Commits = FileCommits[DepotFile];
+			if (ensure(NewDiffItem.Commits.Num() > 0))
+			{
+				NewDiffItem.LastTargetCommit = NewDiffItem.Commits[0].Revision == InTargetRevision ? NewDiffItem.Commits[0] : FDiffHelperCommit();
+			}
+
+			FPaths::NormalizeFilename(NewDiffItem.Path);
+			FString ProjectDir = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
+			NewDiffItem.Path.ReplaceInline(*ProjectDir, TEXT(""));
+
+			// for each Commits in NewDiffItem add FileData
+			Algo::ForEach(NewDiffItem.Commits, [&NewDiffItem, &FileStatuses, &OnDiskLocations, &DepotFile] (FDiffHelperCommit& Commit)
+			{
+				FDiffHelperFileData FileData;
+				FileData.Path = NewDiffItem.Path;
+				FileData.Status = FileStatuses[DepotFile];
+				Commit.Files.Add(FileData);
+			});
+			
+			if (FPaths::IsUnderDirectory(OnDiskLocations[DepotFile], FPaths::ProjectContentDir()))
+			{
+				FString PackageName;
+				if (FPackageName::TryConvertFilenameToLongPackageName(OnDiskLocations[DepotFile], PackageName) && UDiffHelperUtils::IsUnrealAsset(OnDiskLocations[DepotFile]))
+				{
+					const auto AssetData = UEditorAssetLibrary::FindAssetData(PackageName);
+					if (AssetData.IsValid())
+					{
+						NewDiffItem.AssetData = AssetData;
+					}
+				}
+			}
+
+			DiffItems.Add(NewDiffItem);
+		}
+	}
+	
+	return DiffItems;
 }
 
 TArray<FDiffHelperCommit> UDiffHelperPerforceManager::GetDiffCommitsList(const FString& InSourceBranch, const FString& InTargetBranch) const
@@ -148,6 +300,14 @@ EDiffHelperFileStatus UDiffHelperPerforceManager::ConvertFileStatus(const FStrin
 	return EDiffHelperFileStatus::None;	
 }
 
+EDiffHelperFileStatus UDiffHelperPerforceManager::ConvertDiffFileStatus(const FString& InStatus) const
+{
+	if (InStatus.Equals(TEXT("left only"), ESearchCase::IgnoreCase)) { return EDiffHelperFileStatus::Deleted; }
+	if (InStatus.Equals(TEXT("right only"), ESearchCase::IgnoreCase)) { return EDiffHelperFileStatus::Added; }
+	if (InStatus.Equals(TEXT("content"), ESearchCase::IgnoreCase)) { return EDiffHelperFileStatus::Modified; }
+	return EDiffHelperFileStatus::None;
+}
+
 TMap<FString, FString> UDiffHelperPerforceManager::GetFileLocations(const TSet<FString>& InDepotFiles) const
 {
 	// p4 -ztag where <depot_path1> <depot_path2> ...
@@ -248,12 +408,13 @@ FDiffHelperCommit UDiffHelperPerforceManager::ParseChanges(const FString& InRevi
 		Commit.Files.Add(FileData);
 	}
 
+	const auto ProjectPath = FPaths::ProjectDir();
 	OSPaths = GetFileLocations(DepotPaths);
 	for (auto& File : Commit.Files)
 	{
 		if (OSPaths.Contains(File.Path))
 		{
-			File.Path = OSPaths[File.Path];
+			File.Path = OSPaths[File.Path].Replace(*ProjectPath, TEXT(""));
 		}
 	}
 

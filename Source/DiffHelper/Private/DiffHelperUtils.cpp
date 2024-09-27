@@ -369,6 +369,7 @@ void UDiffHelperUtils::ShowDiffUnavailableDialog(const TArray<TSharedPtr<FDiffHe
 {
 	for (const auto& Commit : InCommits)
 	{
+		if (ensure(Commit->Files.Num() > 0)) { continue; }
 		if (!IsDiffAvailable(Commit, InPath))
 		{
 			FMessageDialog::Open(

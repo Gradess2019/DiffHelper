@@ -42,6 +42,7 @@ private:
 	
 	bool ExecuteCommand(const FString& InCommand, const TArray<FString>& InParameters, const TArray<FString>& InFiles, FString& OutResults, FString& OutErrors) const;
 	EDiffHelperFileStatus ConvertFileStatus(const FString& InStatus) const;
+	EDiffHelperFileStatus ConvertDiffFileStatus(const FString& InStatus) const;
 
 	TArray<FDiffHelperBranch> ParseRevisions(const FString& InChanges) const;
 	FDiffHelperCommit ParseChanges(const FString& InRevision) const;

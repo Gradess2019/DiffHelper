@@ -136,6 +136,46 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
 	int32 WherePathGroup = 2;
 
+	// new way
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString ChangelistDiffPattern = TEXT("Depot1=(.*?);Depot2=(.*?);Status='(.*?)'");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 ChangelistDiffDepot1Group = 1;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 ChangelistDiffDepot2Group = 2;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 ChangelistDiffStatusGroup = 3;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString FilelogBlockPattern = TEXT("//.+?[\\s\\S]*?(?=//|$)");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString FilelogFilePattern = TEXT("(//.*)[\\s\\S]");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 FilelogFileGroup = 1;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	FString FilelogChangePattern = TEXT("change\\s+?(\\d+)\\s(\\w+).+?(\\d+/\\d+/\\d+)\\sby\\s(\\w+).+'(.+)'");
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 FilelogChangeGroup = 1;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 FilelogActionGroup = 2;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 FilelogDateGroup = 3;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 FilelogUserGroup = 4;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Perforce")
+	int32 FilelogDescriptionGroup = 5;
+
 	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
 	TMap<EDiffHelperFileStatus, FLinearColor> StatusColors = {
 		{EDiffHelperFileStatus::None, FLinearColor(1.f, 1.f, 1.f)},
