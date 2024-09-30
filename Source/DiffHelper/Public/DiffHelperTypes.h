@@ -12,6 +12,13 @@ DECLARE_DELEGATE(FDiffHelperEvent)
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
 
+// TODO: Make a nested namespace for constants
+namespace DiffHelperConstants
+{
+	const FName DiffHelperRevisionPickerId(TEXT("DiffHelperRevisionPicker"));
+	const FName DiffHelperDiffViewerId(TEXT("DiffHelperTab"));
+}
+
 namespace SDiffHelperDiffPanelConstants
 {
 	const FName PathColumnId(TEXT("Path"));

@@ -14,18 +14,8 @@
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-SDiffHelperWindow::~SDiffHelperWindow()
-{
-	Controller->Deinit();
-	Controller = nullptr;
-}
-
 void SDiffHelperWindow::Construct(const FArguments& InArgs)
 {
-	Controller = NewObject<UDiffHelperTabController>();
-	Controller->Init();
-	Controller->OnModelReset.AddRaw(this, &SDiffHelperWindow::Reset);
-
 	const auto DiffPicker = CreateDiffPicker();
 	SWindow::Construct(
 		SWindow::FArguments()
@@ -49,50 +39,26 @@ TSharedRef<SWidget> SDiffHelperWindow::CreateStartupView()
 	return DiffPicker;
 }
 
-TSharedRef<SWidget> SDiffHelperWindow::CreateDiffView()
-{
-	const auto Menu = CreateMenu();
-	const auto DiffViewer = CreateDiffViewer();
-
-	return SNew(SVerticalBox)
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			Menu
-		]
-		+ SVerticalBox::Slot()
-		[
-			DiffViewer
-		];
-}
-
 TSharedRef<SWidget> SDiffHelperWindow::CreateMenu()
 {
-	FMenuBarBuilder MenuBarBuilder(Controller->GetMenuCommands());
-	MenuBarBuilder.AddPullDownMenu(
-		LOCTEXT("MenuLabel", "Diff"),
-		FText::GetEmpty(),
-		FNewMenuDelegate::CreateLambda([](FMenuBuilder& Builder)
-		{
-			Builder.AddMenuEntry(FDiffHelperCommands::Get().CreateNewDiff);
-		})
-	);
+	// FMenuBarBuilder MenuBarBuilder(Controller->GetMenuCommands());
+	// MenuBarBuilder.AddPullDownMenu(
+	// 	LOCTEXT("MenuLabel", "Diff"),
+	// 	FText::GetEmpty(),
+	// 	FNewMenuDelegate::CreateLambda([](FMenuBuilder& Builder)
+	// 	{
+	// 		Builder.AddMenuEntry(FDiffHelperCommands::Get().CreateNewDiff);
+	// 	})
+	// );
 
-	TSharedRef<SWidget> MenuBarWidget = MenuBarBuilder.MakeWidget();
-	return MenuBarWidget;
+	// TSharedRef<SWidget> MenuBarWidget = MenuBarBuilder.MakeWidget();
+	// return MenuBarWidget;
+	return SNullWidget::NullWidget;
 }
 
 TSharedRef<SWidget> SDiffHelperWindow::CreateDiffPicker()
 {
-	return SNew(SDiffHelperPickerPanel)
-		.Controller(Controller)
-		.OnShowDiff(this, &SDiffHelperWindow::OnShowDiff);
-}
-
-TSharedRef<SWidget> SDiffHelperWindow::CreateDiffViewer()
-{
-	return SNew(SDiffHelperDiffViewer)
-		.Controller(Controller);
+	return SNew(SDiffHelperPickerPanel);
 }
 
 void SDiffHelperWindow::Reset()
@@ -103,14 +69,6 @@ void SDiffHelperWindow::Reset()
 	SetTitle(LOCTEXT("DiffHelperWindowTitle", "Diff Helper"));
 }
 
-void SDiffHelperWindow::OnShowDiff()
-{
-	const auto DiffView = CreateDiffView();
-	SetContent(DiffView);
-
-	const auto NewTitle = Controller->GetModel()->SourceBranch.Name + " -> " + Controller->GetModel()->TargetBranch.Name;
-	SetTitle(FText::FromString(NewTitle));
-}
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 #undef LOCTEXT_NAMESPACE

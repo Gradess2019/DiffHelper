@@ -3,19 +3,37 @@
 
 #include "UI/SDiffHelperPickerPanel.h"
 #include "UI/SDiffHelperBranchPicker.h"
-#include "UI/DiffHelperTabController.h"
 #include "SlateOptMacros.h"
 
-#include "UI/DiffHelperTabModel.h"
+#include "UI/DiffHelperRevisionPickerController.h"
+#include "UI/DiffHelperRevisionPickerModel.h"
+#include "UI/SDiffHelperDiffViewer.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
+SDiffHelperPickerPanel::~SDiffHelperPickerPanel()
+{
+	if (Controller.IsValid())
+	{
+		Controller->Deinit();
+		Controller.Reset();
+	}
+
+	FGlobalTabmanager::Get()->UnregisterTabSpawner(DiffHelperConstants::DiffHelperDiffViewerId);
+}
+
 void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 {
-	Controller = InArgs._Controller;
-	ensure(Controller.IsValid());
+	Controller = NewObject<UDiffHelperRevisionPickerController>();
+	Controller->Init();
+
+	FGlobalTabmanager::Get()->RegisterTabSpawner(
+		DiffHelperConstants::DiffHelperDiffViewerId,
+		FOnSpawnTab::CreateRaw(this, &SDiffHelperPickerPanel::SpawnTab),
+		FCanSpawnTab::CreateRaw(this, &SDiffHelperPickerPanel::CanSpawnTab)
+	);
 
 	OnShowDiff = InArgs._OnShowDiff;
 
@@ -71,8 +89,8 @@ FReply SDiffHelperPickerPanel::OnShowDiffClicked() const
 
 	Controller->SetSourceBranch(SourceBranch);
 	Controller->SetTargetBranch(TargetBranch);
-	Controller->CollectDiff();
-	Controller->CallModelUpdated();
+
+	FGlobalTabmanager::Get()->TryInvokeTab(DiffHelperConstants::DiffHelperDiffViewerId);
 
 	OnShowDiff.ExecuteIfBound();
 	
@@ -85,6 +103,29 @@ bool SDiffHelperPickerPanel::CanShowDiff() const
 	const auto& TargetBranch = TargetBranchPicker->GetSelectedBranch();
 
 	return SourceBranch.IsValid() && TargetBranch.IsValid() && SourceBranch != TargetBranch;
+}
+
+TSharedRef<SDockTab> SDiffHelperPickerPanel::SpawnTab(const FSpawnTabArgs& InSpawnTabArgs)
+{
+	const auto& SourceBranch = Controller->GetModel()->SourceBranch;
+	const auto& TargetBranch = Controller->GetModel()->TargetBranch;
+	const auto NewTitle = SourceBranch.Name + " -> " + TargetBranch.Name;
+	
+	const auto Tab = SNew(SDockTab)
+		.Label(FText::FromString(TEXT("Diff Helper Tab")))
+		[
+			SNew(SDiffHelperDiffViewer)
+				.SourceBranch(&SourceBranch)
+				.TargetBranch(&TargetBranch)
+		];
+	
+	return Tab;
+}
+
+
+bool SDiffHelperPickerPanel::CanSpawnTab(const FSpawnTabArgs& InSpawnTabArgs) const
+{
+	return Controller.IsValid() && Controller->GetModel()->SourceBranch.IsValid() && Controller->GetModel()->TargetBranch.IsValid();
 }
 
 #undef LOCTEXT_NAMESPACE
