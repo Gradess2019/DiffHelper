@@ -171,3 +171,25 @@ struct FDiffHelperCommitPanelData
 
 	TArray<TSharedPtr<FDiffHelperCommit>> SelectedCommits;
 };
+
+USTRUCT()
+struct FDiffHelperDiffTabData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString SourceBranchName;
+
+	UPROPERTY()
+	FString TargetBranchName;
+
+	bool operator==(const FDiffHelperDiffTabData& InOther) const
+	{
+		return SourceBranchName == InOther.SourceBranchName && TargetBranchName == InOther.TargetBranchName;
+	}
+
+	friend inline uint32 GetTypeHash(const FDiffHelperDiffTabData& Key)
+	{
+		return HashCombineFast(GetTypeHash(Key.SourceBranchName), GetTypeHash(Key.TargetBranchName));
+	}
+};

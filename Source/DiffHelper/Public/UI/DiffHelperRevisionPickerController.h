@@ -34,8 +34,15 @@ public:
 	UFUNCTION()
 	void SetTargetBranch(const FDiffHelperBranch& InBranch);
 
+	UFUNCTION()
+	void OpenDiffTab();
+
 private:
 	void InitModel();
 	void LoadCachedBranches();
+
+	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& InSpawnTabArgs);
+	bool CanSpawnTab(const FSpawnTabArgs& InSpawnTabArgs) const;
+	TSharedPtr<SDockTab> FindTabToReuse(const FTabId& InTabId);
 
 };

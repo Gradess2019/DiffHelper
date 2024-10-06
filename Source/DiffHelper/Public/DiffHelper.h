@@ -16,7 +16,6 @@ class FDiffHelperModule : public IModuleInterface
 protected:
 	TWeakInterfacePtr<IDiffHelperManager> DiffHelperManager = nullptr;
 	TStrongObjectPtr<UDiffHelperCacheManager> CacheManager;
-	TSharedPtr<SDiffHelperWindow> DiffHelperWindow;
 	
 public:
 

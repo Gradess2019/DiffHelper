@@ -39,4 +39,6 @@ protected:
 
 	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& InSpawnTabArgs);
 	bool CanSpawnTab(const FSpawnTabArgs& InSpawnTabArgs) const;
+	TSharedPtr<SDockTab> FindTabToReuse(const FTabId& TabId);
+
 };

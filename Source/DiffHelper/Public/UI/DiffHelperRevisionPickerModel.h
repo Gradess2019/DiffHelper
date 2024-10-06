@@ -22,4 +22,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	FDiffHelperBranch TargetBranch;
+
+	// Hack: stopgap solution to have references to opened tabs
+	static TMap<FDiffHelperDiffTabData, TWeakPtr<SDockTab>> OpenedTabs;
 };

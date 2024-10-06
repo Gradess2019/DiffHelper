@@ -15,7 +15,7 @@
 
 #include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/FDiffHelperDiffPanelToolbar.h"
-#include "UI/SDiffHelperWindow.h"
+#include "UI/SDiffHelperPickerPanel.h"
 
 #include "Widgets/Testing/SStarshipSuite.h"
 
@@ -39,6 +39,17 @@ void FDiffHelperModule::StartupModule()
 		FCanExecuteAction());
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FDiffHelperModule::RegisterMenus));
+
+	FGlobalTabmanager::Get()->RegisterTabSpawner(DiffHelperConstants::DiffHelperRevisionPickerId,
+		FOnSpawnTab::CreateLambda([](const FSpawnTabArgs& Args) -> TSharedRef<SDockTab>
+		{
+			return SNew(SDockTab)
+				.Label(LOCTEXT("DiffHelperRevisionPickerTabTitle", "Revision Picker"))
+				[
+					SNew(SDiffHelperPickerPanel)
+				];
+		})
+	);
 	
 	if (ShouldBindLiveCodingUpdate())
 	{
@@ -78,14 +89,8 @@ void FDiffHelperModule::PluginButtonClicked()
 		DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
 		DiffHelperManager->Init();
 	}
-	
-	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
-	DiffHelperWindow->GetOnWindowClosedEvent().AddLambda([this](const TSharedRef<SWindow>& Window)
-	{
-		DiffHelperWindow.Reset();
-	});
-	
-	FSlateApplication::Get().AddWindow(DiffHelperWindow.ToSharedRef());
+
+	FGlobalTabmanager::Get()->TryInvokeTab(DiffHelperConstants::DiffHelperRevisionPickerId);
 }
 
 FDiffHelperModule& FDiffHelperModule::Get()
