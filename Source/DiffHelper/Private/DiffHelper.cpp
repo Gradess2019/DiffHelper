@@ -48,6 +48,10 @@ void FDiffHelperModule::StartupModule()
 				[
 					SNew(SDiffHelperPickerPanel)
 				];
+		}),
+		FCanSpawnTab::CreateLambda([this](const FSpawnTabArgs& Args) -> bool
+		{
+			return DiffHelperManager.IsValid();
 		})
 	);
 	
