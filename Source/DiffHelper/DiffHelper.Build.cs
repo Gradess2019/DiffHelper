@@ -48,7 +48,6 @@ public class DiffHelper : ModuleRules
 				"EditorScriptingUtilities", 
 				"LiveCoding",
 				"AppFramework",
-				"WorkspaceMenuStructure"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

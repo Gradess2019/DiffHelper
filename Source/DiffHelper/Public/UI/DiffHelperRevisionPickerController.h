@@ -9,6 +9,11 @@
 struct FDiffHelperBranch;
 class UDiffHelperRevisionPickerModel;
 
+class FDiffHelperTabSerchPreference : public FTabManager::FSearchPreference
+{
+	virtual TSharedPtr<SDockTab> Search(const FTabManager& Manager, FName PlaceholderId, const TSharedRef<SDockTab>& UnmanagedTab) const override;
+};
+
 UCLASS()
 class DIFFHELPER_API UDiffHelperRevisionPickerController : public UObject
 {

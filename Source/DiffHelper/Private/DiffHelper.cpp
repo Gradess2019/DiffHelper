@@ -11,8 +11,6 @@
 #include "ILiveCodingModule.h"
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
-#include "WorkspaceMenuStructure.h"
-#include "WorkspaceMenuStructureModule.h"
 
 #include "Interfaces/IPluginManager.h"
 
@@ -46,7 +44,7 @@ void FDiffHelperModule::StartupModule()
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(DiffHelperConstants::DiffHelperRevisionPickerId,
 		FOnSpawnTab::CreateRaw(this, &FDiffHelperModule::SpawnTab),
 		FCanSpawnTab::CreateRaw(this, &FDiffHelperModule::CanSpawnTab)
-	).SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory());
+	);
 	
 	if (ShouldBindLiveCodingUpdate())
 	{
