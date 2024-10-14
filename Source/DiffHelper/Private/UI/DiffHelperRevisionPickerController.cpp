@@ -7,6 +7,8 @@
 #include "DiffHelperCacheManager.h"
 #include "DiffHelperManager.h"
 #include "DiffHelperSettings.h"
+#include "WorkspaceMenuStructure.h"
+#include "WorkspaceMenuStructureModule.h"
 
 #include "UI/DiffHelperRevisionPickerModel.h"
 #include "UI/SDiffHelperDiffViewer.h"
@@ -17,12 +19,12 @@ void UDiffHelperRevisionPickerController::Init()
 {
 	AddToRoot();
 	InitModel();
-
-	auto& TabSpawnerEntry = FGlobalTabmanager::Get()->RegisterTabSpawner(
+	
+	auto& TabSpawnerEntry = FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
 		DiffHelperConstants::DiffHelperDiffViewerId,
 		FOnSpawnTab::CreateUObject(this, &UDiffHelperRevisionPickerController::SpawnTab),
 		FCanSpawnTab::CreateUObject(this, &UDiffHelperRevisionPickerController::CanSpawnTab)
-	);
+	).SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory());
 
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	if (Settings->bReuseDiffTab)
@@ -33,7 +35,7 @@ void UDiffHelperRevisionPickerController::Init()
 
 void UDiffHelperRevisionPickerController::Deinit()
 {
-	FGlobalTabmanager::Get()->UnregisterTabSpawner(DiffHelperConstants::DiffHelperDiffViewerId);
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(DiffHelperConstants::DiffHelperDiffViewerId);
 
 	RemoveFromRoot();
 	Model = nullptr;
@@ -67,11 +69,21 @@ void UDiffHelperRevisionPickerController::OpenDiffTab()
 	TabData.SourceBranchName = Model->SourceBranch.Name;
 	TabData.TargetBranchName = Model->TargetBranch.Name;
 
-	auto TabWidget = FGlobalTabmanager::Get()->TryInvokeTab(DiffHelperConstants::DiffHelperDiffViewerId);
-	if (TabWidget.IsValid())
+	class FCustomSearchPreference : public FTabManager::FSearchPreference
 	{
-		Model->OpenedTabs.Add(TabData, TabWidget.ToWeakPtr());
-	}
+		virtual TSharedPtr<SDockTab> Search(const FTabManager& Manager, FName PlaceholderId, const TSharedRef<SDockTab>& UnmanagedTab) const override
+		{
+			TSharedPtr<SDockTab> FoundTab = Manager.FindExistingLiveTab(FTabId(DiffHelperConstants::DiffHelperRevisionPickerId));
+			return FoundTab;
+		}
+	};
+
+	auto NewTab = SpawnTab();
+	FGlobalTabmanager::Get()->InsertNewDocumentTab(DiffHelperConstants::DiffHelperDiffViewerId, FCustomSearchPreference(), NewTab);
+	// if (TabWidget.IsValid())
+	// {
+	// 	Model->OpenedTabs.Add(TabData, TabWidget.ToWeakPtr());
+	// }
 }
 
 void UDiffHelperRevisionPickerController::InitModel()
@@ -116,6 +128,25 @@ TSharedRef<SDockTab> UDiffHelperRevisionPickerController::SpawnTab(const FSpawnT
 	const auto NewTitle = SourceBranch.Name + " -> " + TargetBranch.Name;
 
 	const auto Tab = SNew(SDockTab)
+		.TabRole(ETabRole::MajorTab)
+		.Label(FText::FromString(NewTitle))
+		[
+			SNew(SDiffHelperDiffViewer)
+			.SourceBranch(&SourceBranch)
+			.TargetBranch(&TargetBranch)
+		];
+
+	return Tab;
+}
+
+TSharedRef<SDockTab> UDiffHelperRevisionPickerController::SpawnTab()
+{
+	const auto& SourceBranch = Model->SourceBranch;
+	const auto& TargetBranch = Model->TargetBranch;
+	const auto NewTitle = SourceBranch.Name + " -> " + TargetBranch.Name;
+
+	const auto Tab = SNew(SDockTab)
+		.TabRole(ETabRole::NomadTab)
 		.Label(FText::FromString(NewTitle))
 		[
 			SNew(SDiffHelperDiffViewer)

@@ -11,6 +11,9 @@
 #include "ILiveCodingModule.h"
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
+#include "WorkspaceMenuStructure.h"
+#include "WorkspaceMenuStructureModule.h"
+
 #include "Interfaces/IPluginManager.h"
 
 #include "UI/FDiffHelperCommitPanelToolbar.h"
@@ -40,20 +43,10 @@ void FDiffHelperModule::StartupModule()
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FDiffHelperModule::RegisterMenus));
 
-	FGlobalTabmanager::Get()->RegisterTabSpawner(DiffHelperConstants::DiffHelperRevisionPickerId,
-		FOnSpawnTab::CreateLambda([](const FSpawnTabArgs& Args) -> TSharedRef<SDockTab>
-		{
-			return SNew(SDockTab)
-				.Label(LOCTEXT("DiffHelperRevisionPickerTabTitle", "Revision Picker"))
-				[
-					SNew(SDiffHelperPickerPanel)
-				];
-		}),
-		FCanSpawnTab::CreateLambda([this](const FSpawnTabArgs& Args) -> bool
-		{
-			return DiffHelperManager.IsValid();
-		})
-	);
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(DiffHelperConstants::DiffHelperRevisionPickerId,
+		FOnSpawnTab::CreateRaw(this, &FDiffHelperModule::SpawnTab),
+		FCanSpawnTab::CreateRaw(this, &FDiffHelperModule::CanSpawnTab)
+	).SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory());
 	
 	if (ShouldBindLiveCodingUpdate())
 	{
@@ -94,7 +87,7 @@ void FDiffHelperModule::PluginButtonClicked()
 		DiffHelperManager->Init();
 	}
 
-	FGlobalTabmanager::Get()->TryInvokeTab(DiffHelperConstants::DiffHelperRevisionPickerId);
+	FGlobalTabmanager::Get()->InsertNewDocumentTab(DiffHelperConstants::DiffHelperRevisionPickerId, FTabManager::FLiveTabSearch(DiffHelperConstants::DiffHelperRevisionPickerId), SpawnTab(FSpawnTabArgs(nullptr, FName())));
 }
 
 FDiffHelperModule& FDiffHelperModule::Get()
@@ -168,6 +161,21 @@ void FDiffHelperModule::UpdateSlateStyle()
 {
 	FDiffHelperStyle::ReloadStyles();
 	FDiffHelperStyle::ReloadTextures();
+}
+
+TSharedRef<SDockTab> FDiffHelperModule::SpawnTab(const FSpawnTabArgs& Args)
+{
+	return SNew(SDockTab)
+		.TabRole(ETabRole::NomadTab)
+		.Label(LOCTEXT("DiffHelperRevisionPickerTabTitle", "Revision Picker"))
+		[
+			SNew(SDiffHelperPickerPanel)
+		];
+}
+
+bool FDiffHelperModule::CanSpawnTab(const FSpawnTabArgs& Args) const
+{
+	return DiffHelperManager.IsValid();
 }
 
 #undef LOCTEXT_NAMESPACE

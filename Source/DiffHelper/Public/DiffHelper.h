@@ -38,6 +38,8 @@ private:
 	void BindLiveCodingUpdate();
 	void UpdateSlateStyle();
 
+	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& Args);
+	bool CanSpawnTab(const FSpawnTabArgs& Args) const;
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
