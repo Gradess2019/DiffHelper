@@ -3,14 +3,32 @@
 
 #include "UI/SDiffHelperDiffViewer.h"
 #include "SlateOptMacros.h"
+
+#include "UI/DiffHelperTabController.h"
 #include "UI/SDiffHelperCommitPanel.h"
 #include "UI/SDiffHelperDiffPanel.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
+SDiffHelperDiffViewer::~SDiffHelperDiffViewer()
+{
+	if (Controller.IsValid())
+	{
+		Controller->Deinit();
+		Controller.Reset();
+	}
+}
+
 void SDiffHelperDiffViewer::Construct(const FArguments& InArgs)
 {
-	if (!ensure(InArgs._Controller.IsValid())) { return; }
+	Controller = NewObject<UDiffHelperTabController>();
+	Controller->Init();
+
+	Controller->SetSourceBranch(*InArgs._SourceBranch);
+	Controller->SetTargetBranch(*InArgs._TargetBranch);
+	
+	Controller->CollectDiff();
+	
 	
 	ChildSlot
 	[
@@ -23,14 +41,14 @@ void SDiffHelperDiffViewer::Construct(const FArguments& InArgs)
 			.MinSize(100)
 			[
 				SNew(SDiffHelperDiffPanel)
-				.Controller(InArgs._Controller)
+				.Controller(Controller)
 			]
 			+ SSplitter::Slot()
 			.Value(0.8f)
 			.MinSize(200)
 			[
 				SNew(SDiffHelperCommitPanel)
-				.Controller(InArgs._Controller)
+				.Controller(Controller)
 			]
 		]
 	];

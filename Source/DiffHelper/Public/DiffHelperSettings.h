@@ -21,6 +21,10 @@ public:
 		EDiffHelperFileStatus::Unmerged,
 	};
 
+	/** If true, the plugin will try to find and reuse opened diff tab. If false, it will always open a new tab */
+	UPROPERTY(Config, EditAnywhere, Category = "General")
+	bool bReuseDiffTab = true;
+
 	/** Enables opening external diff for non-assets */
 	UPROPERTY(Config, EditAnywhere, Category = "Diff")
 	bool bEnableExternalDiff = false;

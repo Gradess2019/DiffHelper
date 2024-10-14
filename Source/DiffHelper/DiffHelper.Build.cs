@@ -47,7 +47,7 @@ public class DiffHelper : ModuleRules
 				"SlateCore", 
 				"EditorScriptingUtilities", 
 				"LiveCoding",
-				"AppFramework"
+				"AppFramework",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

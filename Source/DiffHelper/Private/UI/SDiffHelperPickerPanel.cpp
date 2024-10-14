@@ -3,19 +3,29 @@
 
 #include "UI/SDiffHelperPickerPanel.h"
 #include "UI/SDiffHelperBranchPicker.h"
-#include "UI/DiffHelperTabController.h"
 #include "SlateOptMacros.h"
 
-#include "UI/DiffHelperTabModel.h"
+#include "UI/DiffHelperRevisionPickerController.h"
+#include "UI/DiffHelperRevisionPickerModel.h"
+#include "UI/SDiffHelperDiffViewer.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelper"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
+SDiffHelperPickerPanel::~SDiffHelperPickerPanel()
+{
+	if (Controller.IsValid())
+	{
+		Controller->Deinit();
+		Controller.Reset();
+	}
+}
+
 void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 {
-	Controller = InArgs._Controller;
-	ensure(Controller.IsValid());
+	Controller = NewObject<UDiffHelperRevisionPickerController>();
+	Controller->Init();
 
 	OnShowDiff = InArgs._OnShowDiff;
 
@@ -71,8 +81,7 @@ FReply SDiffHelperPickerPanel::OnShowDiffClicked() const
 
 	Controller->SetSourceBranch(SourceBranch);
 	Controller->SetTargetBranch(TargetBranch);
-	Controller->CollectDiff();
-	Controller->CallModelUpdated();
+	Controller->OpenDiffTab();
 
 	OnShowDiff.ExecuteIfBound();
 	

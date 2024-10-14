@@ -16,7 +16,6 @@ class FDiffHelperModule : public IModuleInterface
 protected:
 	TWeakInterfacePtr<IDiffHelperManager> DiffHelperManager = nullptr;
 	TStrongObjectPtr<UDiffHelperCacheManager> CacheManager;
-	TSharedPtr<SDiffHelperWindow> DiffHelperWindow;
 	
 public:
 
@@ -39,6 +38,8 @@ private:
 	void BindLiveCodingUpdate();
 	void UpdateSlateStyle();
 
+	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& Args);
+	bool CanSpawnTab(const FSpawnTabArgs& Args) const;
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;

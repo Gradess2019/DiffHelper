@@ -82,7 +82,6 @@ private:
 	int32 GetCommitIndex(const FDiffHelperCommit& InCommit) const;
 
 	void InitModel();
-	void LoadCachedBranches();
 	
 	void BindMenuCommands();
 	void BindDiffPanelCommands();

@@ -6,8 +6,8 @@
 #include "DiffHelperUtils.h"
 #include "SlateOptMacros.h"
 
-#include "UI/DiffHelperTabController.h"
-#include "UI/DiffHelperTabModel.h"
+#include "UI/DiffHelperRevisionPickerController.h"
+#include "UI/DiffHelperRevisionPickerModel.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 

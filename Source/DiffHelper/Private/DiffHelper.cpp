@@ -11,11 +11,12 @@
 #include "ILiveCodingModule.h"
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
+
 #include "Interfaces/IPluginManager.h"
 
 #include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/FDiffHelperDiffPanelToolbar.h"
-#include "UI/SDiffHelperWindow.h"
+#include "UI/SDiffHelperPickerPanel.h"
 
 #include "Widgets/Testing/SStarshipSuite.h"
 
@@ -39,6 +40,11 @@ void FDiffHelperModule::StartupModule()
 		FCanExecuteAction());
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FDiffHelperModule::RegisterMenus));
+
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(DiffHelperConstants::DiffHelperRevisionPickerId,
+		FOnSpawnTab::CreateRaw(this, &FDiffHelperModule::SpawnTab),
+		FCanSpawnTab::CreateRaw(this, &FDiffHelperModule::CanSpawnTab)
+	);
 	
 	if (ShouldBindLiveCodingUpdate())
 	{
@@ -78,14 +84,8 @@ void FDiffHelperModule::PluginButtonClicked()
 		DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
 		DiffHelperManager->Init();
 	}
-	
-	SAssignNew(DiffHelperWindow, SDiffHelperWindow);
-	DiffHelperWindow->GetOnWindowClosedEvent().AddLambda([this](const TSharedRef<SWindow>& Window)
-	{
-		DiffHelperWindow.Reset();
-	});
-	
-	FSlateApplication::Get().AddWindow(DiffHelperWindow.ToSharedRef());
+
+	FGlobalTabmanager::Get()->InsertNewDocumentTab(DiffHelperConstants::DiffHelperRevisionPickerId, FTabManager::FLiveTabSearch(DiffHelperConstants::DiffHelperRevisionPickerId), SpawnTab(FSpawnTabArgs(nullptr, FName())));
 }
 
 FDiffHelperModule& FDiffHelperModule::Get()
@@ -159,6 +159,21 @@ void FDiffHelperModule::UpdateSlateStyle()
 {
 	FDiffHelperStyle::ReloadStyles();
 	FDiffHelperStyle::ReloadTextures();
+}
+
+TSharedRef<SDockTab> FDiffHelperModule::SpawnTab(const FSpawnTabArgs& Args)
+{
+	return SNew(SDockTab)
+		.TabRole(ETabRole::NomadTab)
+		.Label(LOCTEXT("DiffHelperRevisionPickerTabTitle", "Revision Picker"))
+		[
+			SNew(SDiffHelperPickerPanel)
+		];
+}
+
+bool FDiffHelperModule::CanSpawnTab(const FSpawnTabArgs& Args) const
+{
+	return DiffHelperManager.IsValid();
 }
 
 #undef LOCTEXT_NAMESPACE

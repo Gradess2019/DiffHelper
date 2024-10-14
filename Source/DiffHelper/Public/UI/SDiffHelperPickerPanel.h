@@ -6,27 +6,24 @@
 #include <Widgets/SCompoundWidget.h>
 #include "DiffHelperTypes.h"
 
+class UDiffHelperRevisionPickerController;
 class SDiffHelperBranchPicker;
-class UDiffHelperTabController;
-/**
- * 
- */
+
 class DIFFHELPER_API SDiffHelperPickerPanel : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SDiffHelperPickerPanel)
-			:
-			_Controller(nullptr)
 		{
 		}
 
-		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
 		SLATE_EVENT(FDiffHelperEvent, OnShowDiff)
 
 	SLATE_END_ARGS()
 
+	virtual ~SDiffHelperPickerPanel();
+
 protected:
-	TWeakObjectPtr<UDiffHelperTabController> Controller = nullptr;
+	TWeakObjectPtr<UDiffHelperRevisionPickerController> Controller = nullptr;
 	TSharedPtr<SDiffHelperBranchPicker> SourceBranchPicker = nullptr;
 	TSharedPtr<SDiffHelperBranchPicker> TargetBranchPicker = nullptr;
 	
@@ -39,4 +36,9 @@ public:
 protected:
 	FReply OnShowDiffClicked() const;
 	bool CanShowDiff() const;
+
+	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& InSpawnTabArgs);
+	bool CanSpawnTab(const FSpawnTabArgs& InSpawnTabArgs) const;
+	TSharedPtr<SDockTab> FindTabToReuse(const FTabId& TabId);
+
 };

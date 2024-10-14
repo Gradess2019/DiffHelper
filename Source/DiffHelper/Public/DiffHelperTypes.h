@@ -12,6 +12,13 @@ DECLARE_DELEGATE(FDiffHelperEvent)
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDiffHelper, Log, All);
 
+// TODO: Make a nested namespace for constants
+namespace DiffHelperConstants
+{
+	const FName DiffHelperRevisionPickerId(TEXT("DiffHelperRevisionPicker"));
+	const FName DiffHelperDiffViewerId(TEXT("DiffHelperTab"));
+}
+
 namespace SDiffHelperDiffPanelConstants
 {
 	const FName PathColumnId(TEXT("Path"));
@@ -163,4 +170,26 @@ struct FDiffHelperCommitPanelData
 	GENERATED_BODY()
 
 	TArray<TSharedPtr<FDiffHelperCommit>> SelectedCommits;
+};
+
+USTRUCT()
+struct FDiffHelperDiffTabData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString SourceBranchName;
+
+	UPROPERTY()
+	FString TargetBranchName;
+
+	bool operator==(const FDiffHelperDiffTabData& InOther) const
+	{
+		return SourceBranchName == InOther.SourceBranchName && TargetBranchName == InOther.TargetBranchName;
+	}
+
+	friend inline uint32 GetTypeHash(const FDiffHelperDiffTabData& Key)
+	{
+		return HashCombineFast(GetTypeHash(Key.SourceBranchName), GetTypeHash(Key.TargetBranchName));
+	}
 };

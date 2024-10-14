@@ -6,7 +6,7 @@
 #include "DiffHelperTypes.h"
 #include "SSearchableComboBox.h"
 
-class UDiffHelperTabController;
+class UDiffHelperRevisionPickerController;
 
 class DIFFHELPER_API SDiffHelperBranchPicker : public SSearchableComboBox
 {
@@ -19,7 +19,7 @@ public:
 		{
 		}
 
-		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperTabController>, Controller)
+		SLATE_ARGUMENT(TWeakObjectPtr<UDiffHelperRevisionPickerController>, Controller)
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>*, Options)
 		SLATE_ARGUMENT(TSharedPtr<FDiffHelperBranch>, InitiallySelectedBranch)
 		SLATE_ARGUMENT(FText, Hint)
@@ -27,7 +27,7 @@ public:
 	SLATE_END_ARGS()
 
 protected:
-	TWeakObjectPtr<UDiffHelperTabController> Controller = nullptr;
+	TWeakObjectPtr<UDiffHelperRevisionPickerController> Controller = nullptr;
 	TSharedPtr<const TArray<TSharedPtr<FString>>> Options = nullptr;
 	
 	FText Hint;

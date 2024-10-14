@@ -17,9 +17,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FDiffHelperSimpleDynamicDelegate OnModelUpdated;
 	FDiffHelperSimpleDelegate OnModelUpdated_Raw;
-	
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FDiffHelperBranch> Branches;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FDiffHelperDiffItem> Diff;
