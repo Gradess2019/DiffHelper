@@ -39,10 +39,10 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 	
 	ChildSlot
 	[
-		SNew(SOverlay)
-		+ SOverlay::Slot()
-		  .HAlign(HAlign_Center)
-		  .VAlign(VAlign_Center)
+		SNew(SBorder)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 		[
 			SNew(SBox)
 			.WidthOverride(Settings->PickerPanelWidth)
