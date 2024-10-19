@@ -35,7 +35,7 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 
 	FToolMenuContext MenuContext(Controller->GetCommitPanelCommands());
 
-	const auto* Settings = GetDefault<UDiffHelperSettings>();
+	auto* Settings = GetDefault<UDiffHelperSettings>();
 
 	ChildSlot
 	[
@@ -76,6 +76,8 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 			)
 		]
 	];
+
+	CommitList->SetBackgroundBrush(FAppStyle::GetNoBrush());
 }
 
 SDiffHelperCommitPanel::~SDiffHelperCommitPanel()
