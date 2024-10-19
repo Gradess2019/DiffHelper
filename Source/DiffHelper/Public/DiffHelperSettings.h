@@ -104,6 +104,33 @@ public:
 	int32 ChangedFilePathGroup = 2;
 #pragma endregion Git
 
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Revision Picker")
+	float PickerPanelWidth = 350.f;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer")
+	float DiffPanelMinSize = 300.f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer")
+	float CommitPanelMinSize = 200.f;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer", meta = (ClampMin = "0.1", ClampMax = "0.9", UIMin = "0.1", UIMax = "0.9", Delta = "0.05"))
+	float DiffPanelRatio = 0.6f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer", meta = (ClampMin = "0.1", ClampMax = "0.9", UIMin = "0.1", UIMax = "0.9", Delta = "0.05"))
+	float CommitPanelRatio = 0.4f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer", meta = (ClampMin = "0.05", ClampMax = "0.95", UIMin = "0.05", UIMax = "0.95", Delta = "0.01"))
+	float HashColumnRatio = 0.15f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer", meta = (ClampMin = "0.05", ClampMax = "0.95", UIMin = "0.05", UIMax = "0.95", Delta = "0.01"))
+	float MessageColumnRatio = 0.5f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer", meta = (ClampMin = "0.05", ClampMax = "0.95", UIMin = "0.05", UIMax = "0.95", Delta = "0.01"))
+	float AuthorColumnRatio = 0.15f;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Appearance|Diff Viewer", meta = (ClampMin = "0.05", ClampMax = "0.95", UIMin = "0.05", UIMax = "0.95", Delta = "0.01"))
+	float DateColumnRatio = 0.2f;
+	
 	UPROPERTY(Config, EditAnywhere, Category = "Appearance")
 	TMap<EDiffHelperFileStatus, FLinearColor> StatusColors = {
 		{EDiffHelperFileStatus::None, FLinearColor(1.f, 1.f, 1.f)},
@@ -130,4 +157,10 @@ public:
 
 public:
 	static bool IsCachingEnabled() { return GetDefault<UDiffHelperSettings>()->bEnableCaching; }
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
+	
 };

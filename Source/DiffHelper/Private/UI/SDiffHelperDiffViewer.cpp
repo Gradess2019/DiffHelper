@@ -2,6 +2,8 @@
 
 
 #include "UI/SDiffHelperDiffViewer.h"
+
+#include "DiffHelperSettings.h"
 #include "SlateOptMacros.h"
 
 #include "UI/DiffHelperTabController.h"
@@ -29,7 +31,7 @@ void SDiffHelperDiffViewer::Construct(const FArguments& InArgs)
 	
 	Controller->CollectDiff();
 	
-	
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	ChildSlot
 	[
 		SNew(SOverlay)
@@ -37,15 +39,15 @@ void SDiffHelperDiffViewer::Construct(const FArguments& InArgs)
 		[
 			SNew(SSplitter)
 			+ SSplitter::Slot()
-			.Value(0.2f)
-			.MinSize(100)
+			.Value(Settings->DiffPanelRatio)
+			.MinSize(Settings->DiffPanelMinSize)
 			[
 				SNew(SDiffHelperDiffPanel)
 				.Controller(Controller)
 			]
 			+ SSplitter::Slot()
-			.Value(0.8f)
-			.MinSize(200)
+			.Value(Settings->CommitPanelRatio)
+			.MinSize(Settings->CommitPanelMinSize)
 			[
 				SNew(SDiffHelperCommitPanel)
 				.Controller(Controller)

@@ -2,6 +2,8 @@
 
 
 #include "UI/SDiffHelperCommitPanel.h"
+
+#include "DiffHelperSettings.h"
 #include "DiffHelperTypes.h"
 #include "DiffHelperUtils.h"
 #include "SlateOptMacros.h"
@@ -33,6 +35,8 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 
 	FToolMenuContext MenuContext(Controller->GetCommitPanelCommands());
 
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
+
 	ChildSlot
 	[
 		SNew(SVerticalBox)
@@ -59,16 +63,16 @@ void SDiffHelperCommitPanel::Construct(const FArguments& InArgs)
 				SNew(SHeaderRow)
 				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::HashColumnId)
 				.DefaultLabel(LOCTEXT("HashColumnLabel", "Hash"))
-				.FillWidth(0.05f)
+				.FillWidth(Settings->HashColumnRatio)
 				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::MessageColumnId)
 				.DefaultLabel(LOCTEXT("MessageColumnLabel", "Message"))
-				.FillWidth(0.5f)
+				.FillWidth(Settings->MessageColumnRatio)
 				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::AuthorColumnId)
 				.DefaultLabel(LOCTEXT("AuthorColumnLabel", "Author"))
-				.FillWidth(0.1f)
+				.FillWidth(Settings->AuthorColumnRatio)
 				+ SHeaderRow::Column(SDiffHelperCommitPanelConstants::DateColumnId)
 				.DefaultLabel(LOCTEXT("DateColumnLabel", "Date"))
-				.FillWidth(0.25f)
+				.FillWidth(Settings->DateColumnRatio)
 			)
 		]
 	];
