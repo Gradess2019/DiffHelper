@@ -95,68 +95,34 @@ public:
 	FString UnrealDocURL = TEXT("https://dev.epicgames.com/documentation/en-us/unreal-engine/collaboration-and-version-control-in-unreal-engine");
 
 #pragma region Git
+	// TODO: First - use parsing instead of regex, second - make it configurable 
 	/** Dev mode activates additional settings for Git parsing. DO NOT USE UNTIL YOU KNOW WHAT YOU'RE DOING. */
-	UPROPERTY(Config, EditAnywhere, Category = "Git")
+	UPROPERTY()
 	bool bDevMode = false;
 	
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Branch Parsing", meta = (EditCondition = "bDevMode"))
 	FString BranchParserPattern = TEXT("(?:\n*\\s\\s|(?:\\*\\s))\\(*(.+?)\\s+(?:detached at \\w+\\)\\s)*(\\w+)");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Branch Parsing", meta = (EditCondition = "bDevMode"))
 	int32 BranchNameGroup = 1;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Branch Parsing", meta = (EditCondition = "bDevMode"))
 	int32 BranchRevisionGroup = 2;
 
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	FString CommitBlockPattern = TEXT("<Hash[\\s\\S]+?(?=<Hash)|<Hash[\\s\\S]+(?=$)");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	FString CommitDataPattern = TEXT("<Hash:(.+?)> <Message:(.+?)> <Author:(.+?)> <Date:(.+?)>\n([\\s\\S]*?)(?=(?:<Hash:\\w+>|$))\n$");
 
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	FString SingleCommitPattern = TEXT("<Hash:(.+?)> <Message:(.+?)> <Author:(.+?)> <Date:(.+?)>");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	int32 HashGroup = 1;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	int32 MessageGroup = 2;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	int32 AuthorGroup = 3;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	int32 DateGroup = 4;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Commit Parsing", meta = (EditCondition = "bDevMode"))
 	int32 ChangedFilesGroup = 5;
 
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Date Parsing", meta = (EditCondition = "bDevMode"))
 	FString DatePattern = TEXT("(\\d+)/(\\d+)/(\\d+) (\\d+):(\\d+)");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Date Parsing", meta = (EditCondition = "bDevMode"))
 	int32 DayGroup = 1;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Date Parsing", meta = (EditCondition = "bDevMode"))
 	int32 MonthGroup = 2;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Date Parsing", meta = (EditCondition = "bDevMode"))
 	int32 YearGroup = 3;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Date Parsing", meta = (EditCondition = "bDevMode"))
 	int32 HourGroup = 4;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Date Parsing", meta = (EditCondition = "bDevMode"))
 	int32 MinuteGroup = 5;
 
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Changes Parsing", meta = (EditCondition = "bDevMode"))
 	FString ChangedFilePattern = TEXT("(.).*\t(.*)(?:[\\s\n]|$)");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Changes Parsing", meta = (EditCondition = "bDevMode"))
 	int32 ChangedFileStatusGroup = 1;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Git|Changes Parsing", meta = (EditCondition = "bDevMode"))
 	int32 ChangedFilePathGroup = 2;
 #pragma endregion Git
 
