@@ -129,21 +129,6 @@ void FDiffHelperModule::RegisterMenus()
 				Entry.SetCommandList(PluginCommands);
 				Entry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Diff");
 			}
-
-			// TODO: Temporary added for testing purposes
-			FUIAction OpenStarshipSuiteAction;
-			OpenStarshipSuiteAction.ExecuteAction = FExecuteAction::CreateLambda([this]()
-			{
-				RestoreStarshipSuite();
-			});
-
-			Section.AddEntry(FToolMenuEntry::InitToolBarButton(
-					"OpenStarshipSuite",
-					OpenStarshipSuiteAction,
-					LOCTEXT("OpenStarshipSuite", "Starship Test Suite"),
-					LOCTEXT("OpenStarshipSuite_ToolTip", "Opens the Starship UX test suite."),
-					FSlateIcon(FAppStyle::GetAppStyleSetName(), "PlacementBrowser.Icons.Testing"))
-			);
 		}
 	}
 
