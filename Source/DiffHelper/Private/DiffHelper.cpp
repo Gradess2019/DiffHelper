@@ -12,42 +12,25 @@
 #include "ISettingsModule.h"
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
-
+#include "WorkspaceMenuStructure.h"
+#include "WorkspaceMenuStructureModule.h"
 #include "Interfaces/IPluginManager.h"
-
 #include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/FDiffHelperDiffPanelToolbar.h"
 #include "UI/SDiffHelperPickerPanel.h"
-
-#include "Widgets/Testing/SStarshipSuite.h"
 
 #define LOCTEXT_NAMESPACE "FDiffHelperModule"
 
 void FDiffHelperModule::StartupModule()
 {
+	InitializeStyle();
+	InitializeCacheManager();
+	
 	RegisterSettings();
-	
-	FDiffHelperStyle::Initialize();
-	FDiffHelperStyle::ReloadTextures();
-
-	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
-	CacheManager->Init();
-	
-	FDiffHelperCommands::Register();
-
-	PluginCommands = MakeShareable(new FUICommandList);
-
-	PluginCommands->MapAction(
-		FDiffHelperCommands::Get().OpenDiffWindow,
-		FExecuteAction::CreateRaw(this, &FDiffHelperModule::PluginButtonClicked),
-		FCanExecuteAction());
+	RegisterCommands();
+	RegisterTabSpawner();
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FDiffHelperModule::RegisterMenus));
-
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(DiffHelperConstants::DiffHelperRevisionPickerId,
-		FOnSpawnTab::CreateRaw(this, &FDiffHelperModule::SpawnTab),
-		FCanSpawnTab::CreateRaw(this, &FDiffHelperModule::CanSpawnTab)
-	);
 	
 	if (ShouldBindLiveCodingUpdate())
 	{
@@ -104,6 +87,63 @@ bool FDiffHelperModule::ShouldBindLiveCodingUpdate() const
 	return ensure(Plugin.IsValid()) && !Plugin->GetDescriptor().bInstalled;
 }
 
+void FDiffHelperModule::RegisterSettings()
+{
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->RegisterSettings("Editor", "Plugins", "DiffHelper",
+			LOCTEXT("DiffHelperSettingsName", "Diff Helper"),
+			LOCTEXT("DiffHelperSettingsDescription", "Configure the Diff Helper plugin"),
+			GetMutableDefault<UDiffHelperSettings>()
+		);
+	}
+}
+
+void FDiffHelperModule::UnregisterSettings()
+{
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->UnregisterSettings("Editor", "Plugins", "DiffHelper");
+	}
+}
+
+void FDiffHelperModule::InitializeStyle()
+{
+	FDiffHelperStyle::Initialize();
+	FDiffHelperStyle::ReloadTextures();
+}
+
+void FDiffHelperModule::InitializeCacheManager()
+{
+	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
+	CacheManager->Init();
+}
+
+void FDiffHelperModule::RegisterCommands()
+{
+	FDiffHelperCommands::Register();
+
+	PluginCommands = MakeShareable(new FUICommandList);
+	PluginCommands->MapAction(
+		FDiffHelperCommands::Get().OpenDiffWindow,
+		FExecuteAction::CreateRaw(this, &FDiffHelperModule::PluginButtonClicked),
+		FCanExecuteAction());
+}
+
+void FDiffHelperModule::RegisterTabSpawner()
+{
+	auto& SpawnerEntry = FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
+		DiffHelperConstants::DiffHelperRevisionPickerId,
+		FOnSpawnTab::CreateRaw(this, &FDiffHelperModule::SpawnTab),
+		FCanSpawnTab::CreateRaw(this, &FDiffHelperModule::CanSpawnTab)
+	);
+	
+	SpawnerEntry.SetDisplayName(LOCTEXT("MainTabTitle", "Localization Dashboard"));
+	SpawnerEntry.SetTooltipText(LOCTEXT("LocalizationDashboardToolTip", "Open the Localization Dashboard for this Project."));
+	SpawnerEntry.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LocalizationDashboard.MenuIcon"));
+	SpawnerEntry.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory());
+}
+
 void FDiffHelperModule::RegisterMenus()
 {
 	// TODO: Move this auto-generated code to a different place
@@ -149,26 +189,6 @@ void FDiffHelperModule::UpdateSlateStyle()
 {
 	FDiffHelperStyle::ReloadStyles();
 	FDiffHelperStyle::ReloadTextures();
-}
-
-void FDiffHelperModule::RegisterSettings()
-{
-	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
-	{
-		SettingsModule->RegisterSettings("Editor", "Plugins", "DiffHelper",
-			LOCTEXT("DiffHelperSettingsName", "Diff Helper"),
-			LOCTEXT("DiffHelperSettingsDescription", "Configure the Diff Helper plugin"),
-			GetMutableDefault<UDiffHelperSettings>()
-		);
-	}
-}
-
-void FDiffHelperModule::UnregisterSettings()
-{
-	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
-	{
-		SettingsModule->UnregisterSettings("Editor", "Plugins", "DiffHelper");
-	}
 }
 
 TSharedRef<SDockTab> FDiffHelperModule::SpawnTab(const FSpawnTabArgs& Args)

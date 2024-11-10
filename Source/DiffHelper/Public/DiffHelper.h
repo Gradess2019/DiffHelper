@@ -17,7 +17,6 @@ protected:
 	TStrongObjectPtr<UDiffHelperCacheManager> CacheManager;
 	
 public:
-
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
@@ -32,13 +31,18 @@ public:
 	
 private:
 	bool ShouldBindLiveCodingUpdate() const;
-	
-	void RegisterMenus();
-	void BindLiveCodingUpdate();
-	void UpdateSlateStyle();
 
 	void RegisterSettings();
 	void UnregisterSettings();
+
+	void InitializeStyle();
+	void InitializeCacheManager();
+	void RegisterCommands();
+	void RegisterTabSpawner();
+	void RegisterMenus();
+	
+	void BindLiveCodingUpdate();
+	void UpdateSlateStyle();
 
 	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& Args);
 	bool CanSpawnTab(const FSpawnTabArgs& Args) const;
