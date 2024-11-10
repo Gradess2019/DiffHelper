@@ -225,13 +225,17 @@ void UDiffHelperTabController::BindDiffPanelCommands()
 	DiffPanelCommands->MapAction(
 		Commands.ExpandAll,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ExpandAll),
-		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView),
+		FIsActionChecked(),
+		FIsActionButtonVisible::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
 	);
 
 	DiffPanelCommands->MapAction(
 		Commands.CollapseAll,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::CollapseAll),
-		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView),
+		FIsActionChecked(),
+		FIsActionButtonVisible::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
 	);
 
 	DiffPanelCommands->MapAction(

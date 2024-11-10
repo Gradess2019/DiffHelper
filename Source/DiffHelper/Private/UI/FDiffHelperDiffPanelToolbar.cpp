@@ -12,15 +12,6 @@ void FDiffHelperDiffPanelToolbar::RegisterMenu()
 	
 	FToolMenuSection& Section = Menu->AddSection("Content");
 
-	auto& GroupByDirectoryEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.GroupByDirectory));
-	GroupByDirectoryEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Directory");
-
-	auto& ExpandAllEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.ExpandAll));
-	ExpandAllEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.ExpandAll");
-
-	auto& CollapseAllEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.CollapseAll));
-	CollapseAllEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.CollapseAll");
-
 	auto& OpenAssetEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.OpenAsset));
 	OpenAssetEntry.Icon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Edit");
 
@@ -29,4 +20,13 @@ void FDiffHelperDiffPanelToolbar::RegisterMenu()
 
 	auto& OpenLocationEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.OpenLocation));
 	OpenLocationEntry.Icon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "ContentBrowser.ShowInExplorer");
+
+	auto& GroupByDirectoryEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.GroupByDirectory));
+	GroupByDirectoryEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Directory");
+
+	auto& ExpandAllEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.ExpandAll));
+	ExpandAllEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.ExpandAll");
+
+	auto& CollapseAllEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.CollapseAll));
+	CollapseAllEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.CollapseAll");
 }
