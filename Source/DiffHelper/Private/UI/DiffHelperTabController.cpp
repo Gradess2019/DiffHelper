@@ -11,6 +11,8 @@
 #include "DiffHelperSettings.h"
 #include "DiffHelperUtils.h"
 #include "DiffUtils.h"
+#include "EditorAssetLibrary.h"
+
 #include "UI/DiffHelperTabModel.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelperTabController"
@@ -239,6 +241,18 @@ void UDiffHelperTabController::BindDiffPanelCommands()
 	);
 
 	DiffPanelCommands->MapAction(
+		Commands.OpenAsset,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::OpenAsset),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanOpenAsset)
+	);
+
+	DiffPanelCommands->MapAction(
+		Commands.ShowInContentBrowser,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ShowInContentBrowser),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanShowInContentBrowser)
+	);
+
+	DiffPanelCommands->MapAction(
 		Commands.DiffAgainstTarget,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::DiffAgainstTarget),
 		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanDiffAgainstTarget)
@@ -341,6 +355,28 @@ void UDiffHelperTabController::OpenLocation()
 	}
 	
 	FPlatformProcess::ExploreFolder(*Path);
+}
+
+void UDiffHelperTabController::OpenAsset()
+{
+	const auto& AssetData = Model->SelectedDiffItem.AssetData;
+	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(AssetData.GetAsset());
+}
+
+void UDiffHelperTabController::ShowInContentBrowser()
+{
+	const auto& AssetData = Model->SelectedDiffItem.AssetData;
+	GEditor->SyncBrowserToObject(AssetData.GetAsset(), false);
+}
+
+bool UDiffHelperTabController::CanOpenAsset()
+{
+	return Model->SelectedDiffItem.AssetData.IsValid();
+}
+
+bool UDiffHelperTabController::CanShowInContentBrowser()
+{
+	return Model->SelectedDiffItem.AssetData.IsValid();
 }
 
 bool UDiffHelperTabController::IsTreeView()

@@ -91,9 +91,13 @@ private:
 	void ExpandAll();
 	void CollapseAll();
 	void OpenLocation();
+	void OpenAsset();
+	void ShowInContentBrowser();
 	
 	bool IsTreeView();
 	bool CanOpenLocation();
+	bool CanOpenAsset();
+	bool CanShowInContentBrowser();
 
 	void ExecuteDiff(const TArray<TSharedPtr<FDiffHelperCommit>>& InCommits, const FString& InPath) const;
 	void DiffAgainstTarget();

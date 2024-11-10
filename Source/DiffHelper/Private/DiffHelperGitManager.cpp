@@ -159,7 +159,7 @@ TArray<FDiffHelperDiffItem> UDiffHelperGitManager::GetDiff(const FString& InSour
 		if (FPaths::IsUnderDirectory(RelativePath, FPaths::ProjectContentDir()))
 		{
 			FString PackageName;
-			if (FPackageName::TryConvertFilenameToLongPackageName(RelativePath, PackageName) && UDiffHelperUtils::IsUnrealAsset(PackageName))
+			if (FPackageName::TryConvertFilenameToLongPackageName(RelativePath, PackageName) && UDiffHelperUtils::IsUnrealAsset(RelativePath))
 			{
 				const auto AssetData = UEditorAssetLibrary::FindAssetData(PackageName);
 				if (AssetData.IsValid())

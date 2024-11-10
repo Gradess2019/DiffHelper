@@ -20,4 +20,13 @@ void FDiffHelperDiffPanelToolbar::RegisterMenu()
 
 	auto& CollapseAllEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.CollapseAll));
 	CollapseAllEntry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.CollapseAll");
+
+	auto& OpenAssetEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.OpenAsset));
+	OpenAssetEntry.Icon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Edit");
+
+	auto& ShowInContentBrowserEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.ShowInContentBrowser));
+	ShowInContentBrowserEntry.Icon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "SystemWideCommands.FindInContentBrowser.Small");
+
+	auto& OpenLocationEntry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(Commands.OpenLocation));
+	OpenLocationEntry.Icon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "ContentBrowser.ShowInExplorer");
 }

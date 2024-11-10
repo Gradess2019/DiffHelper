@@ -13,6 +13,8 @@ void FDiffHelperCommands::RegisterCommands()
 	UI_COMMAND(ExpandAll, "Expand All", "Expand all diff items", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(CollapseAll, "Collapse All", "Collapse all diff items", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(OpenLocation, "Open Location", "Open the location of the selected item on disk", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(OpenAsset, "Open Asset", "Open the selected asset in the editor", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(ShowInContentBrowser, "Show In Content Browser", "Show the selected asset in the content browser", EUserInterfaceActionType::Button, FInputChord());
 
 	UI_COMMAND(DiffAgainstTarget, "Diff Against Target", "Diff file against the target branch", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(DiffSelectedCommits, "Diff Selected", "Diff selected commits against each other", EUserInterfaceActionType::Button, FInputChord());
