@@ -9,6 +9,7 @@
 #include "DiffHelperTypes.h"
 #include "DiffHelperUtils.h"
 #include "ILiveCodingModule.h"
+#include "ISettingsModule.h"
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
 
@@ -24,6 +25,8 @@
 
 void FDiffHelperModule::StartupModule()
 {
+	RegisterSettings();
+	
 	FDiffHelperStyle::Initialize();
 	FDiffHelperStyle::ReloadTextures();
 
@@ -63,6 +66,8 @@ void FDiffHelperModule::ShutdownModule()
 	UToolMenus::UnregisterOwner(this);
 	FDiffHelperStyle::Shutdown();
 	FDiffHelperCommands::Unregister();
+	
+	UnregisterSettings();
 }
 
 void FDiffHelperModule::PluginButtonClicked()
@@ -159,6 +164,26 @@ void FDiffHelperModule::UpdateSlateStyle()
 {
 	FDiffHelperStyle::ReloadStyles();
 	FDiffHelperStyle::ReloadTextures();
+}
+
+void FDiffHelperModule::RegisterSettings()
+{
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->RegisterSettings("Editor", "Plugins", "DiffHelper",
+			LOCTEXT("DiffHelperSettingsName", "Diff Helper"),
+			LOCTEXT("DiffHelperSettingsDescription", "Configure the Diff Helper plugin"),
+			GetMutableDefault<UDiffHelperSettings>()
+		);
+	}
+}
+
+void FDiffHelperModule::UnregisterSettings()
+{
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->UnregisterSettings("Editor", "Plugins", "DiffHelper");
+	}
 }
 
 TSharedRef<SDockTab> FDiffHelperModule::SpawnTab(const FSpawnTabArgs& Args)

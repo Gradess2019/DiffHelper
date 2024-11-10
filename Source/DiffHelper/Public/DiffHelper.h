@@ -6,7 +6,6 @@
 #include "Modules/ModuleManager.h"
 
 class UDiffHelperCacheManager;
-class SDiffHelperWindow;
 class IDiffHelperManager;
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -37,6 +36,9 @@ private:
 	void RegisterMenus();
 	void BindLiveCodingUpdate();
 	void UpdateSlateStyle();
+
+	void RegisterSettings();
+	void UnregisterSettings();
 
 	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& Args);
 	bool CanSpawnTab(const FSpawnTabArgs& Args) const;

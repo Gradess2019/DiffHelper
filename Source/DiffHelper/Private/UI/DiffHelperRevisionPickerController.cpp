@@ -83,6 +83,8 @@ void UDiffHelperRevisionPickerController::OpenDiffTab()
 	else
 	{
 		auto NewTab = SpawnTab();
+		NewTab->SetOnTabClosed(SDockTab::FOnTabClosedCallback::CreateStatic(&UDiffHelperRevisionPickerController::OnTabClosed, TabData));
+		
 		FGlobalTabmanager::Get()->InsertNewDocumentTab(DiffHelperConstants::DiffHelperDiffViewerId, FDiffHelperTabSerchPreference(), NewTab);
 		
 		Model->OpenedTabs.Add(TabData, NewTab.ToWeakPtr());
@@ -183,4 +185,9 @@ TSharedPtr<SDockTab> UDiffHelperRevisionPickerController::FindTabToReuse(const F
 	}
 
 	return TSharedPtr<SDockTab>();
+}
+
+void UDiffHelperRevisionPickerController::OnTabClosed(TSharedRef<SDockTab> InDockTab, FDiffHelperDiffTabData InTabData)
+{
+	UDiffHelperRevisionPickerModel::OpenedTabs.Remove(InTabData);
 }

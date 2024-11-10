@@ -11,6 +11,8 @@
 #include "DiffHelperSettings.h"
 #include "DiffHelperUtils.h"
 #include "DiffUtils.h"
+#include "EditorAssetLibrary.h"
+
 #include "UI/DiffHelperTabModel.h"
 
 #define LOCTEXT_NAMESPACE "DiffHelperTabController"
@@ -223,19 +225,35 @@ void UDiffHelperTabController::BindDiffPanelCommands()
 	DiffPanelCommands->MapAction(
 		Commands.ExpandAll,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ExpandAll),
-		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView),
+		FIsActionChecked(),
+		FIsActionButtonVisible::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
 	);
 
 	DiffPanelCommands->MapAction(
 		Commands.CollapseAll,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::CollapseAll),
-		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::IsTreeView),
+		FIsActionChecked(),
+		FIsActionButtonVisible::CreateUObject(this, &UDiffHelperTabController::IsTreeView)
 	);
 
 	DiffPanelCommands->MapAction(
 		Commands.OpenLocation,
 		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::OpenLocation),
 		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanOpenLocation)
+	);
+
+	DiffPanelCommands->MapAction(
+		Commands.OpenAsset,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::OpenAsset),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanOpenAsset)
+	);
+
+	DiffPanelCommands->MapAction(
+		Commands.ShowInContentBrowser,
+		FExecuteAction::CreateUObject(this, &UDiffHelperTabController::ShowInContentBrowser),
+		FCanExecuteAction::CreateUObject(this, &UDiffHelperTabController::CanShowInContentBrowser)
 	);
 
 	DiffPanelCommands->MapAction(
@@ -341,6 +359,28 @@ void UDiffHelperTabController::OpenLocation()
 	}
 	
 	FPlatformProcess::ExploreFolder(*Path);
+}
+
+void UDiffHelperTabController::OpenAsset()
+{
+	const auto& AssetData = Model->SelectedDiffItem.AssetData;
+	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(AssetData.GetAsset());
+}
+
+void UDiffHelperTabController::ShowInContentBrowser()
+{
+	const auto& AssetData = Model->SelectedDiffItem.AssetData;
+	GEditor->SyncBrowserToObject(AssetData.GetAsset(), false);
+}
+
+bool UDiffHelperTabController::CanOpenAsset()
+{
+	return Model->SelectedDiffItem.AssetData.IsValid();
+}
+
+bool UDiffHelperTabController::CanShowInContentBrowser()
+{
+	return Model->SelectedDiffItem.AssetData.IsValid();
 }
 
 bool UDiffHelperTabController::IsTreeView()

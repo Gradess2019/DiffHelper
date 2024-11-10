@@ -26,6 +26,8 @@ public:
 	TSharedPtr<FUICommandInfo> ExpandAll;
 	TSharedPtr<FUICommandInfo> CollapseAll;
 	TSharedPtr<FUICommandInfo> OpenLocation;
+	TSharedPtr<FUICommandInfo> OpenAsset;
+	TSharedPtr<FUICommandInfo> ShowInContentBrowser;
 
 	// Commit panel commands
 	TSharedPtr<FUICommandInfo> DiffAgainstTarget;

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DiffHelperTypes.h"
 #include "UObject/Object.h"
 #include "DiffHelperRevisionPickerController.generated.h"
 
@@ -51,4 +52,5 @@ private:
 	bool CanSpawnTab(const FSpawnTabArgs& InSpawnTabArgs) const;
 	TSharedPtr<SDockTab> FindTabToReuse(const FTabId& InTabId);
 
+	static void OnTabClosed(TSharedRef<SDockTab> InDockTab, FDiffHelperDiffTabData InTabData);
 };

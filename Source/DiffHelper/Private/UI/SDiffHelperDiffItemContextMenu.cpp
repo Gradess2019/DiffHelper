@@ -15,8 +15,10 @@ END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SDiffHelperDiffItemContextMenu::BuildMenu(FMenuBuilder& InMenuBuilder)
 {
 	InMenuBuilder.BeginSection("DiffHelper.DiffPanel.ContextMenu");
-	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().OpenLocation);
 	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().DiffAgainstTarget);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().OpenAsset);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().ShowInContentBrowser);
+	InMenuBuilder.AddMenuEntry(FDiffHelperCommands::Get().OpenLocation);
 	InMenuBuilder.EndSection();
 }
 

@@ -90,7 +90,7 @@ void SDiffHelperTreeItem::ShowFileHint()
 void SDiffHelperTreeItem::ShowDirectoryHint()
 {
 	const auto& AllChildrenCount = UDiffHelperUtils::GetItemNodeFilesCount(Item);
-	Hint->SetText(FText::Format(LOCTEXT("TreeItemFilesCount", "{0} files"), AllChildrenCount));
+	Hint->SetText(FText::Format(LOCTEXT("TreeItemFilesCount", "{0} {0}|plural(one=file,other=files)"), AllChildrenCount));
 }
 
 FSlateColor SDiffHelperTreeItem::GetTextColor() const

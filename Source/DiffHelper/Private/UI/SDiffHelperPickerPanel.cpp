@@ -2,6 +2,9 @@
 
 
 #include "UI/SDiffHelperPickerPanel.h"
+
+#include "DiffHelperSettings.h"
+
 #include "UI/SDiffHelperBranchPicker.h"
 #include "SlateOptMacros.h"
 
@@ -31,16 +34,18 @@ void SDiffHelperPickerPanel::Construct(const FArguments& InArgs)
 
 	TSharedPtr<FDiffHelperBranch> CachedSourceBranch = MakeShareable<FDiffHelperBranch>(new FDiffHelperBranch(Controller->GetModel()->SourceBranch));
 	TSharedPtr<FDiffHelperBranch> CachedTargetBranch = MakeShareable<FDiffHelperBranch>(new FDiffHelperBranch(Controller->GetModel()->TargetBranch));
+
+	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	
 	ChildSlot
 	[
-		SNew(SOverlay)
-		+ SOverlay::Slot()
-		  .HAlign(HAlign_Center)
-		  .VAlign(VAlign_Center)
+		SNew(SBorder)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 		[
 			SNew(SBox)
-			.WidthOverride(350.f)
+			.WidthOverride(Settings->PickerPanelWidth)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
