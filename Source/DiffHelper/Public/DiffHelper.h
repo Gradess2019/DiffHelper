@@ -21,9 +21,6 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 	
-	/** This function will be bound to Command. */
-	void PluginButtonClicked();
-
 	static FDiffHelperModule& Get();
 
 	TWeakInterfacePtr<IDiffHelperManager> GetManager() const { return DiffHelperManager; }
@@ -46,6 +43,8 @@ private:
 
 	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& Args);
 	bool CanSpawnTab(const FSpawnTabArgs& Args) const;
+
+	void ToolbarButtonClicked();
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
