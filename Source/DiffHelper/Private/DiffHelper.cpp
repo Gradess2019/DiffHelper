@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2024 Gradess Games. All Rights Reserved.
 
 #include "DiffHelper.h"
 #include "DiffHelperCacheManager.h"
