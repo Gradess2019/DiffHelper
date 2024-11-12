@@ -1,24 +1,32 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0",
-	"FriendlyName": "DiffHelper",
-	"Description": "",
-	"Category": "Other",
+	"VersionName": "1.0.0",
+	"FriendlyName": "Diff Helper",
+	"Description": "Provides better diffing window for Git in Unreal Engine Editor.",
+	"Category": "Editor",
 	"CreatedBy": "Gradess Games",
 	"CreatedByURL": "https://stepantrofimov.com",
-	"DocsURL": "",
+	"DocsURL": "https://github.com/Gradess2019/DiffHelper",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://discord.gg/zFK38y68tK",
 	"CanContainContent": false,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
 	"Installed": false,
+	"SupportedTargetPlatforms": [
+		"Win64",
+		"Win32"
+	],
 	"Modules": [
 		{
 			"Name": "DiffHelper",
 			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit"
+			"LoadingPhase": "PostEngineInit",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32"
+			]
 		}
 	],
 	"Plugins": [
