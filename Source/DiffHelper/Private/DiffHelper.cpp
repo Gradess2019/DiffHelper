@@ -61,8 +61,13 @@ FDiffHelperModule& FDiffHelperModule::Get()
 
 bool FDiffHelperModule::ShouldBindLiveCodingUpdate() const
 {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4
 	const auto Plugin = IPluginManager::Get().FindEnabledPlugin("DiffHelper");
 	return ensure(Plugin.IsValid()) && !Plugin->GetDescriptor().bInstalled;
+#else
+	const auto Plugin = IPluginManager::Get().FindPlugin("DiffHelper");
+	return Plugin.IsValid() && !Plugin->GetDescriptor().bInstalled;
+#endif
 }
 
 void FDiffHelperModule::RegisterSettings()
