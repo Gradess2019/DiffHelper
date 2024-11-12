@@ -20,7 +20,7 @@ public:
 	FDiffHelperSimpleDelegate OnModelReset;
 
 protected:
-	UPROPERTY(BlueprintGetter="GetModel")
+	UPROPERTY(BlueprintGetter="GetModel", Category="Diff Helper")
 	TObjectPtr<UDiffHelperTabModel> Model;
 
 	TSharedPtr<FUICommandList> MenuCommands;
@@ -41,22 +41,22 @@ public:
 	UFUNCTION(BlueprintGetter)
 	const UDiffHelperTabModel* GetModel() const { return Model.Get(); }
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Diff Helper")
 	void SetSourceBranch(const FDiffHelperBranch& InBranch);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Diff Helper")
 	void SetTargetBranch(const FDiffHelperBranch& InBranch);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Diff Helper")
 	void SelectDiffItem(const FDiffHelperDiffItem& InDiffItem);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Diff Helper")
 	void CollectDiff();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Diff Helper")
 	void DiffAsset(const FString& InPath, const FDiffHelperCommit& InFirstRevision, const FDiffHelperCommit& InSecondRevision) const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Diff Helper")
 	void CallModelUpdated() const;
 
 public:

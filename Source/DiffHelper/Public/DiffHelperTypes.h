@@ -53,10 +53,10 @@ struct FDiffHelperBranch
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FString Name;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FString Revision;
 
 	operator FString() const { return Name; }
@@ -71,10 +71,10 @@ struct FDiffHelperFileData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FString Path;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	EDiffHelperFileStatus Status = EDiffHelperFileStatus::None;
 };
 
@@ -83,19 +83,19 @@ struct FDiffHelperCommit
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FString Revision;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FString Message;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FString Author;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FDateTime Date;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	TArray<FDiffHelperFileData> Files;
 
 	FORCEINLINE bool IsValid() const { return !Revision.IsEmpty(); }
@@ -106,19 +106,19 @@ struct FDiffHelperDiffItem
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FString Path;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	EDiffHelperFileStatus Status = EDiffHelperFileStatus::None;
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FAssetData AssetData;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FDiffHelperCommit LastTargetCommit;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	TArray<FDiffHelperCommit> Commits;
 
 	FORCEINLINE bool IsValid() const { return !Path.IsEmpty(); }

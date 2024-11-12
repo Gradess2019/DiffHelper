@@ -18,16 +18,16 @@ public:
 	FDiffHelperSimpleDynamicDelegate OnModelUpdated;
 	FDiffHelperSimpleDelegate OnModelUpdated_Raw;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	TArray<FDiffHelperDiffItem> Diff;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FDiffHelperBranch SourceBranch;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FDiffHelperBranch TargetBranch;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FDiffHelperDiffItem SelectedDiffItem;
 
 	UPROPERTY()

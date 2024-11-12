@@ -21,7 +21,7 @@ class DIFFHELPER_API UDiffHelperRevisionPickerController : public UObject
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(BlueprintGetter="GetModel")
+	UPROPERTY(BlueprintGetter="GetModel", Category="Diff Helper")
 	TObjectPtr<UDiffHelperRevisionPickerModel> Model;
 
 public:
