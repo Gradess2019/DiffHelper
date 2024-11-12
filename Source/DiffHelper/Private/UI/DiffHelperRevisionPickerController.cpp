@@ -173,7 +173,11 @@ bool UDiffHelperRevisionPickerController::CanSpawnTab(const FSpawnTabArgs& InSpa
 
 TSharedPtr<SDockTab> UDiffHelperRevisionPickerController::FindTabToReuse(const FTabId& InTabId)
 {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 	if (InTabId != DiffHelperConstants::DiffHelperDiffViewerId)
+#else
+	if (!(InTabId == DiffHelperConstants::DiffHelperDiffViewerId))
+#endif
 	{
 		return nullptr;
 	}

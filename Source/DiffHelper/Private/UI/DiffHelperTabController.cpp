@@ -370,7 +370,12 @@ void UDiffHelperTabController::OpenAsset()
 void UDiffHelperTabController::ShowInContentBrowser()
 {
 	const auto& AssetData = Model->SelectedDiffItem.AssetData;
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3
 	GEditor->SyncBrowserToObject(AssetData.GetAsset(), false);
+#else
+	TArray<FAssetData> Assets = { AssetData };
+	GEditor->SyncBrowserToObjects(Assets);
+#endif
 }
 
 bool UDiffHelperTabController::CanOpenAsset()
