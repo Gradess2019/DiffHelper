@@ -1,4 +1,6 @@
-﻿#include "DiffHelperSettings.h"
+﻿// Copyright 2024 Gradess Games. All Rights Reserved.
+
+#include "DiffHelperSettings.h"
 
 void UDiffHelperSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
