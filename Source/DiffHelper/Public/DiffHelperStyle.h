@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2024 Gradess Games. All Rights Reserved.
 
 #pragma once
 
@@ -15,6 +15,8 @@ public:
 
 	/** reloads textures used by slate renderer */
 	static void ReloadTextures();
+	static void ReloadStyles();
+	static void SetStyles(TSharedRef<FSlateStyleSet> Style);
 
 	/** @return The Slate style set for the Shooter game */
 	static const ISlateStyle& Get();
