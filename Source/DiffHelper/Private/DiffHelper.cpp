@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2024 Gradess Games. All Rights Reserved.
 
 #include "DiffHelper.h"
 #include "DiffHelperCacheManager.h"
@@ -12,42 +12,26 @@
 #include "ISettingsModule.h"
 #include "ISourceControlModule.h"
 #include "ToolMenus.h"
-
+#include "WorkspaceMenuStructure.h"
+#include "WorkspaceMenuStructureModule.h"
+#include "Interfaces/IMainFrameModule.h"
 #include "Interfaces/IPluginManager.h"
-
 #include "UI/FDiffHelperCommitPanelToolbar.h"
 #include "UI/FDiffHelperDiffPanelToolbar.h"
 #include "UI/SDiffHelperPickerPanel.h"
-
-#include "Widgets/Testing/SStarshipSuite.h"
 
 #define LOCTEXT_NAMESPACE "FDiffHelperModule"
 
 void FDiffHelperModule::StartupModule()
 {
+	InitializeStyle();
+	InitializeCacheManager();
+	
 	RegisterSettings();
-	
-	FDiffHelperStyle::Initialize();
-	FDiffHelperStyle::ReloadTextures();
-
-	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
-	CacheManager->Init();
-	
-	FDiffHelperCommands::Register();
-
-	PluginCommands = MakeShareable(new FUICommandList);
-
-	PluginCommands->MapAction(
-		FDiffHelperCommands::Get().OpenDiffWindow,
-		FExecuteAction::CreateRaw(this, &FDiffHelperModule::PluginButtonClicked),
-		FCanExecuteAction());
+	RegisterCommands();
+	RegisterTabSpawner();
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FDiffHelperModule::RegisterMenus));
-
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(DiffHelperConstants::DiffHelperRevisionPickerId,
-		FOnSpawnTab::CreateRaw(this, &FDiffHelperModule::SpawnTab),
-		FCanSpawnTab::CreateRaw(this, &FDiffHelperModule::CanSpawnTab)
-	);
 	
 	if (ShouldBindLiveCodingUpdate())
 	{
@@ -70,29 +54,6 @@ void FDiffHelperModule::ShutdownModule()
 	UnregisterSettings();
 }
 
-void FDiffHelperModule::PluginButtonClicked()
-{
-	if (!ISourceControlModule::Get().IsEnabled())
-	{
-		UDiffHelperUtils::AddErrorNotificationWithLink(
-			LOCTEXT("RevisionControlDisabled", "Revision control is disabled."),
-			LOCTEXT("RevisionControlDisabled_HyperLink", "Open Unreal Documentation"),
-			FSimpleDelegate::CreateLambda([]() { FPlatformProcess::LaunchURL(*GetDefault<UDiffHelperSettings>()->UnrealDocURL, nullptr, nullptr); })
-		);
-		
-		return;
-	}
-
-	// TODO: Check revision control was set up properly, if it changed, then manager should be changed as well
-	if (!DiffHelperManager.IsValid())
-	{
-		DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
-		DiffHelperManager->Init();
-	}
-
-	FGlobalTabmanager::Get()->InsertNewDocumentTab(DiffHelperConstants::DiffHelperRevisionPickerId, FTabManager::FLiveTabSearch(DiffHelperConstants::DiffHelperRevisionPickerId), SpawnTab(FSpawnTabArgs(nullptr, FName())));
-}
-
 FDiffHelperModule& FDiffHelperModule::Get()
 {
 	return FModuleManager::LoadModuleChecked<FDiffHelperModule>("DiffHelper");
@@ -100,70 +61,13 @@ FDiffHelperModule& FDiffHelperModule::Get()
 
 bool FDiffHelperModule::ShouldBindLiveCodingUpdate() const
 {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4
 	const auto Plugin = IPluginManager::Get().FindEnabledPlugin("DiffHelper");
 	return ensure(Plugin.IsValid()) && !Plugin->GetDescriptor().bInstalled;
-}
-
-void FDiffHelperModule::RegisterMenus()
-{
-	// TODO: Move this auto-generated code to a different place
-	
-	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
-	FToolMenuOwnerScoped OwnerScoped(this);
-
-	{
-		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
-		{
-			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-			auto& Entry = Section.AddMenuEntryWithCommandList(FDiffHelperCommands::Get().OpenDiffWindow, PluginCommands);
-			Entry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Diff");
-		}
-	}
-
-	{
-		UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
-		{
-			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("PluginTools");
-			{
-				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FDiffHelperCommands::Get().OpenDiffWindow));
-				Entry.SetCommandList(PluginCommands);
-				Entry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Diff");
-			}
-
-			// TODO: Temporary added for testing purposes
-			FUIAction OpenStarshipSuiteAction;
-			OpenStarshipSuiteAction.ExecuteAction = FExecuteAction::CreateLambda([this]()
-			{
-				RestoreStarshipSuite();
-			});
-
-			Section.AddEntry(FToolMenuEntry::InitToolBarButton(
-					"OpenStarshipSuite",
-					OpenStarshipSuiteAction,
-					LOCTEXT("OpenStarshipSuite", "Starship Test Suite"),
-					LOCTEXT("OpenStarshipSuite_ToolTip", "Opens the Starship UX test suite."),
-					FSlateIcon(FAppStyle::GetAppStyleSetName(), "PlacementBrowser.Icons.Testing"))
-			);
-		}
-	}
-
-	FDiffHelperDiffPanelToolbar::RegisterMenu();
-	FDiffHelperCommitPanelToolbar::RegisterMenu();
-}
-
-void FDiffHelperModule::BindLiveCodingUpdate()
-{
-	if (FModuleManager::Get().IsModuleLoaded("LiveCoding"))
-	{
-		auto& LiveCodingModule = FModuleManager::GetModuleChecked<ILiveCodingModule>("LiveCoding");
-		LiveCodingModule.GetOnPatchCompleteDelegate().AddRaw(this, &FDiffHelperModule::UpdateSlateStyle);
-	}
-}
-
-void FDiffHelperModule::UpdateSlateStyle()
-{
-	FDiffHelperStyle::ReloadStyles();
-	FDiffHelperStyle::ReloadTextures();
+#else
+	const auto Plugin = IPluginManager::Get().FindPlugin("DiffHelper");
+	return Plugin.IsValid() && !Plugin->GetDescriptor().bInstalled;
+#endif
 }
 
 void FDiffHelperModule::RegisterSettings()
@@ -186,6 +90,84 @@ void FDiffHelperModule::UnregisterSettings()
 	}
 }
 
+void FDiffHelperModule::InitializeStyle()
+{
+	FDiffHelperStyle::Initialize();
+	FDiffHelperStyle::ReloadTextures();
+}
+
+void FDiffHelperModule::InitializeCacheManager()
+{
+	CacheManager = TStrongObjectPtr(NewObject<UDiffHelperCacheManager>());
+	CacheManager->Init();
+}
+
+void FDiffHelperModule::RegisterCommands()
+{
+	FDiffHelperCommands::Register();
+
+	PluginCommands = MakeShareable(new FUICommandList);
+	PluginCommands->MapAction(
+		FDiffHelperCommands::Get().OpenDiffWindow,
+		FExecuteAction::CreateRaw(this, &FDiffHelperModule::ToolbarButtonClicked),
+		FCanExecuteAction());
+}
+
+void FDiffHelperModule::RegisterTabSpawner()
+{
+	auto& SpawnerEntry = FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
+		DiffHelperConstants::DiffHelperRevisionPickerId,
+		FOnSpawnTab::CreateRaw(this, &FDiffHelperModule::SpawnTab),
+		FCanSpawnTab::CreateRaw(this, &FDiffHelperModule::CanSpawnTab)
+	);
+	
+	SpawnerEntry.SetDisplayName(LOCTEXT("MainTabTitle", "Diff Helper"));
+	SpawnerEntry.SetTooltipText(LOCTEXT("MainTabTitleToolTip", "Open diff helper window."));
+	SpawnerEntry.SetIcon(FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Diff"));
+	SpawnerEntry.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory());
+}
+
+void FDiffHelperModule::RegisterMenus()
+{
+	FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([this](float) { 
+		IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+		if (!MainFrameModule.IsWindowInitialized())
+		{
+			return true;
+		}
+		
+		FToolMenuOwnerScoped OwnerScoped(this);
+		if (UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("MainFrame.MainMenu.Tools"))
+		{
+			if (FToolMenuSection* Section = Menu->FindSection("Source Control"))
+			{
+				auto& Entry = Section->AddMenuEntryWithCommandList(FDiffHelperCommands::Get().OpenDiffWindow, PluginCommands);
+				Entry.Icon = FSlateIcon(FDiffHelperStyle::GetStyleSetName(), "DiffHelper.Diff");
+			}
+		}
+		
+		return false;
+	}));
+
+	FDiffHelperDiffPanelToolbar::RegisterMenu();
+	FDiffHelperCommitPanelToolbar::RegisterMenu();
+}
+
+void FDiffHelperModule::BindLiveCodingUpdate()
+{
+	if (FModuleManager::Get().IsModuleLoaded("LiveCoding"))
+	{
+		auto& LiveCodingModule = FModuleManager::GetModuleChecked<ILiveCodingModule>("LiveCoding");
+		LiveCodingModule.GetOnPatchCompleteDelegate().AddRaw(this, &FDiffHelperModule::UpdateSlateStyle);
+	}
+}
+
+void FDiffHelperModule::UpdateSlateStyle()
+{
+	FDiffHelperStyle::ReloadStyles();
+	FDiffHelperStyle::ReloadTextures();
+}
+
 TSharedRef<SDockTab> FDiffHelperModule::SpawnTab(const FSpawnTabArgs& Args)
 {
 	return SNew(SDockTab)
@@ -199,6 +181,29 @@ TSharedRef<SDockTab> FDiffHelperModule::SpawnTab(const FSpawnTabArgs& Args)
 bool FDiffHelperModule::CanSpawnTab(const FSpawnTabArgs& Args) const
 {
 	return DiffHelperManager.IsValid();
+}
+
+void FDiffHelperModule::ToolbarButtonClicked()
+{
+	if (!ISourceControlModule::Get().IsEnabled())
+	{
+		UDiffHelperUtils::AddErrorNotificationWithLink(
+			LOCTEXT("RevisionControlDisabled", "Revision control is disabled."),
+			LOCTEXT("RevisionControlDisabled_HyperLink", "Open Unreal Documentation"),
+			FSimpleDelegate::CreateLambda([]() { FPlatformProcess::LaunchURL(*GetDefault<UDiffHelperSettings>()->UnrealDocURL, nullptr, nullptr); })
+		);
+		
+		return;
+	}
+
+	// TODO: Check revision control was set up properly, if it changed, then manager should be changed as well
+	if (!DiffHelperManager.IsValid())
+	{
+		DiffHelperManager = TWeakInterfacePtr<IDiffHelperManager>(NewObject<UDiffHelperGitManager>());
+		DiffHelperManager->Init();
+	}
+
+	FGlobalTabmanager::Get()->TryInvokeTab(DiffHelperConstants::DiffHelperRevisionPickerId);
 }
 
 #undef LOCTEXT_NAMESPACE

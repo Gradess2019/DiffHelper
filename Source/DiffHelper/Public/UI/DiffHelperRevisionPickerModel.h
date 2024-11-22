@@ -14,13 +14,13 @@ class DIFFHELPER_API UDiffHelperRevisionPickerModel : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	TArray<FDiffHelperBranch> Branches;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FDiffHelperBranch SourceBranch;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Diff Helper")
 	FDiffHelperBranch TargetBranch;
 
 	// Hack: stopgap solution to have references to opened tabs

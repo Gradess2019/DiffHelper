@@ -7,6 +7,7 @@
 #include "DiffHelperCacheManager.h"
 #include "DiffHelperManager.h"
 #include "DiffHelperSettings.h"
+#include "DiffHelperStyle.h"
 
 #include "UI/DiffHelperRevisionPickerModel.h"
 #include "UI/SDiffHelperDiffViewer.h"
@@ -134,7 +135,7 @@ TSharedRef<SDockTab> UDiffHelperRevisionPickerController::SpawnTab(const FSpawnT
 	const auto NewTitle = SourceBranch.Name + " -> " + TargetBranch.Name;
 
 	const auto Tab = SNew(SDockTab)
-		.TabRole(ETabRole::MajorTab)
+		.TabRole(ETabRole::NomadTab)
 		.Label(FText::FromString(NewTitle))
 		[
 			SNew(SDiffHelperDiffViewer)
@@ -151,7 +152,7 @@ TSharedRef<SDockTab> UDiffHelperRevisionPickerController::SpawnTab()
 	const auto& TargetBranch = Model->TargetBranch;
 	const auto NewTitle = SourceBranch.Name + " -> " + TargetBranch.Name;
 
-	const auto Tab = SNew(SDockTab)
+	auto Tab = SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		.Label(FText::FromString(NewTitle))
 		[
@@ -159,6 +160,8 @@ TSharedRef<SDockTab> UDiffHelperRevisionPickerController::SpawnTab()
 			.SourceBranch(&SourceBranch)
 			.TargetBranch(&TargetBranch)
 		];
+	
+	Tab->SetTabIcon(FDiffHelperStyle::Get().GetBrush("DiffHelper.Diff"));
 
 	return Tab;
 }
@@ -170,7 +173,11 @@ bool UDiffHelperRevisionPickerController::CanSpawnTab(const FSpawnTabArgs& InSpa
 
 TSharedPtr<SDockTab> UDiffHelperRevisionPickerController::FindTabToReuse(const FTabId& InTabId)
 {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 	if (InTabId != DiffHelperConstants::DiffHelperDiffViewerId)
+#else
+	if (!(InTabId == DiffHelperConstants::DiffHelperDiffViewerId))
+#endif
 	{
 		return nullptr;
 	}

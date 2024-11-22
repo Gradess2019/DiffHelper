@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2024 Gradess Games. All Rights Reserved.
 
 #include "DiffHelperCommands.h"
 
@@ -6,7 +6,7 @@
 
 void FDiffHelperCommands::RegisterCommands()
 {
-	UI_COMMAND(OpenDiffWindow, "DiffHelper", "Open diff helper window", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(OpenDiffWindow, "Diff Helper", "Open diff helper window", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(CreateNewDiff, "New...", "Create a new diff", EUserInterfaceActionType::Button, FInputChord());
 
 	UI_COMMAND(GroupByDirectory, "Group By Directory", "Group diff items by directory", EUserInterfaceActionType::ToggleButton, FInputChord());

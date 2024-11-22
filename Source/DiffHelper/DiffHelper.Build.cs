@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2024 Gradess Games. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -47,7 +47,8 @@ public class DiffHelper : ModuleRules
 				"SlateCore", 
 				"EditorScriptingUtilities", 
 				"LiveCoding",
-				"AppFramework",
+				"AppFramework", 
+				"WorkspaceMenuStructure",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

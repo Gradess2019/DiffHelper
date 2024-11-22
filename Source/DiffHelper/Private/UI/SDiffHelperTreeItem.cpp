@@ -31,12 +31,14 @@ void SDiffHelperTreeItem::Construct(const FArguments& InArgs, const TSharedRef<S
 		.ColorAndOpacity(this, &SDiffHelperTreeItem::GetTextColor)
 		.HighlightText(this, &SDiffHelperTreeItem::GetHighlightText)
 		.HighlightColor(this, &SDiffHelperTreeItem::GetTextHighlightColor)
-		.HighlightShape(this, &SDiffHelperTreeItem::GetBackgroundHighlightColor);
+		.HighlightShape(this, &SDiffHelperTreeItem::GetBackgroundHighlightColor)
+		.Font(FCoreStyle::GetDefaultFontStyle("Regular", 11));
 
 
 	const auto* Settings = GetDefault<UDiffHelperSettings>();
 	Hint = SNew(STextBlock);
 	Hint->SetColorAndOpacity(Settings->ItemHintColor);
+	Hint->SetFont(FCoreStyle::GetDefaultFontStyle("Regular", 11));
 	
 	if (Item->DiffItem.IsValid())
 	{

@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2024 Gradess Games. All Rights Reserved.
 
 #pragma once
 
@@ -17,14 +17,10 @@ protected:
 	TStrongObjectPtr<UDiffHelperCacheManager> CacheManager;
 	
 public:
-
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 	
-	/** This function will be bound to Command. */
-	void PluginButtonClicked();
-
 	static FDiffHelperModule& Get();
 
 	TWeakInterfacePtr<IDiffHelperManager> GetManager() const { return DiffHelperManager; }
@@ -32,16 +28,23 @@ public:
 	
 private:
 	bool ShouldBindLiveCodingUpdate() const;
-	
-	void RegisterMenus();
-	void BindLiveCodingUpdate();
-	void UpdateSlateStyle();
 
 	void RegisterSettings();
 	void UnregisterSettings();
 
+	void InitializeStyle();
+	void InitializeCacheManager();
+	void RegisterCommands();
+	void RegisterTabSpawner();
+	void RegisterMenus();
+	
+	void BindLiveCodingUpdate();
+	void UpdateSlateStyle();
+
 	TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& Args);
 	bool CanSpawnTab(const FSpawnTabArgs& Args) const;
+
+	void ToolbarButtonClicked();
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
